@@ -6,45 +6,19 @@ import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useWeb3React } from '../../state/customWeb3React/hook'
 import { ToastContainer } from 'react-toastify'
-import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { useConfigs } from '../../state/config/useConfigs'
-import { useDispatch } from 'react-redux'
-import { setCurrentPoolInfo } from '../../state/currentPool/reducer'
 import { useListPool } from '../../state/pools/hooks/useListPool'
 import { Pools } from '../../pages/Pools'
-import { LIQUIDITY_TAB, SWAP_TAB, TIME_TO_REFRESH_STATE } from '../../utils/constant'
-import { Liquidity } from '../../pages/Liquidity'
-import { useSwapHistoryFormated } from '../../state/wallet/hooks/useSwapHistory'
-import { Trade } from '../../pages/Trade'
+import { TIME_TO_REFRESH_STATE } from '../../utils/constant'
+import { CreatePool } from '../../pages/CreatePool'
 
 export const App = () => {
-  const { poolAddress, updateCurrentPool } = useCurrentPool()
   const { tokens } = useListTokens()
-  const { pools } = useListPool()
   const { fetchBalanceAndAllowance } = useWalletBalance()
   const { account } = useWeb3React()
-  const { ddlEngine, configs, chainId, location } = useConfigs()
-  const dispatch = useDispatch()
+  const { chainId, location } = useConfigs()
   const chainIdRef = useRef(null)
   const { initListPool } = useListPool()
-  useSwapHistoryFormated()
-
-  useEffect(() => {
-    try {
-      setTimeout(() => {
-        if (ddlEngine?.CURRENT_POOL && pools[poolAddress]) {
-          // @ts-ignore
-          ddlEngine.setCurrentPool({
-            ...pools[poolAddress],
-            logic: pools[poolAddress].logic,
-            cTokenPrice: pools[poolAddress].cTokenPrice
-          })
-        }
-      })
-    } catch (e) {
-      console.log(e)
-    }
-  }, [ddlEngine, pools, poolAddress])
 
   useEffect(() => {
     initListPool(account)
@@ -60,44 +34,15 @@ export const App = () => {
     }
   }, [account, tokens])
 
-  useEffect(() => {
-    console.log('configs?.addresses.pool', configs?.addresses.pool)
-    if (pools && Object.keys(pools).length > 0) {
-      updateCurrentPool(Object.keys(pools)[0])
-        .then((data) => {
-          // @ts-ignore
-          if (Number(chainIdRef?.current?.value) === chainId) {
-            dispatch(setCurrentPoolInfo(data))
-          }
-        })
-    }
-  }, [chainId, pools])
-
   const renderAppContent = () => {
     switch (true) {
-      case isMatchWithPath('/:tab(exposure|swap)'):
-        return <Trade tab={detectTradeTab(location.pathname)} />
+      case isMatchWithPath('/pools/create'):
+        return <CreatePool />
       case isMatchWithPath('/pools'):
         return <Pools />
-      case isMatchWithPath('/:tab(add-liquidity|remove-liquidity)'):
-        return <Liquidity tab={detectLiquidityTab(location.pathname)} />
       default:
-        return <Trade tab={SWAP_TAB.EXPOSURE} />
+        return <Pools />
     }
-  }
-
-  const detectLiquidityTab = (path: string) => {
-    if (path.includes('add-liquidity')) {
-      return LIQUIDITY_TAB.ADD
-    }
-    return LIQUIDITY_TAB.REMOVE
-  }
-
-  const detectTradeTab = (path: string) => {
-    if (path.includes('swap')) {
-      return SWAP_TAB.SWAP
-    }
-    return SWAP_TAB.EXPOSURE
   }
 
   const isMatchWithPath = (path: string) => {

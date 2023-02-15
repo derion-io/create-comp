@@ -3,12 +3,10 @@ import { useWalletBalance } from '../../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../../state/token/hook'
 import React, { useMemo, useState } from 'react'
 import { useConfigs } from '../../../state/config/useConfigs'
-import { useCurrentPool } from '../../../state/currentPool/hooks/useCurrentPool'
 import { bn, formatFloat, shortenAddressString, weiToNumber } from '../../../utils/helpers'
 import { PowerState } from 'powerLib'
 import { Text, TextBuy, TextSell } from '../../ui/Text'
 import { TokenSymbol } from '../../ui/TokenSymbol'
-import { ButtonGrey } from '../../ui/Button'
 import { Collapse } from 'react-collapse'
 import { ExpandPool } from '../ExpandPool'
 import './style.scss'
@@ -20,8 +18,6 @@ const Component = ({ pool }: { pool: PoolType }) => {
   const [isExpand, setIsExpand] = useState<boolean>(true)
   const { dTokens, powers } = pool
   const { useHistory } = useConfigs()
-  const history = useHistory()
-  const { updateCurrentPool } = useCurrentPool()
 
   const [powerState, leverage, value] = useMemo(() => {
     let leverage = 0
@@ -81,21 +77,6 @@ const Component = ({ pool }: { pool: PoolType }) => {
       </td>
       <td className='text-left'>
         <TdText>{formatFloat(leverage, 1)}x</TdText>
-      </td>
-      <td className='text-right pool-actions'>
-        <ButtonGrey
-          onClick={async () => {
-            updateCurrentPool(pool.poolAddress)
-            history.push('swap')
-          }}>Swap</ButtonGrey>
-        <ButtonGrey
-          onClick={async () => {
-            updateCurrentPool(pool.poolAddress)
-            history.push('exposure')
-          }}
-        >
-          Exposure
-        </ButtonGrey>
       </td>
     </tr>
     <td colSpan={6} className='p-0'>

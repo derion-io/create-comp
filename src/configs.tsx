@@ -13,15 +13,10 @@ export default {
   path: '/exposure',
   children: [
     {
-      name: 'Trade',
-      path: '/:tab(swap|exposure)',
-      menuLink: '/exposure'
+      name: 'Create Pool',
+      path: '/pools/create',
+      menuLink: '/pools/create'
     },
-    // {
-    //   name: 'Liquidity',
-    //   path: '/:tab(add-liquidity|remove-liquidity)',
-    //   menuLink: '/add-liquidity'
-    // },
     {
       name: 'Pools',
       path: '/pools'

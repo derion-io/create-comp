@@ -18,7 +18,6 @@ const Component = () => {
             <th className='text-left'>Size</th>
             <th className='text-left'>Value</th>
             <th className='text-left'>Leverage</th>
-            <th className='text-right' />
           </tr>
         </thead>
         <tbody>
