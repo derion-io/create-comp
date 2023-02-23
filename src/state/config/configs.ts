@@ -70,11 +70,12 @@ export default {
     },
     addresses: {
       nativeToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+      quoteToken: '0x4F1111145AB659CF9BBB45442F54A5D427783DaA',
       multiCall: '0x025ff8c5CB97f5f79dc396DCD501Db775B00F433',
       pairsInfo: '0xc28A7e46bE1BB74a63aD32784D785A941D1954ab',
       bnA: '0x95a7d5edfD4701478D3ACA5DCb69D549D83E3c52',
       tokensInfo: '0xe2b8a85De2ad4076593B81F2435C77a2cb84caAf',
-      router: '0x71de54028B0276dec625779564b00FA195D56818',
+      router: '0xb60F861100aC9F8BE31D0e74DCae35D14cbcA2E2',
       wrapToken: '0x8F98902cf8255ab9D403Dfa68875b1024cd6C3d4',
       wrapUsdPair: '0x2B89B4931122EE4Fa474446Fa9B118F2852a8223'
     }
