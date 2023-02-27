@@ -1,7 +1,7 @@
 @import "mixins";
 
 // COLORS
-$color-sell:#FF7A68;
+$color-sell: rgba(255, 122, 104, 0.46);
 $color-buy: #3DBAA2;
 $color-grey: rgba(242, 242, 242, 0.1);
 $color-grey-1: #F2F2F2;
@@ -14,6 +14,7 @@ $color-execute: #01A7FA;
 $color-disable-bg: #565656;
 $color-disable-text: #ffffff;
 $color-reset-btn: rgba(1, 82, 122, 0.57);
+$color-add: #01527A;
 
 $color-text-disabled: rgb(102 97 113 / 69%);
 $color-text-grey: #9CA3AF;

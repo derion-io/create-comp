@@ -4,79 +4,146 @@
 $element-gap: 2rem;
 
 .exposure-interface .ddl-pool-page {
-  width: 100%;
-  &__head {
+  width: 648px;
+  margin: auto;
+  &__header {
     margin-bottom: 1.5rem;
     display: flex;
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-top: 24px;
 
     &--back-btn {
       display: flex;
       align-items: center;
       cursor: pointer;
       justify-content: start;
+      padding: 8px;
+    }
+
+    &--name {
+      margin: auto;
     }
   }
 
   &__content {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: $element-gap;
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-bottom: 24px;
 
-    @include respond(phone) {
-      grid-template-columns: 1fr;
+    &--lable {
+      display: flex;
+      width: 100%;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
     }
 
-    &--left, &--right {
+    &--icon-and-name {
       display: flex;
-      flex-direction: column;
+      align-items: center;
 
       &>*:not(:last-child) {
-        margin-bottom: $element-gap;
+        margin-right: 0.5rem;
       }
     }
-  }
 
-  .trade-box {
-    width: 400px;
-
-    @include respond(phone) {
-      width: 100%;
-    }
-  }
-
-  .react-tabs {
-    &__tab-list {
-      justify-content: space-between;
+    &--dtoken {
       display: flex;
+      width: 100%;
+      justify-content: space-between;
+      align-items: center;
+      .dtoken-group {
+        display: flex;
+        align-items: center;
+        .sign-btn {
+          width: 23px;
+          height: 24px;
+          padding: 4px 8px;
+          font-size: 12px;
+          font-weight: 500;
+          line-height: 16px;
+          display: inline-flex;
+          position: relative;
+          top: -9px;
+        }
+        .power-select {
+          padding: 8px;
+          border: 1px solid #353945;
+        }
+        .power-input {
+          width: 53px;
+          height: 24px;
+          padding: 4px 7px;
+          display: inline-flex;
+          position: relative;
+          top: -7px;
+          input::placeholder {
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 16px;
+          }
+        }
+        .del-btn {
+          width: 24px;
+          height: 24px;
+          padding: 7.33px;
+          display: inline-flex;
+          position: relative;
+        }
+      }
+      .right-group {
+        display: flex;
+        .dropdown-btn {
+          justify-content: space-between;
+          align-items: center;
+          width: 86px;
+          height: 40px;
+          font-size: 13px;
+          font-weight: 500;
+          line-height: 16px;
+          padding: 12px;
+          display: flex;
+        }
+        .add-btn {
+          width: 40px;
+          height: 40px;
+          display: flex;
+          padding: 8px;
+        }
+      }
     }
 
-    &__tab {
-      width: calc(50% - 5px);
-      text-align: center;
-      background: $color-grey-2;
-      border-radius: 2rem 2rem 0 0;
-
-      &--selected {
-        background: $color-card-bg;
-        color: $color-text-default;
-        border-color: $color-card-border;
+    &--pool-config {
+      .config-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
-
-      &::before {
-        display: none;
-      }
-      &::after {
-        display: none;
+      .config-input {
+        width: 416px;
       }
     }
-    &__tab-list {
-      margin-bottom: 0;
-      border: none;
+
+    &--pool-info {
+      .info-list {
+        padding: 24px;
+        .info-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+      }
+    }
+
+    &--balance {
+      cursor: pointer;
+    }
+
+    .create-btn {
+      width: 100%;
+      height: 56px;
     }
   }
 
-  .card-in-tab {
-    border-top-right-radius: 0;
-    border-top-left-radius: 0;
-  }
 }

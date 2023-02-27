@@ -102,3 +102,60 @@ export const SearchIcon = (props: any) => {
     </svg>
   )
 }
+
+export const XIcon = (props: any) => {
+  return (
+    <svg
+      width={props.size ? props.size : '10'}
+      height={props.size ? props.size : '10'}
+      viewBox='0 0 10 10'
+      fill='none'
+      xmlns='http://www.w3.org/2000/svg'
+    >
+      <path
+        fillRule='evenodd'
+        clipRule='evenodd'
+        d='M9.4714 9.47136C9.21105 9.73171 8.78894 9.73171 8.52859 9.47136L5 5.94277L1.4714 9.47136C1.21105 9.73171 0.788942 9.73171 0.528593 9.47136C0.268243 9.21101 0.268243 8.7889 0.528593 8.52855L4.05719 4.99996L0.528593 1.47136C0.268243 1.21101 0.268243 0.788904 0.528593 0.528555C0.788942 0.268205 1.21105 0.268205 1.4714 0.528555L5 4.05715L8.52859 0.528555C8.78894 0.268205 9.21105 0.268205 9.4714 0.528555C9.73175 0.788904 9.73175 1.21101 9.4714 1.47136L5.94281 4.99996L9.4714 8.52855C9.73175 8.7889 9.73175 9.21101 9.4714 9.47136Z'
+        fill='#FF7A68'
+      />
+    </svg>
+  )
+}
+
+export const DropDownIcon = (props: any) => {
+  return (
+    <svg
+      width={props.size ? props.size : '10'}
+      height={props.size ? props.size : '10'}
+      viewBox='0 0 10 6'
+      fill='none'
+      xmlns='http://www.w3.org/2000/svg'
+    >
+      <path
+        fillRule='evenodd'
+        clipRule='evenodd'
+        d='M9.20711 0.792893C8.81658 0.402369 8.18342 0.402369 7.79289 0.792893L5 3.58579L2.20711 0.792893C1.81658 0.402369 1.18342 0.402369 0.792894 0.792893C0.402369 1.18342 0.402369 1.81658 0.792894 2.20711L4.29289 5.70711C4.68342 6.09763 5.31658 6.09763 5.70711 5.70711L9.20711 2.20711C9.59763 1.81658 9.59763 1.18342 9.20711 0.792893Z'
+        fill='white'
+      />
+    </svg>
+  )
+}
+
+export const PlusIcon = (props: any) => {
+  return (
+    <svg
+      width={props.size ? props.size : '24'}
+      height={props.size ? props.size : '24'}
+      viewBox='0 0 24 24'
+      fill='none'
+      xmlns='http://www.w3.org/2000/svg'
+    >
+      <path
+        fillRule='evenodd'
+        clipRule='evenodd'
+        d='M11 17C11 17.5523 11.4477 18 12 18C12.5523 18 13 17.5523 13 17V13H17C17.5523 13 18 12.5523 18 12C18 11.4477 17.5523 11 17 11H13L13 7C13 6.44771 12.5523 6 12 6C11.4477 6 11 6.44771 11 7L11 11L7 11C6.44771 11 6 11.4477 6 12C6 12.5523 6.44771 13 7 13L11 13V17Z'
+        fill='#01A7FA'
+      />
+    </svg>
+  )
+}

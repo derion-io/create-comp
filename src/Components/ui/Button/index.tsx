@@ -70,3 +70,11 @@ export const ButtonReset = (props: ButtonType) => {
     </Button>
   )
 }
+
+export const ButtonAdd = (props: ButtonType) => {
+  return (
+    <Button {...props} className={'add ' + props.className}>
+      {props.children}
+    </Button>
+  )
+}
