@@ -70,6 +70,9 @@ $element-gap: 2rem;
         .power-select {
           padding: 8px;
           border: 1px solid #353945;
+          .hidden {
+            display: none;
+          }
         }
         .power-input {
           width: 53px;
@@ -110,6 +113,58 @@ $element-gap: 2rem;
           height: 40px;
           display: flex;
           padding: 8px;
+        }
+      }
+    }
+
+    &--dtoken-list {
+      display: flex;
+      width: 100%;
+      justify-content: space-between;
+      align-items: center;
+      align-content: space-between;
+      flex-flow: row wrap;
+      .dtoken-group {
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        .sign-btn {
+          width: 23px;
+          height: 24px;
+          padding: 4px 8px;
+          font-size: 12px;
+          font-weight: 500;
+          line-height: 16px;
+          display: inline-flex;
+          position: relative;
+          top: -9px;
+        }
+        .power-select {
+          padding: 8px;
+          border: 1px solid #353945;
+          .hidden {
+            display: none;
+          }
+        }
+        .power-input {
+          width: 53px;
+          height: 24px;
+          padding: 4px 7px;
+          display: inline-flex;
+          position: relative;
+          top: -7px;
+          input::placeholder {
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 16px;
+          }
+        }
+        .del-btn {
+          width: 24px;
+          height: 24px;
+          padding: 7.33px;
+          display: inline-flex;
+          position: relative;
         }
       }
     }

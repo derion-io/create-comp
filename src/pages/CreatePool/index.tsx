@@ -8,6 +8,7 @@ import { TokenIcon } from '../../Components/ui/TokenIcon'
 import { TokenSymbol } from '../../Components/ui/TokenSymbol'
 import { SkeletonLoader } from '../../Components/ui/SkeletonLoader'
 import { Input } from '../../Components/ui/Input'
+import { SelectModal } from '../../Components/SelectModal'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
 import { useNativePrice } from '../../hooks/useTokenPrice'
@@ -25,6 +26,10 @@ export const CreatePool = () => {
   const { data: nativePrice } = useNativePrice()
   const [amountInBase, setAmountInBase] = useState<string>('')
   const [amountInQuote, setAmountInQuote] = useState<string>('')
+  const [visibleSelectModal, setVisibleSelectModal] = useState<boolean>(false)
+  const [dTokenOption, setDTokenOption] = useState<string>('Double')
+  const [power, setPower] = useState<string>()
+  const [dTokenPowers, setDTokenPowers] = useState<string[]>([])
   const { configs } = useConfigs()
   const baseTokenAddress = configs.addresses?.nativeToken
   const quoteTokenAddress = configs.addresses?.quoteToken
@@ -149,25 +154,109 @@ export const CreatePool = () => {
               <ButtonBuy>
                 <TokenSymbol token={tokens[baseTokenAddress]} />/<TokenSymbol token={tokens[quoteTokenAddress]} />
               </ButtonBuy>
-              <ButtonGrey className='sign-btn ml-05'>
+              <ButtonGrey className={`sign-btn ml-05 ${dTokenOption === 'Single' ? 'hidden' : ''}`}>
                 ±
               </ButtonGrey>
               <Input
+                type='number'
                 inputWrapProps={{
                   className: 'power-input ml-05'
                 }}
                 placeholder='Power'
+                onChange={(e) => {
+                  setPower((e.target as HTMLInputElement).value)
+                }}
               />
             </Card>
-            <ButtonSell className='del-btn ml-05'><XIcon /></ButtonSell>
           </div>
           <div className='right-group'>
-            <ButtonGrey className='dropdown-btn'>
-              Long
+            <ButtonGrey
+              className='dropdown-btn'
+              onClick={() => {
+                setVisibleSelectModal(true)
+              }}
+            >
+              {dTokenOption}
               <div className='dd-icon'><DropDownIcon /></div>
             </ButtonGrey>
-            <ButtonAdd className='add-btn ml-05'><PlusIcon /></ButtonAdd>
+            <ButtonAdd
+              className='add-btn ml-05'
+              onClick={() => {
+                if (power && (Number(power) > 1 || Number(power) < -1)) {
+                  const powerConverted = Number(power).toString()
+                  if (dTokenOption === 'Single') {
+                    if (!dTokenPowers.includes(powerConverted)) {
+                      setDTokenPowers([...dTokenPowers, powerConverted])
+                    }
+                  } else {
+                    if (Number(power) > 1) {
+                      if (!dTokenPowers.includes(powerConverted) && !dTokenPowers.includes('-' + powerConverted)) {
+                        setDTokenPowers([...dTokenPowers, powerConverted, '-' + powerConverted])
+                      } else if (!dTokenPowers.includes(powerConverted)) {
+                        setDTokenPowers([...dTokenPowers, powerConverted])
+                      } else if (!dTokenPowers.includes('-' + powerConverted)) {
+                        setDTokenPowers([...dTokenPowers, '-' + powerConverted])
+                      }
+                    } else {
+                      if (!dTokenPowers.includes(powerConverted) && !dTokenPowers.includes(powerConverted.substring(1))) {
+                        setDTokenPowers([...dTokenPowers, powerConverted, powerConverted.substring(1)])
+                      } else if (!dTokenPowers.includes(powerConverted)) {
+                        setDTokenPowers([...dTokenPowers, powerConverted])
+                      } else if (!dTokenPowers.includes(powerConverted.substring(1))) {
+                        setDTokenPowers([...dTokenPowers, powerConverted.substring(1)])
+                      }
+                    }
+                  }
+                }
+              }}
+            >
+              <PlusIcon />
+            </ButtonAdd>
           </div>
+        </div>
+        <SelectModal
+          visible={visibleSelectModal}
+          setVisible={setVisibleSelectModal}
+          options={[
+            'Double',
+            'Single'
+          ]}
+          onSelectOption={(option: string) => {
+            setDTokenOption(option)
+          }}
+        />
+        <div className='ddl-pool-page__content--dtoken-list mt-18px'>
+          {
+            dTokenPowers.map((power: any, key: number) => {
+              return <div className='dtoken-group' key={key}>
+                <Card className='power-select'>
+                  <ButtonBuy>
+                    <TokenSymbol token={tokens[baseTokenAddress]} />/<TokenSymbol token={tokens[quoteTokenAddress]} />
+                  </ButtonBuy>
+                  <Input
+                    type='number'
+                    inputWrapProps={{
+                      className: 'power-input ml-05'
+                    }}
+                    placeholder='Power'
+                    value={power}
+                    disabled
+                  />
+                </Card>
+                <ButtonSell
+                  className='del-btn ml-05'
+                  onClick={(e) => {
+                    const arr = [...dTokenPowers]
+                    const idx = dTokenPowers.indexOf(power)
+                    arr.splice(idx, 1)
+                    setDTokenPowers(arr)
+                  }}
+                >
+                  <XIcon />
+                </ButtonSell>
+              </div>
+            })
+          }
         </div>
 
         <div className='ddl-pool-page__content--lable mt-18px'>
