@@ -24,9 +24,13 @@ import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 
 export const CreatePool = () => {
   const { data: nativePrice } = useNativePrice()
+  const { ddlEngine } = useConfigs()
   const [amountInBase, setAmountInBase] = useState<string>('')
   const [amountInQuote, setAmountInQuote] = useState<string>('')
   const [visibleSelectModal, setVisibleSelectModal] = useState<boolean>(false)
+  const [createPoolLoading, setCreatePoolLoading] = useState<boolean>(false)
+  const [priceToleranceRatio, setPriceToleranceRatio] = useState<string>('')
+  const [rentRate, setRentRate] = useState<string>('')
   const [dTokenOption, setDTokenOption] = useState<string>('Double')
   const [power, setPower] = useState<string>()
   const [dTokenPowers, setDTokenPowers] = useState<string[]>([])
@@ -272,6 +276,12 @@ export const CreatePool = () => {
                 className: 'config-input'
               }}
               placeholder='0.0'
+              onChange={(e) => {
+                // @ts-ignore
+                if (Number(e.target.value) >= 0) {
+                  setRentRate((e.target as HTMLInputElement).value)
+                }
+              }}
             />
           </div>
           <div className='config-item mt-18px'>
@@ -281,6 +291,12 @@ export const CreatePool = () => {
                 className: 'config-input'
               }}
               placeholder='0.0'
+              onChange={(e) => {
+                // @ts-ignore
+                if (Number(e.target.value) >= 0) {
+                  setPriceToleranceRatio((e.target as HTMLInputElement).value)
+                }
+              }}
             />
           </div>
         </div>
@@ -307,7 +323,26 @@ export const CreatePool = () => {
           </Card>
         </div>
 
-        <ButtonExecute className='create-btn mt-18px'>Create Pool</ButtonExecute>
+        <ButtonExecute
+          className='create-btn mt-18px'
+          onClick={async () => {
+            setCreatePoolLoading(true)
+            const deleverageRate = bn(95).shl(112).div(100)
+            console.log(rentRate)
+            const powers = dTokenPowers.map(Number)
+            const params = {
+              priceToleranceRatio,
+              rentRate,
+              deleverageRate,
+              powers
+            }
+            // @ts-ignore
+            await ddlEngine.CREATE_POOL.createPool(params, bn(6000000))
+            setCreatePoolLoading(false)
+          }}
+        >
+          {createPoolLoading ? 'Loading...' : 'Create Pool'}
+        </ButtonExecute>
       </div>
     </Card>
   )
