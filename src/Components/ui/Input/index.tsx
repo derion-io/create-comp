@@ -9,34 +9,35 @@ type InputType = InputProps & {
 }
 
 export const Input = (props: InputType) => {
+  const { inputWrapProps, ...rest } = props
   const [isFocusing, setIsFocusing] = useState<boolean>(false)
   return (
     <div
-      {...props.inputWrapProps}
-      className={`derivable-input-wrap ${isFocusing && 'focus'} ${props.inputWrapProps?.className} `}
+      {...rest}
+      className={`derivable-input-wrap ${isFocusing && 'focus'} ${inputWrapProps?.className} `}
     >
-      {props.prefix && (
-        <div className='derivable-input__prefix'>{props.prefix}</div>
+      {rest.prefix && (
+        <div className='derivable-input__prefix'>{rest.prefix}</div>
       )}
       <input
         type='text'
-        {...props}
+        {...rest}
         onFocus={(e) => {
           setIsFocusing(true)
-          if (props.onFocus) {
-            props.onFocus(e)
+          if (rest.onFocus) {
+            rest.onFocus(e)
           }
         }}
         onBlur={(e) => {
           setIsFocusing(false)
-          if (props.onBlur) {
-            props.onBlur(e)
+          if (rest.onBlur) {
+            rest.onBlur(e)
           }
         }}
-        className={`derivable-input ${props.className} `}
+        className={`derivable-input ${rest.className} `}
       />
-      {props.suffix && (
-        <div className='derivable-input__suffix'>{props.suffix}</div>
+      {rest.suffix && (
+        <div className='derivable-input__suffix'>{rest.suffix}</div>
       )}
     </div>
   )

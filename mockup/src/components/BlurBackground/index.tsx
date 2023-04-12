@@ -31,11 +31,11 @@ export const BlurBackground = ({ pointNumber, children }: { pointNumber: number,
         top: `${Math.floor(Math.random() * maxH) + 100 + minH}px`,
         background: colors[Math.floor(Math.random() * 2)]
       }
-      result.push(<span className='blur-point' style={style}>
+      result.push(<span key={i} className='blur-point' style={style}>
       </span>)
     }
     setPointElements(result)
-  }, [bgRef, width])
+  }, [bgRef, isPhone, pointNumber, width])
 
   return (<div className='blur-background' ref={bgRef}>
     {pointElements}

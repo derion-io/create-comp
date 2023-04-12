@@ -5,10 +5,10 @@ import './style.scss'
 
 export const TokenIcon = (props: {
   src?: string
-  className?: string
   tokenAddress?: string
   size?: number
 }) => {
+  const { tokenAddress, ...rest } = props
   const { getTokenIconUrl } = useHelper()
   const [isError, setIsError] = useState<boolean>(!props.src)
 
@@ -22,8 +22,8 @@ export const TokenIcon = (props: {
 
   const src = useMemo(() => {
     if (props.src) return props.src
-    if (!props.tokenAddress) return ''
-    return getTokenIconUrl(props.tokenAddress)
+    if (!tokenAddress) return ''
+    return getTokenIconUrl(tokenAddress)
   }, [props])
 
   if (isError || !src) {
@@ -37,7 +37,7 @@ export const TokenIcon = (props: {
           height: props.size || 50,
           borderRadius: '50%'
         }}
-        {...props}
+        {...rest}
         src={src}
       />
     )
