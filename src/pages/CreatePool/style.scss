@@ -31,6 +31,14 @@ $element-gap: 2rem;
     padding-right: 24px;
     padding-bottom: 24px;
 
+    .oracle-radio {
+      margin-left: 125px;
+      margin-top: 8px;
+      input:nth-child(2) {
+        margin-left: 20px;
+      }
+    }
+
     &--lable {
       display: flex;
       width: 100%;
@@ -174,6 +182,12 @@ $element-gap: 2rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        .add-btn {
+          width: 40px;
+          height: 40px;
+          display: flex;
+          padding: 8px;
+        }
       }
       .config-input {
         width: 416px;

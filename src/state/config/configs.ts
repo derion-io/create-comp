@@ -63,21 +63,21 @@ export default {
     ddlGenesisBlock: 0,
     timePerBlock: 3000,
     nativeToken: {
-      name: 'BNB',
-      symbol: 'BNB',
+      name: 'ETH',
+      symbol: 'ETH',
       decimal: 18,
       address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
     },
     addresses: {
       nativeToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
-      quoteToken: '0x4F1111145AB659CF9BBB45442F54A5D427783DaA',
-      multiCall: '0x025ff8c5CB97f5f79dc396DCD501Db775B00F433',
-      pairsInfo: '0xc28A7e46bE1BB74a63aD32784D785A941D1954ab',
-      bnA: '0x95a7d5edfD4701478D3ACA5DCb69D549D83E3c52',
-      tokensInfo: '0xe2b8a85De2ad4076593B81F2435C77a2cb84caAf',
-      router: '0xb60F861100aC9F8BE31D0e74DCae35D14cbcA2E2',
-      wrapToken: '0x8F98902cf8255ab9D403Dfa68875b1024cd6C3d4',
-      wrapUsdPair: '0x2B89B4931122EE4Fa474446Fa9B118F2852a8223'
+      quoteToken: '0x78cD9273A5244f895EfED8f59e64F598cC23d580',
+      multiCall: '0x1F9D5268179227cb14531517B777E8B58A2f333B',
+      pairsInfo: '0x703eC7dEeb6A0Da66B377c9fA9fa894Ba31639D1',
+      bnA: '0x0D66C07151bA75ac055e4A1542F9fD1A85F238Eb',
+      tokensInfo: '0xf42083a138b1aB922C25f1c4726d5dfC6739EFa1',
+      router: '0x869E24929bd2f60a372C05Dc60d969bFdbDF96E1',
+      wrapToken: '0xae9a974940c1Fc96ba09bCc87ef3C2F73af3c2b7',
+      wrapUsdPair: '0x2c8c4D78C6187602dDb8C4b803C3bcFb614ce6d7'
     }
   },
   97: {

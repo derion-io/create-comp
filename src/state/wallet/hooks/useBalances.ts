@@ -78,7 +78,6 @@ export const useWalletBalance = () => {
           })
         } else {
           const contract = new ethers.Contract(tokenAddress, ERC20Abi, signer)
-          console.log('configs.addresses.router', configs.addresses.router)
           const txRes = await contract.approve(configs.addresses.router, LARGE_VALUE)
           await txRes.wait(1)
           hash = txRes.hash
@@ -101,7 +100,10 @@ export const useWalletBalance = () => {
   const fetchBalanceAndAllowance = async (tokensArr: string[]) => {
     if (!ddlEngine) return
     const { balances, allowances } = await ddlEngine.BNA.getBalanceAndAllowance({
-      tokens: tokensArr
+      account,
+      tokens: tokensArr,
+      rpcUrl: configs.rpcUrl,
+      chainId: chainId
     })
     updateBalanceAndAllowances({
       balances,
