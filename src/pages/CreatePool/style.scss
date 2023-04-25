@@ -39,6 +39,17 @@ $element-gap: 2rem;
       }
     }
 
+    .switch-btn {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      margin-left: 122px;
+      .bi-arrow-repeat {
+        margin-left: 5px;
+      }
+    }
+
     &--lable {
       display: flex;
       width: 100%;
@@ -187,6 +198,12 @@ $element-gap: 2rem;
           height: 40px;
           display: flex;
           padding: 8px;
+        }
+        .warning-input {
+          border-color: orange;
+        }
+        .error-input {
+          border-color: red;
         }
       }
       .config-input {

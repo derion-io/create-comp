@@ -30,7 +30,10 @@ export type PoolType = {
   quoteId: number,
   baseId: number,
   basePrice: string
-  cPrice: number
+  cPrice: number,
+  ORACLE: string,
+  MARK: BigNumber,
+  INIT_TIME: BigNumber
 }
 
 export interface poolsState {

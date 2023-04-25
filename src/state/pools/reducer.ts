@@ -1,5 +1,6 @@
 // eslint-disable-next-line no-unused-vars
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+// eslint-disable-next-line no-unused-vars
 import { initialState, PoolType } from './type'
 export const tokens = createSlice({
   name: 'pools',

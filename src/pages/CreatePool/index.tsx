@@ -4,11 +4,12 @@ import './style.scss'
 import 'react-tabs/style/react-tabs.css'
 import { ZERO_ADDRESS, SECONDS_PER_DAY } from '../../utils/constant'
 import { Card } from '../../Components/ui/Card'
-import { IconArrowLeft, PlusIcon } from '../../Components/ui/Icon'
+import { IconArrowLeft, PlusIcon, SwapIcon } from '../../Components/ui/Icon'
 import {
   ButtonGrey,
   ButtonExecute,
-  ButtonAdd
+  ButtonAdd,
+  ButtonBuy
 } from '../../Components/ui/Button'
 import { TokenIcon } from '../../Components/ui/TokenIcon'
 import { TokenSymbol } from '../../Components/ui/TokenSymbol'
@@ -17,23 +18,31 @@ import { Input } from '../../Components/ui/Input'
 import { useWeb3React } from '../../state/customWeb3React/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
+import { useListPool } from '../../state/pools/hooks/useListPool'
 import { useConfigs } from '../../state/config/useConfigs'
 import { Text, TextBlue } from '../../Components/ui/Text'
-import { bn, numberToWei, weiToNumber } from '../../utils/helpers'
+import { bn, numberToWei, weiToNumber, parseCallStaticError } from '../../utils/helpers'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
+import { toast } from 'react-toastify'
 
 export const CreatePool = () => {
   const { ddlEngine } = useConfigs()
   const { account } = useWeb3React()
+  const { pools } = useListPool()
   const [amountInit, setAmountInit] = useState<string>('')
   const [createPoolLoading, setCreatePoolLoading] = useState<boolean>(false)
   const [pairAddr, setPairAddr] = useState<string>(ZERO_ADDRESS)
   const [quoteTokenIndex, setQuoteTokenIndex] = useState<string>('0')
-  const [windowTime, setWindowTime] = useState<string>('0')
-  const [power, setPower] = useState<string>('0')
-  const [mark, setMark] = useState<string>('0')
-  const [a, setA] = useState<string>('0')
-  const [b, setB] = useState<string>('0')
+  const [windowTime, setWindowTime] = useState<string>('')
+  const [windowTimeSuggest, setWindowTimeSuggest] = useState<string[]>([])
+  const [mark, setMark] = useState<string>('')
+  const [markSuggest, setMarkSuggest] = useState<string[]>([])
+  const [initTime, setInitTime] = useState<string>('')
+  const [initTimeSuggest, setInitTimeSuggest] = useState<string[]>([])
+  const [power, setPower] = useState<string>('')
+  const [a, setA] = useState<string>('')
+  const [b, setB] = useState<string>('')
+  const [isValidAB, setIsValidAB] = useState<boolean>(true)
   const [dailyFundingRate, setDailyFundingRate] = useState<string>('0')
   const [recipient, setRecipient] = useState<string>(ZERO_ADDRESS)
   const { configs } = useConfigs()
@@ -47,6 +56,30 @@ export const CreatePool = () => {
       setRecipient(account)
     }
   }, [account])
+
+  const suggestConfigs = (qTIndex: string) => {
+    const filterExistPoolData = Object.entries(pools).filter(([key]) => {
+      return key.includes(pairAddr.substring(2).toLowerCase())
+    })
+    const wTimeArr = []
+    const markArr = []
+    const iTimeArr = []
+    for (let index = 0; index < filterExistPoolData.length; index++) {
+      const poolData = filterExistPoolData[index][1]
+      const oracle = poolData.ORACLE
+      if ((qTIndex === '0' && oracle.includes('0x0')) || (qTIndex === '1' && oracle.includes('0x8'))) {
+        wTimeArr.push(bn(oracle).shr(192).toNumber().toString())
+        markArr.push(poolData.MARK.shr(128).toNumber().toString())
+        iTimeArr.push(poolData.INIT_TIME.toNumber().toString())
+      }
+    }
+    setWindowTime(wTimeArr[0])
+    setWindowTimeSuggest(wTimeArr)
+    setMark(markArr[0])
+    setMarkSuggest(markArr)
+    setInitTime(iTimeArr[0])
+    setInitTimeSuggest(iTimeArr)
+  }
 
   return (
     <Card className='ddl-pool-page'>
@@ -89,10 +122,21 @@ export const CreatePool = () => {
                     const res = await ddlEngine.UNIV3PAIR.getPairInfo({
                       pairAddress: pairAddr
                     })
-                    setPairInfo([
-                      res.token0.symbol + '/' + res.token1.symbol,
-                      res.token1.symbol + '/' + res.token0.symbol
-                    ])
+                    if (res.token0.symbol.toLowerCase().includes('us') || res.token0.symbol.toLowerCase().includes('dai')) {
+                      setPairInfo([
+                        res.token1.symbol + '/' + res.token0.symbol,
+                        res.token0.symbol + '/' + res.token1.symbol
+                      ])
+                      setQuoteTokenIndex('0')
+                      suggestConfigs('0')
+                    } else {
+                      setPairInfo([
+                        res.token0.symbol + '/' + res.token1.symbol,
+                        res.token1.symbol + '/' + res.token0.symbol
+                      ])
+                      setQuoteTokenIndex('1')
+                      suggestConfigs('1')
+                    }
                   } catch (error) {
                     setPairInfo(['Can not get UniswapV3 Pair Info'])
                   }
@@ -104,15 +148,23 @@ export const CreatePool = () => {
           </div>
         </div>
         {pairInfo.length === 2 ? (
-          <div
-            className='oracle-radio'
-            onChange={(e) =>
-              setQuoteTokenIndex((e.target as HTMLInputElement).value)
-            }
+          <ButtonBuy
+            className='switch-btn'
+            onClick={() => {
+              if (quoteTokenIndex === '0') {
+                setQuoteTokenIndex('1')
+                suggestConfigs('1')
+              } else {
+                setQuoteTokenIndex('0')
+                suggestConfigs('0')
+              }
+            }}
           >
-            <input type='radio' value='1' name='gender' /> {pairInfo[0]}
-            <input type='radio' value='0' name='gender' /> {pairInfo[1]}
-          </div>
+            {
+              quoteTokenIndex === '0' ? pairInfo[0] : pairInfo[1]
+            }
+            <SwapIcon />
+          </ButtonBuy>
         ) : (
           <div className='oracle-radio text-red'>{pairInfo[0]}</div>
         )}
@@ -123,10 +175,11 @@ export const CreatePool = () => {
             </TextBlue>
             <Input
               inputWrapProps={{
-                className: 'config-input'
+                className: `config-input ${windowTimeSuggest.includes(windowTime) ? '' : 'warning-input'}`
               }}
               type='number'
               placeholder='0'
+              value={windowTime}
               onChange={(e) => {
                 // @ts-ignore
                 if (Number(e.target.value) >= 0) {
@@ -142,115 +195,41 @@ export const CreatePool = () => {
             Pool config
           </Text>
         </div>
-        <div className='ddl-pool-page__content--lable'>
-          <div className='ddl-pool-page__content--icon-and-name'>
-            <TokenIcon size={24} tokenAddress={baseTokenAddress} />
-            <TokenSymbol token={tokens[baseTokenAddress]} />
-          </div>
-          <SkeletonLoader loading={!balances[baseTokenAddress]}>
-            <Text
-              className='ddl-pool-page__content--balance'
-              onClick={() => {
-                setAmountInit(
-                  weiToNumber(
-                    balances[baseTokenAddress],
-                    tokens[baseTokenAddress]?.decimal || 18
-                  )
-                )
-              }}
-            >
-              Balance:{' '}
-              {balances && balances[baseTokenAddress]
-                ? formatWeiToDisplayNumber(
-                  balances[baseTokenAddress],
-                  4,
-                  tokens[baseTokenAddress]?.decimal || 18
-                )
-                : 0}
-            </Text>
-          </SkeletonLoader>
-        </div>
-        <Input
-          type='number'
-          placeholder='0.0'
-          className='fs-24'
-          onChange={(e) => {
-            // @ts-ignore
-            if (Number(e.target.value) >= 0) {
-              setAmountInit((e.target as HTMLInputElement).value)
-            }
-          }}
-        />
-
         <div className='ddl-pool-page__content--pool-config mt-18px'>
-          <div className='config-item'>
-            <TextBlue fontSize={14} fontWeight={600}>
-              Power
-            </TextBlue>
-            <Input
-              inputWrapProps={{
-                className: 'config-input'
-              }}
-              type='number'
-              placeholder='0.0'
-              onChange={(e) => {
-                // @ts-ignore
-                if (Number(e.target.value) >= 0) {
-                  setPower((e.target as HTMLInputElement).value)
-                }
-              }}
-            />
-          </div>
-          <div className='config-item mt-18px'>
-            <TextBlue fontSize={14} fontWeight={600}>
-              Initialization of long
-            </TextBlue>
-            <Input
-              inputWrapProps={{
-                className: 'config-input'
-              }}
-              type='number'
-              placeholder='0.0'
-              onChange={(e) => {
-                // @ts-ignore
-                if (Number(e.target.value) >= 0) {
-                  setA((e.target as HTMLInputElement).value)
-                }
-              }}
-            />
-          </div>
-          <div className='config-item mt-18px'>
-            <TextBlue fontSize={14} fontWeight={600}>
-              Initialization of short
-            </TextBlue>
-            <Input
-              inputWrapProps={{
-                className: 'config-input'
-              }}
-              type='number'
-              placeholder='0.0'
-              onChange={(e) => {
-                // @ts-ignore
-                if (Number(e.target.value) >= 0) {
-                  setB((e.target as HTMLInputElement).value)
-                }
-              }}
-            />
-          </div>
           <div className='config-item mt-18px'>
             <TextBlue fontSize={14} fontWeight={600}>
               Mark
             </TextBlue>
             <Input
               inputWrapProps={{
-                className: 'config-input'
+                className: `config-input ${markSuggest.includes(mark) ? '' : 'warning-input'}`
               }}
               type='number'
               placeholder='0.0'
+              value={mark}
               onChange={(e) => {
                 // @ts-ignore
                 if (Number(e.target.value) >= 0) {
                   setMark((e.target as HTMLInputElement).value)
+                }
+              }}
+            />
+          </div>
+          <div className='config-item mt-18px'>
+            <TextBlue fontSize={14} fontWeight={600}>
+              Init time
+            </TextBlue>
+            <Input
+              inputWrapProps={{
+                className: `config-input ${initTimeSuggest.includes(initTime) ? '' : 'warning-input'}`
+              }}
+              type='number'
+              placeholder='0'
+              value={initTime}
+              onChange={(e) => {
+                // @ts-ignore
+                if (Number(e.target.value) >= 0) {
+                  setInitTime((e.target as HTMLInputElement).value)
                 }
               }}
             />
@@ -290,9 +269,131 @@ export const CreatePool = () => {
             />
           </div>
         </div>
+        <div className='ddl-pool-page__content--lable mt-18px'>
+          <div className='ddl-pool-page__content--icon-and-name'>
+            <TokenIcon size={24} tokenAddress={baseTokenAddress} />
+            <TokenSymbol token={tokens[baseTokenAddress]} />
+          </div>
+          <SkeletonLoader loading={!balances[baseTokenAddress]}>
+            <Text
+              className='ddl-pool-page__content--balance'
+              onClick={() => {
+                const initValue = weiToNumber(
+                  balances[baseTokenAddress],
+                  tokens[baseTokenAddress]?.decimal || 18
+                )
+                setAmountInit(initValue)
+                setA((Number(initValue) / 4).toString())
+                setB((Number(initValue) / 4).toString())
+              }}
+            >
+              Balance:{' '}
+              {balances && balances[baseTokenAddress]
+                ? formatWeiToDisplayNumber(
+                  balances[baseTokenAddress],
+                  4,
+                  tokens[baseTokenAddress]?.decimal || 18
+                )
+                : 0}
+            </Text>
+          </SkeletonLoader>
+        </div>
+        <Input
+          type='number'
+          placeholder='0.0'
+          className='fs-24'
+          value={amountInit}
+          onChange={(e) => {
+            // @ts-ignore
+            if (Number(e.target.value) >= 0) {
+              const initValue = Number(e.target.value)
+              setAmountInit(initValue.toString())
+              setA((initValue / 4).toString())
+              setB((initValue / 4).toString())
+            }
+          }}
+        />
+        <div className='ddl-pool-page__content--pool-config mt-18px'>
+          <div className='config-item'>
+            <TextBlue fontSize={14} fontWeight={600}>
+              Power
+            </TextBlue>
+            <Input
+              inputWrapProps={{
+                className: 'config-input'
+              }}
+              type='number'
+              placeholder='0.0'
+              value={power}
+              onChange={(e) => {
+                // @ts-ignore
+                if (Number(e.target.value) >= 0) {
+                  setPower((e.target as HTMLInputElement).value)
+                }
+              }}
+              onBlur={(e) => {
+                if (Number(e.target.value) >= 0) {
+                  const powerRounded = Math.round(Number(e.target.value) * 2) / 2
+                  setPower(powerRounded.toString())
+                }
+              }}
+            />
+          </div>
+          <div className='config-item mt-18px'>
+            <TextBlue fontSize={14} fontWeight={600}>
+              a
+            </TextBlue>
+            <Input
+              inputWrapProps={{
+                className: `config-input ${isValidAB ? '' : 'error-input'}`
+              }}
+              type='number'
+              placeholder='0.0'
+              value={a}
+              onChange={(e) => {
+                // @ts-ignore
+                if (Number(e.target.value) >= 0) {
+                  setA((e.target as HTMLInputElement).value)
+                }
+                // check 4ab <= R^2
+                if (4 * Number(e.target.value) * Number(b) <= Math.pow(Number(amountInit), 2)) {
+                  setIsValidAB(true)
+                } else {
+                  setIsValidAB(false)
+                }
+              }}
+            />
+          </div>
+          <div className='config-item mt-18px'>
+            <TextBlue fontSize={14} fontWeight={600}>
+              b
+            </TextBlue>
+            <Input
+              inputWrapProps={{
+                className: `config-input ${isValidAB ? '' : 'error-input'}`
+              }}
+              type='number'
+              placeholder='0.0'
+              value={b}
+              onChange={(e) => {
+                // @ts-ignore
+                if (Number(e.target.value) >= 0) {
+                  setB((e.target as HTMLInputElement).value)
+                }
+                // check 4ab <= R^2
+                if (4 * Number(a) * Number(e.target.value) <= Math.pow(Number(amountInit), 2)) {
+                  setIsValidAB(true)
+                } else {
+                  setIsValidAB(false)
+                }
+              }}
+            />
+          </div>
+        </div>
 
         <ButtonExecute
           className='create-btn mt-18px'
+          disabled={!isValidAB}
           onClick={async () => {
             setCreatePoolLoading(true)
             try {
@@ -319,14 +420,16 @@ export const CreatePool = () => {
                 a: bn(numberToWei(a)),
                 b: bn(numberToWei(b)),
                 amountInit: bn(numberToWei(amountInit)),
-                mark: bn(Number(mark)).shl(112),
+                mark: bn(Number(mark)).shl(128),
+                initTime: Number(initTime),
                 halfLife,
                 recipient
               }
               console.log(params)
-              // // @ts-ignore
               await ddlEngine?.CREATE_POOL.createPool(params, bn(6000000))
+              toast.success('Create Pool Successfully')
             } catch (error) {
+              toast.error(parseCallStaticError(error))
               console.log(error)
             }
             setCreatePoolLoading(false)

@@ -1,10 +1,12 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { updateFormatedSwapTxs, updateSwapTxs } from '../reducer'
+// eslint-disable-next-line no-unused-vars
 import { State } from '../../types'
 import { useWeb3React } from '../../customWeb3React/hook'
 import { useEffect } from 'react'
 import { useCurrentPool } from '../../currentPool/hooks/useCurrentPool'
 import { useConfigs } from '../../config/useConfigs'
+import _ from 'lodash'
 
 export const useSwapHistory = () => {
   const { swapLogs, formartedSwapLogs } = useSelector((state: State) => {
@@ -20,7 +22,12 @@ export const useSwapHistory = () => {
     dispatch(updateSwapTxs({ account, swapLogs }))
   }
 
+  const updateSwapTxsHandle = (account: string, data: any) => {
+    dispatch(updateSwapTxs({ account, swapLogs: _.cloneDeep(data) }))
+  }
+
   return {
+    updateSwapTxsHandle,
     addMultiSwapData,
     swapLogs: swapLogs[account],
     formartedSwapLogs

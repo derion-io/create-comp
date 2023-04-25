@@ -70,14 +70,14 @@ export default {
     },
     addresses: {
       nativeToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
-      quoteToken: '0x78cD9273A5244f895EfED8f59e64F598cC23d580',
-      multiCall: '0x1F9D5268179227cb14531517B777E8B58A2f333B',
-      pairsInfo: '0x703eC7dEeb6A0Da66B377c9fA9fa894Ba31639D1',
-      bnA: '0x0D66C07151bA75ac055e4A1542F9fD1A85F238Eb',
-      tokensInfo: '0xf42083a138b1aB922C25f1c4726d5dfC6739EFa1',
-      router: '0x869E24929bd2f60a372C05Dc60d969bFdbDF96E1',
-      wrapToken: '0xae9a974940c1Fc96ba09bCc87ef3C2F73af3c2b7',
-      wrapUsdPair: '0x2c8c4D78C6187602dDb8C4b803C3bcFb614ce6d7'
+      quoteToken: '0x8F98902cf8255ab9D403Dfa68875b1024cd6C3d4',
+      multiCall: '0xE0b291b76b78b1a73Da8F2Cc2e717267065bF95A',
+      pairsInfo: '0x448816f124c9cE4234907566ECef78f95bdDaF5E',
+      bnA: '0xF258e00021773b7603109887BF2eeb80d5C6f601',
+      tokensInfo: '0xE1550e06C6759b48cD0a6f5851029A30a6Fee735',
+      router: '0x4F1111145AB659CF9BBB45442F54A5D427783DaA',
+      wrapToken: '0xaf9173D7fcd8f18d57Ea7EE2b3DeCF263C25679F',
+      wrapUsdPair: '0x1C26520758F364237AE9AD0c7d2C0d59565669F8'
     }
   },
   97: {
