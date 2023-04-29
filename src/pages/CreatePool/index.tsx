@@ -33,6 +33,7 @@ export const CreatePool = () => {
   const [createPoolLoading, setCreatePoolLoading] = useState<boolean>(false)
   const [pairAddr, setPairAddr] = useState<string>(ZERO_ADDRESS)
   const [quoteTokenIndex, setQuoteTokenIndex] = useState<string>('0')
+  const [quoteTokenDecimal, setQuoteTokenDecimal] = useState<string>('0')
   const [windowTime, setWindowTime] = useState<string>('')
   const [windowTimeSuggest, setWindowTimeSuggest] = useState<string[]>([])
   const [mark, setMark] = useState<string>('')
@@ -57,7 +58,7 @@ export const CreatePool = () => {
     }
   }, [account])
 
-  const suggestConfigs = (qTIndex: string) => {
+  const suggestConfigs = (qTIndex: string, qTDecimal: string) => {
     const filterExistPoolData = Object.entries(pools).filter(([key]) => {
       return key.includes(pairAddr.substring(2).toLowerCase())
     })
@@ -69,10 +70,15 @@ export const CreatePool = () => {
       const oracle = poolData.ORACLE
       if ((qTIndex === '0' && oracle.includes('0x0')) || (qTIndex === '1' && oracle.includes('0x8'))) {
         wTimeArr.push(bn(oracle).shr(192).toNumber().toString())
-        markArr.push(poolData.MARK.shr(128).toNumber().toString())
+        if (parseInt(qTDecimal) === 6) {
+          markArr.push(Math.pow(poolData.MARK.mul(1e6).shr(128).toNumber(), 2).toString())
+        } else {
+          markArr.push(Math.pow(poolData.MARK.shr(128).toNumber(), 2).toString())
+        }
         iTimeArr.push(poolData.INIT_TIME.toNumber().toString())
       }
     }
+    setQuoteTokenDecimal(qTDecimal)
     setWindowTime(wTimeArr[0])
     setWindowTimeSuggest(wTimeArr)
     setMark(markArr[0])
@@ -128,14 +134,14 @@ export const CreatePool = () => {
                         res.token0.symbol + '/' + res.token1.symbol
                       ])
                       setQuoteTokenIndex('0')
-                      suggestConfigs('0')
+                      suggestConfigs('0', res.token0.decimals)
                     } else {
                       setPairInfo([
                         res.token0.symbol + '/' + res.token1.symbol,
                         res.token1.symbol + '/' + res.token0.symbol
                       ])
                       setQuoteTokenIndex('1')
-                      suggestConfigs('1')
+                      suggestConfigs('1', res.token1.decimals)
                     }
                   } catch (error) {
                     setPairInfo(['Can not get UniswapV3 Pair Info'])
@@ -150,13 +156,18 @@ export const CreatePool = () => {
         {pairInfo.length === 2 ? (
           <ButtonBuy
             className='switch-btn'
-            onClick={() => {
-              if (quoteTokenIndex === '0') {
-                setQuoteTokenIndex('1')
-                suggestConfigs('1')
-              } else {
-                setQuoteTokenIndex('0')
-                suggestConfigs('0')
+            onClick={async () => {
+              if (ddlEngine) {
+                const res = await ddlEngine.UNIV3PAIR.getPairInfo({
+                  pairAddress: pairAddr
+                })
+                if (quoteTokenIndex === '0') {
+                  setQuoteTokenIndex('1')
+                  suggestConfigs('1', res.token1.decimals)
+                } else {
+                  setQuoteTokenIndex('0')
+                  suggestConfigs('0', res.token0.decimals)
+                }
               }
             }}
           >
@@ -283,8 +294,8 @@ export const CreatePool = () => {
                   tokens[baseTokenAddress]?.decimal || 18
                 )
                 setAmountInit(initValue)
-                setA((Number(initValue) / 4).toString())
-                setB((Number(initValue) / 4).toString())
+                setA((Number(initValue) / 2.5).toString())
+                setB((Number(initValue) / 2.5).toString())
               }}
             >
               Balance:{' '}
@@ -308,8 +319,8 @@ export const CreatePool = () => {
             if (Number(e.target.value) >= 0) {
               const initValue = Number(e.target.value)
               setAmountInit(initValue.toString())
-              setA((initValue / 4).toString())
-              setB((initValue / 4).toString())
+              setA((initValue / 2.5).toString())
+              setB((initValue / 2.5).toString())
             }
           }}
         />
@@ -407,12 +418,14 @@ export const CreatePool = () => {
                 32
               )
               const k = Number(power) * 2
+              console.log(k)
+              console.log(Number(dailyFundingRate) * k)
               const halfLife =
                 Number(dailyFundingRate) === 0
                   ? 0
                   : Math.round(
                     SECONDS_PER_DAY /
-                      Math.log2(1 / (1 - Number(dailyFundingRate) / 100))
+                      Math.log2(1 / (1 - (Number(dailyFundingRate) * k) / 100))
                   )
               const params = {
                 oracle,
@@ -420,7 +433,9 @@ export const CreatePool = () => {
                 a: bn(numberToWei(a)),
                 b: bn(numberToWei(b)),
                 amountInit: bn(numberToWei(amountInit)),
-                mark: bn(Number(mark)).shl(128),
+                mark: parseInt(quoteTokenDecimal) === 6
+                  ? bn(Math.sqrt(Number(mark))).shl(128).div(1e6)
+                  : bn(Math.sqrt(Number(mark))).shl(128),
                 initTime: Number(initTime),
                 halfLife,
                 recipient
