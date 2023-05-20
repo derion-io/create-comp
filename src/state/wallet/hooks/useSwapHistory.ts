@@ -34,21 +34,21 @@ export const useSwapHistory = () => {
   }
 }
 
-export const useSwapHistoryFormated = () => {
-  const { swapLogs: sls } = useSwapHistory()
-  const { powers, states, poolAddress } = useCurrentPool()
-  const { ddlEngine } = useConfigs()
-  const dispatch = useDispatch()
+// export const useSwapHistoryFormated = () => {
+//   const { swapLogs: sls } = useSwapHistory()
+//   const { powers, states, poolAddress } = useCurrentPool()
+//   const { ddlEngine } = useConfigs()
+//   const dispatch = useDispatch()
 
-  useEffect(() => {
-    if (ddlEngine?.CURRENT_POOL.poolAddress) {
-      const swapTxs = ddlEngine?.HISTORY.formatSwapHistory({
-        logs: sls,
-        poolAddress: poolAddress,
-        states: states,
-        powers: powers
-      })
-      dispatch(updateFormatedSwapTxs({ swapTxs }))
-    }
-  }, [sls, ddlEngine?.CURRENT_POOL, states])
-}
+//   useEffect(() => {
+//     if (ddlEngine?.CURRENT_POOL.poolAddress) {
+//       const swapTxs = ddlEngine?.HISTORY.formatSwapHistory({
+//         logs: sls,
+//         poolAddress: poolAddress,
+//         states: states,
+//         powers: powers
+//       })
+//       dispatch(updateFormatedSwapTxs({ swapTxs }))
+//     }
+//   }, [sls, ddlEngine?.CURRENT_POOL, states])
+// }

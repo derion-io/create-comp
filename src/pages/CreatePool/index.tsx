@@ -58,6 +58,12 @@ export const CreatePool = () => {
     }
   }, [account])
 
+  const twoDecimal = (a: any) =>
+    (a.toString().match(/e/)
+      ? Number(a.toString().match(/[^e]*/)[0])
+      : a
+    ).toFixed(0)
+
   const suggestConfigs = (qTIndex: string, qTDecimal: string) => {
     const filterExistPoolData = Object.entries(pools).filter(([key]) => {
       return key.includes(pairAddr.substring(2).toLowerCase())
@@ -434,8 +440,8 @@ export const CreatePool = () => {
                 b: bn(numberToWei(b)),
                 amountInit: bn(numberToWei(amountInit)),
                 mark: parseInt(quoteTokenDecimal) === 6
-                  ? bn(Math.sqrt(Number(mark))).shl(128).div(1e6)
-                  : bn(Math.sqrt(Number(mark))).shl(128),
+                  ? bn(twoDecimal(Math.sqrt(Number(mark)))).shl(128).div(1e6)
+                  : bn(twoDecimal(Math.sqrt(Number(mark)))).shl(128),
                 initTime: Number(initTime),
                 halfLife,
                 recipient
