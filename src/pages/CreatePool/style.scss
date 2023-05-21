@@ -1,5 +1,5 @@
-@import "../../styles/abstracts/mixins";
-@import "../../styles/abstracts/variables";
+@import '../../styles/abstracts/mixins';
+@import '../../styles/abstracts/variables';
 
 $element-gap: 2rem;
 
@@ -50,6 +50,10 @@ $element-gap: 2rem;
       }
     }
 
+    .disable-btn {
+      background-color: #565656 !important;
+    }
+
     &--lable {
       display: flex;
       width: 100%;
@@ -62,7 +66,7 @@ $element-gap: 2rem;
       display: flex;
       align-items: center;
 
-      &>*:not(:last-child) {
+      & > *:not(:last-child) {
         margin-right: 0.5rem;
       }
     }
@@ -202,6 +206,9 @@ $element-gap: 2rem;
         .warning-input {
           border-color: orange;
         }
+        .active-input {
+          border-color: #01a7fa;
+        }
         .error-input {
           border-color: red;
         }
@@ -231,5 +238,4 @@ $element-gap: 2rem;
       height: 56px;
     }
   }
-
 }

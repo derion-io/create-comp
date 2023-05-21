@@ -6,15 +6,18 @@ type InputType = InputProps & {
   inputWrapProps?: React.HTMLAttributes<HTMLDivElement>
   prefix?: any
   suffix?: any
+  isBigsize?: any
 }
 
 export const Input = (props: InputType) => {
-  const { inputWrapProps, ...rest } = props
+  const { inputWrapProps, isBigsize, ...rest } = props
   const [isFocusing, setIsFocusing] = useState<boolean>(false)
   return (
     <div
       {...rest}
-      className={`derivable-input-wrap ${isFocusing && 'focus'} ${inputWrapProps?.className} `}
+      className={`derivable-input-wrap-default ${
+        isBigsize === 'true' && 'derivable-input-wrap-default-h'
+      } ${isFocusing && 'focus'} ${inputWrapProps?.className} `}
     >
       {rest.prefix && (
         <div className='derivable-input__prefix'>{rest.prefix}</div>

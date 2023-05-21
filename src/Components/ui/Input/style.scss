@@ -1,10 +1,10 @@
-@import "../../../styles/abstracts/variables";
+@import '../../../styles/abstracts/variables';
 
 .derivable-input {
   flex: 1;
   background: transparent;
   border: none;
-  color: $color-text-default;
+  color: $color-execute;
   max-width: 100%;
   width: 0;
 
@@ -16,14 +16,16 @@
     outline: none;
   }
 
-  &-wrap {
+  &-wrap-default {
     background: $color-input-bg;
     display: flex;
     align-items: center;
     padding: 1rem 1.5rem;
     border-radius: 2rem;
     border: 1px solid transparent;
-
+    &-h {
+      height: 64px;
+    }
     &.focus {
       border-color: $color-blue;
     }
@@ -33,7 +35,8 @@
     color: $color-input-placeholder;
   }
 
-  &__suffix, &__prefix {
+  &__suffix,
+  &__prefix {
     display: flex;
     align-items: center;
     color: $color-input-placeholder;
