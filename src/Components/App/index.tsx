@@ -8,7 +8,6 @@ import { useWeb3React } from '../../state/customWeb3React/hook'
 import { ToastContainer } from 'react-toastify'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useListPool } from '../../state/pools/hooks/useListPool'
-import { Pools } from '../../pages/Pools'
 import { TIME_TO_REFRESH_STATE } from '../../utils/constant'
 import { CreatePool } from '../../pages/CreatePool'
 
@@ -38,10 +37,8 @@ export const App = () => {
     switch (true) {
       case isMatchWithPath('/pools/create'):
         return <CreatePool />
-      case isMatchWithPath('/pools'):
-        return <Pools />
       default:
-        return <Pools />
+        return <CreatePool />
     }
   }
 

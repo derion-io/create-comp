@@ -16,10 +16,6 @@ export default {
       name: 'Create Pool',
       path: '/pools/create',
       menuLink: '/pools/create'
-    },
-    {
-      name: 'Pools',
-      path: '/pools'
     }
   ]
 }
