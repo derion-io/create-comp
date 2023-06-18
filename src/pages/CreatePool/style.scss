@@ -4,8 +4,16 @@
 $element-gap: 2rem;
 
 .exposure-interface .ddl-pool-page {
-  width: 648px;
-  margin: auto;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  gap: 1rem;
+  align-items: flex-start;
+
+  &__config-card {
+    width: 648px;
+  }
+
   &__header {
     margin-bottom: 1.5rem;
     display: flex;

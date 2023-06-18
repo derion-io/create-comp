@@ -1,0 +1,30 @@
+.pool-create-info {
+  width: 400px;
+  padding: 1rem;
+
+  .amount-input-box {
+    &__head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 1.5rem 0;
+
+      .current-token {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        & > *:not(:last-child) {
+          margin-right: 0.75rem;
+        }
+      }
+
+      &--balance {
+        cursor: pointer;
+      }
+    }
+  }
+
+  .create-pool-button {
+
+  }
+}

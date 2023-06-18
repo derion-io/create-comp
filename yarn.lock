@@ -4925,9 +4925,9 @@ depd@~1.1.2:
   resolved "https://registry.yarnpkg.com/depd/-/depd-1.1.2.tgz#9bcd52e14c097763e749b274c4346ed2e560b5a9"
   integrity sha1-m81S4UwJd2PnSbJ0xDRu0uVgtak=
 
-"derivable-tools@git+ssh://git@github.com:blackskin18/derivable-tools.git#e93a03cf3b6943c13f3f7236e664a4e42d790471":
+"derivable-tools@git+ssh://git@github.com:blackskin18/derivable-tools.git#ff26d25a444591c96347abb283d3d56e4d957808":
   version "1.0.0"
-  resolved "git+ssh://git@github.com:blackskin18/derivable-tools.git#e93a03cf3b6943c13f3f7236e664a4e42d790471"
+  resolved "git+ssh://git@github.com:blackskin18/derivable-tools.git#ff26d25a444591c96347abb283d3d56e4d957808"
   dependencies:
     "@ethersproject/providers" "https://github.com/launchzone/ethers.js/releases/download/v5.3.2.2/ethers_providers.tar.gz"
     assisted-json-rpc-provider "git+ssh://git@github.com:derivable-io/AssistedJsonRpcProvider.git#1410f1d9a1e733c35d409f4ee79b0ca348f16718"
@@ -8223,6 +8223,26 @@ levenary@^1.1.1:
   integrity sha512-mkAdOIt79FD6irqjYSs4rdbnlT5vRonMEvBVPVb3XmevfS8kgRXwfes0dhPdEtzTWD/1eNE/Bm/G1iRt6DcnQQ==
   dependencies:
     leven "^3.1.0"
+
+"leverage-slider@git+ssh://git@github.com:blackskin18/leverage-slider-comp.git#cdee36f45095986e948fa6a39bba3961d8d81e0a":
+  version "1.0.0"
+  resolved "git+ssh://git@github.com:blackskin18/leverage-slider-comp.git#cdee36f45095986e948fa6a39bba3961d8d81e0a"
+  dependencies:
+    "@reduxjs/toolkit" "^1.7.1"
+    "@types/lodash" "^4.14.186"
+    "@types/react-collapse" "^5.0.1"
+    caniuse-lite "^1.0.30001434"
+    lodash "^4.17.21"
+    moment "^2.29.4"
+    rc-slider "^10.0.1"
+    react-collapse "^5.1.1"
+    react-fast-compare "^3.2.0"
+    react-redux "^7.2.5"
+    react-router-dom "^5.2.0"
+    react-tabs "^6.0.0"
+    react-toastify "^8.1.0"
+    reactstrap "^9.1.5"
+    recharts "^2.2.0"
 
 levn@^0.3.0, levn@~0.3.0:
   version "0.3.0"

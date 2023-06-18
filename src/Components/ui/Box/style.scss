@@ -1,7 +1,10 @@
+@import "src/styles/abstracts/variables";
+
 .derivable-box {
   padding: 0.5rem;
   width: 100%;
   border-radius: 12px;
+  border-color: transparent;
 
   &__wrap {
 
@@ -12,5 +15,20 @@
     font-weight: 600;
     margin-bottom: 1.5rem;
     padding-left: 1px;
+  }
+
+  &.border {
+    &-default {
+      border: 1px solid $color-box-border-grey !important;
+    }
+    &-sell {
+      border: 1px solid $color-sell !important;
+    }
+    &-buy {
+      border: 1px solid $color-buy !important;
+    }
+    &-blue {
+      border: 1px solid $color-blue !important;
+    }
   }
 }
