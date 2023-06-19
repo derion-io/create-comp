@@ -122,6 +122,7 @@ export default {
     addresses: {
       multiCall: '0x07BBBb79619a45D041549Baf8Ee7A60376d649cf',
       tokensInfo: '0x696630d3aE600147902c71bF967ec3eb7a2C8b44',
+      uniV3Factory: '0x1F98431c8aD98523631AE4a59f267346ea31F984',
       pairsInfo: '0x81C8f6bC2a602B9Ad403116ab4c0EC1a0e5B49B1',
       bnA: '0x357FF35761979254F93a21995b20d9071904603d',
       wrapToken: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',

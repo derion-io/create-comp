@@ -2,6 +2,7 @@ import { ethers } from 'ethers'
 import RouterAbi from '../assets/abi/Router.json'
 import PoolAbi from '../assets/abi/Pool.json'
 import TokenInfoAbi from '../assets/abi/TokensInfo.json'
+import UniV3FactoryAbi from '../assets/abi/UniV3Factory.json'
 import { useConfigs } from '../state/config/useConfigs'
 import { JsonRpcProvider } from '@ethersproject/providers'
 
@@ -35,9 +36,14 @@ export const useContract = () => {
     return getContract(TokenInfoAbi, configs.addresses.tokensInfo)
   }
 
+  const getUniV3FactoryContract = () => {
+    return getContract(UniV3FactoryAbi, configs.addresses.uniV3Factory)
+  }
+
   return {
     getRouterContract,
     getPoolContract,
-    getTokenInfoContract
+    getTokenInfoContract,
+    getUniV3FactoryContract
   }
 }

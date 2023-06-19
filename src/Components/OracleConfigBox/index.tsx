@@ -11,6 +11,8 @@ import { Box } from '../ui/Box'
 import './style.scss'
 import { SelectTokenModal } from '../SelectTokenModal'
 import { useListTokens } from '../../state/token/hook'
+import { useContract } from '../../hooks/useContract'
+import { utils } from 'ethers'
 
 export const OracleConfigBox = () => {
   const { ddlEngine } = useConfigs()
@@ -32,6 +34,7 @@ export const OracleConfigBox = () => {
   const { tokens } = useListTokens()
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
   const [selectingToken, setSelectingToken] = useState<'token0' | 'token1' | ''>('')
+  const { getUniV3FactoryContract } = useContract()
 
   const suggestConfigs = (qTIndex: string, qTDecimal: string) => {
     // const filterExistPoolData = Object.entries(pools).filter(([key]) => {
@@ -63,8 +66,28 @@ export const OracleConfigBox = () => {
   }
 
   useEffect(() => {
+    if (token0 && token1 && fee) {
+      console.log(token0, token1, fee)
+      getPairAddress()
+    }
+  }, [token0, token1, fee])
+
+  useEffect(() => {
     fetchPairInfo()
   }, [pairAddr])
+
+  const getPairAddress = async () => {
+    try {
+      const contract = getUniV3FactoryContract()
+      const res = await contract.getPool(token0.address, token1.address, fee)
+      console.log(res)
+      if (res !== pairAddr) {
+        setPairAddr(utils.getAddress(res))
+      }
+    } catch (e) {
+      console.log(e)
+    }
+  }
 
   const fetchPairInfo = async () => {
     if (ddlEngine) {
@@ -73,26 +96,26 @@ export const OracleConfigBox = () => {
         const res = await ddlEngine.UNIV3PAIR.getPairInfo({
           pairAddress: pairAddr
         })
-        setToken0(res.token0)
-        setToken1(res.token1)
-        setFee(res.fee)
+        setToken0(formatTokenType(res.token0))
+        setToken1(formatTokenType(res.token1))
+        setFee(res.fee.toNumber)
         // setPairInfo1({ pair: pairAddr, ...res })
-        console.log(res)
-        if (res.token0.symbol.toLowerCase().includes('us') || res.token0.symbol.toLowerCase().includes('dai')) {
-          setPairInfo([
-            res.token1.symbol + '/' + res.token0.symbol,
-            res.token0.symbol + '/' + res.token1.symbol
-          ])
-          setQuoteTokenIndex('0')
-          suggestConfigs('0', res.token0.decimals)
-        } else {
-          setPairInfo([
-            res.token0.symbol + '/' + res.token1.symbol,
-            res.token1.symbol + '/' + res.token0.symbol
-          ])
-          setQuoteTokenIndex('1')
-          suggestConfigs('1', res.token1.decimals)
-        }
+        // console.log(res)
+        // if (res.token0.symbol.toLowerCase().includes('us') || res.token0.symbol.toLowerCase().includes('dai')) {
+        //   setPairInfo([
+        //     res.token1.symbol + '/' + res.token0.symbol,
+        //     res.token0.symbol + '/' + res.token1.symbol
+        //   ])
+        //   setQuoteTokenIndex('0')
+        //   suggestConfigs('0', res.token0.decimals)
+        // } else {
+        //   setPairInfo([
+        //     res.token0.symbol + '/' + res.token1.symbol,
+        //     res.token1.symbol + '/' + res.token0.symbol
+        //   ])
+        //   setQuoteTokenIndex('1')
+        //   suggestConfigs('1', res.token1.decimals)
+        // }
       } catch (error) {
         console.log(error)
         setPairInfo(['Can not get UniswapV3 Pair Info'])
@@ -117,6 +140,7 @@ export const OracleConfigBox = () => {
           inputWrapProps={{
             className: 'config-input'
           }}
+          value={pairAddr}
           placeholder='0x...'
           onChange={(e) => {
             // @ts-ignore
@@ -264,6 +288,7 @@ export const OracleConfigBox = () => {
       setVisible={setVisibleSelectTokenModal}
       iniTokens={Object.values(tokens)}
       onSelectToken={(token: any) => {
+        console.log(selectingToken)
         if (selectingToken === 'token0') {
           setToken0(token)
         } else {
@@ -272,4 +297,13 @@ export const OracleConfigBox = () => {
       }}
     />
   </Box>
+}
+
+const formatTokenType = (token: any) => {
+  return {
+    address: utils.getAddress(token.adr),
+    decimal: token.decimals,
+    symbol: token.symbol,
+    name: token.name
+  }
 }
