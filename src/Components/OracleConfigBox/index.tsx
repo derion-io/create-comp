@@ -9,6 +9,8 @@ import { ZERO_ADDRESS } from '../../utils/constant'
 import { bn } from '../../utils/helpers'
 import { Box } from '../ui/Box'
 import './style.scss'
+import { SelectTokenModal } from '../SelectTokenModal'
+import { useListTokens } from '../../state/token/hook'
 
 export const OracleConfigBox = () => {
   const { ddlEngine } = useConfigs()
@@ -27,6 +29,9 @@ export const OracleConfigBox = () => {
   const [token0, setToken0] = useState<any>({})
   const [token1, setToken1] = useState<any>({})
   const [fee, setFee] = useState<any>({})
+  const { tokens } = useListTokens()
+  const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
+  const [selectingToken, setSelectingToken] = useState<'token0' | 'token1' | ''>('')
 
   const suggestConfigs = (qTIndex: string, qTDecimal: string) => {
     // const filterExistPoolData = Object.entries(pools).filter(([key]) => {
@@ -180,15 +185,24 @@ export const OracleConfigBox = () => {
     {/* ) : ( */}
     {/*  <div className='oracle-radio text-red'>{pairInfo[0]}</div> */}
     {/* )} */}
-
     <div>
-      <Button>{quoteTokenIndex === '0' ? token0?.symbol : token1?.symbol}</Button>
+      <Button
+        onClick={() => {
+          setSelectingToken('token0')
+          setVisibleSelectTokenModal(true)
+        }}
+      >{quoteTokenIndex === '0' ? token0?.symbol : token1?.symbol}</Button>
       <Button
         onClick={() => {
           setQuoteTokenIndex(quoteTokenIndex === '0' ? '1' : '0')
         }}
       ><SwapIcon /></Button>
-      <Button>{quoteTokenIndex === '0' ? token1?.symbol : token0?.symbol}</Button>
+      <Button
+        onClick={() => {
+          setSelectingToken('token1')
+          setVisibleSelectTokenModal(true)
+        }}
+      >{quoteTokenIndex === '0' ? token1?.symbol : token0?.symbol}</Button>
     </div>
 
     <div>
@@ -245,5 +259,17 @@ export const OracleConfigBox = () => {
         />
       </div>
     </div>
+    <SelectTokenModal
+      visible={visibleSelectTokenModal}
+      setVisible={setVisibleSelectTokenModal}
+      iniTokens={Object.values(tokens)}
+      onSelectToken={(token: any) => {
+        if (selectingToken === 'token0') {
+          setToken0(token)
+        } else {
+          setToken1(token)
+        }
+      }}
+    />
   </Box>
 }
