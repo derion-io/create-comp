@@ -1,0 +1,17 @@
+@import "src/styles/abstracts/variables";
+
+.oracle-config {
+  &-box {
+    position: relative;
+    padding: 1.5rem;
+  }
+
+  &__title {
+    position: absolute;
+    display: block;
+    transform: translateY(calc(-50% - 1.5rem));
+    left: 2rem;
+    padding: 0.5rem;
+    background: $color-card-bg;
+  }
+}

@@ -25,6 +25,8 @@ import { bn, numberToWei, weiToNumber, parseCallStaticError } from '../../utils/
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import { toast } from 'react-toastify'
 import { PoolCreateInfo } from '../../Components/PoolCreateInfo'
+import { OracleConfigBox } from '../../Components/OracleConfigBox'
+import { ChangeableConfigBox } from '../../Components/ChangeableConfigBox'
 
 export const CreatePool = () => {
   const { ddlEngine } = useConfigs()
@@ -98,366 +100,368 @@ export const CreatePool = () => {
   return (
     <div className='ddl-pool-page'>
       <Card className='ddl-pool-page__config-card'>
-        <div className='ddl-pool-page__header'>
-          <ButtonGrey className='ddl-pool-page__header--back-btn'>
-            <IconArrowLeft />
-          </ButtonGrey>
-          <div className='ddl-pool-page__header--name'>
-            <Text fontSize={16} fontWeight={600}>
-              Create Pool
-            </Text>
-          </div>
-        </div>
+        {/* <div className='ddl-pool-page__header'> */}
+        {/*  <ButtonGrey className='ddl-pool-page__header--back-btn'> */}
+        {/*    <IconArrowLeft /> */}
+        {/*  </ButtonGrey> */}
+        {/*  <div className='ddl-pool-page__header--name'> */}
+        {/*    <Text fontSize={16} fontWeight={600}> */}
+        {/*      Create Pool */}
+        {/*    </Text> */}
+        {/*  </div> */}
+        {/* </div> */}
         <div className='ddl-pool-page__content'>
-          <div className='ddl-pool-page__content--lable mt-18px'>
-            <Text fontSize={16} fontWeight={600}>
-              Permanent config
-            </Text>
-          </div>
-          <div className='ddl-pool-page__content--pool-config mt-18px'>
-            <div className='config-item'>
-              <TextBlue fontSize={14} fontWeight={600}>
-                UniswapV3 Pair
-              </TextBlue>
-              <Input
-                inputWrapProps={{
-                  className: 'config-input'
-                }}
-                placeholder='0x...'
-                onChange={(e) => {
-                  // @ts-ignore
-                  setPairAddr((e.target as HTMLInputElement).value)
-                }}
-              />
-              <ButtonAdd
-                className='add-btn'
-                onClick={async () => {
-                  if (ddlEngine) {
-                    try {
-                      console.log('pairAddr', pairAddr)
-                      const res = await ddlEngine.UNIV3PAIR.getPairInfo({
-                        pairAddress: pairAddr
-                      })
-                      console.log(res)
-                      if (res.token0.symbol.toLowerCase().includes('us') || res.token0.symbol.toLowerCase().includes('dai')) {
-                        setPairInfo([
-                          res.token1.symbol + '/' + res.token0.symbol,
-                          res.token0.symbol + '/' + res.token1.symbol
-                        ])
-                        setQuoteTokenIndex('0')
-                        suggestConfigs('0', res.token0.decimals)
-                      } else {
-                        setPairInfo([
-                          res.token0.symbol + '/' + res.token1.symbol,
-                          res.token1.symbol + '/' + res.token0.symbol
-                        ])
-                        setQuoteTokenIndex('1')
-                        suggestConfigs('1', res.token1.decimals)
-                      }
-                    } catch (error) {
-                      console.log(error)
-                      setPairInfo(['Can not get UniswapV3 Pair Info'])
-                    }
-                  }
-                }}
-              >
-                <PlusIcon />
-              </ButtonAdd>
-            </div>
-          </div>
-          {pairInfo.length === 2 ? (
-            <ButtonBuy
-              className='switch-btn'
-              onClick={async () => {
-                console.log(ddlEngine)
-                if (ddlEngine) {
-                  const res = await ddlEngine.UNIV3PAIR.getPairInfo({
-                    pairAddress: pairAddr
-                  })
-                  console.log(res)
-                  if (quoteTokenIndex === '0') {
-                    setQuoteTokenIndex('1')
-                    suggestConfigs('1', res.token1.decimals)
-                  } else {
-                    setQuoteTokenIndex('0')
-                    suggestConfigs('0', res.token0.decimals)
-                  }
-                }
-              }}
-            >
-              {
-                quoteTokenIndex === '0' ? pairInfo[0] : pairInfo[1]
-              }
-              <SwapIcon />
-            </ButtonBuy>
-          ) : (
-            <div className='oracle-radio text-red'>{pairInfo[0]}</div>
-          )}
-          <div className='ddl-pool-page__content--pool-config mt-18px'>
-            <div className='config-item'>
-              <TextBlue fontSize={14} fontWeight={600}>
-                Window time (s)
-              </TextBlue>
-              <Input
-                inputWrapProps={{
-                  className: `config-input ${windowTimeSuggest.includes(windowTime) ? '' : 'warning-input'}`
-                }}
-                type='number'
-                placeholder='0'
-                value={windowTime}
-                onChange={(e) => {
-                  // @ts-ignore
-                  if (Number(e.target.value) >= 0) {
-                    setWindowTime((e.target as HTMLInputElement).value)
-                  }
-                }}
-              />
-            </div>
-          </div>
-          <div className='ddl-pool-page__content--pool-config mt-18px'>
-            <div className='config-item'>
-              <TextBlue fontSize={14} fontWeight={600}>
-                Power
-              </TextBlue>
-              <Input
-                inputWrapProps={{
-                  className: 'config-input'
-                }}
-                type='number'
-                placeholder='0.0'
-                value={power}
-                onChange={(e) => {
-                  // @ts-ignore
-                  if (Number(e.target.value) >= 0) {
-                    setPower((e.target as HTMLInputElement).value)
-                  }
-                }}
-                onBlur={(e) => {
-                  if (Number(e.target.value) >= 0) {
-                    const powerRounded = Math.round(Number(e.target.value) * 2) / 2
-                    setPower(powerRounded.toString())
-                  }
-                }}
-              />
-            </div>
-          </div>
-
-          <div className='ddl-pool-page__content--lable mt-18px'>
-            <Text fontSize={16} fontWeight={600}>
-              Changable config
-            </Text>
-          </div>
-          <div className='ddl-pool-page__content--pool-config mt-18px'>
-            {/* <div className='config-item mt-18px'> */}
-            {/*  <TextBlue fontSize={14} fontWeight={600}> */}
-            {/*    Mark */}
-            {/*  </TextBlue> */}
-            {/*  <Input */}
-            {/*    inputWrapProps={{ */}
-            {/*      className: `config-input ${markSuggest.includes(mark) ? '' : 'warning-input'}` */}
-            {/*    }} */}
-            {/*    type='number' */}
-            {/*    placeholder='0.0' */}
-            {/*    value={mark} */}
-            {/*    onChange={(e) => { */}
-            {/*      // @ts-ignore */}
-            {/*      if (Number(e.target.value) >= 0) { */}
-            {/*        setMark((e.target as HTMLInputElement).value) */}
-            {/*      } */}
-            {/*    }} */}
-            {/*  /> */}
-            {/* </div> */}
-            {/* <div className='config-item mt-18px'> */}
-            {/*  <TextBlue fontSize={14} fontWeight={600}> */}
-            {/*    Init time */}
-            {/*  </TextBlue> */}
-            {/*  <Input */}
-            {/*    inputWrapProps={{ */}
-            {/*      className: `config-input ${initTimeSuggest.includes(initTime) ? '' : 'warning-input'}` */}
-            {/*    }} */}
-            {/*    type='number' */}
-            {/*    placeholder='0' */}
-            {/*    value={initTime} */}
-            {/*    onChange={(e) => { */}
-            {/*      // @ts-ignore */}
-            {/*      if (Number(e.target.value) >= 0) { */}
-            {/*        setInitTime((e.target as HTMLInputElement).value) */}
-            {/*      } */}
-            {/*    }} */}
-            {/*  /> */}
-            {/* </div> */}
-            <div className='config-item mt-18px'>
-              <TextBlue fontSize={14} fontWeight={600}>
-                Daily funding rate (%)
-              </TextBlue>
-              <Input
-                inputWrapProps={{
-                  className: 'config-input'
-                }}
-                type='number'
-                placeholder='0'
-                onChange={(e) => {
-                  // @ts-ignore
-                  if (Number(e.target.value) >= 0) {
-                    setDailyFundingRate((e.target as HTMLInputElement).value)
-                  }
-                }}
-              />
-            </div>
-
-            <div className='config-item mt-18px'>
-              <TextBlue fontSize={14} fontWeight={600}>
-                Maturity
-              </TextBlue>
-              <Input
-                inputWrapProps={{
-                  className: 'config-input'
-                }}
-                type='number'
-                placeholder='0'
-                onChange={(e) => {
-                  // @ts-ignore
-                  if (Number(e.target.value) >= 0) {
-                    setDailyFundingRate((e.target as HTMLInputElement).value)
-                  }
-                }}
-              />
-            </div>
-
-            <div className='config-item mt-18px'>
-              <TextBlue fontSize={14} fontWeight={600}>
-                Premium rate
-              </TextBlue>
-              <Input
-                inputWrapProps={{
-                  className: 'config-input'
-                }}
-                type='number'
-                placeholder='0'
-                onChange={(e) => {
-                  // @ts-ignore
-                  if (Number(e.target.value) >= 0) {
-                    setDailyFundingRate((e.target as HTMLInputElement).value)
-                  }
-                }}
-              />
-            </div>
-
-            <div className='config-item mt-18px'>
-              <TextBlue fontSize={14} fontWeight={600}>
-                Lock discount rate
-              </TextBlue>
-              <Input
-                inputWrapProps={{
-                  className: 'config-input'
-                }}
-                type='number'
-                placeholder='0'
-                onChange={(e) => {
-                  // @ts-ignore
-                  if (Number(e.target.value) >= 0) {
-                    setDailyFundingRate((e.target as HTMLInputElement).value)
-                  }
-                }}
-              />
-            </div>
-          </div>
           {/* <div className='ddl-pool-page__content--lable mt-18px'> */}
-          {/*  <div className='ddl-pool-page__content--icon-and-name'> */}
-          {/*    <TokenIcon size={24} tokenAddress={baseTokenAddress} /> */}
-          {/*    <TokenSymbol token={tokens[baseTokenAddress]} /> */}
-          {/*  </div> */}
-          {/*  <SkeletonLoader loading={!balances[baseTokenAddress]}> */}
-          {/*    <Text */}
-          {/*      className='ddl-pool-page__content--balance' */}
-          {/*      onClick={() => { */}
-          {/*        const initValue = weiToNumber( */}
-          {/*          balances[baseTokenAddress], */}
-          {/*          tokens[baseTokenAddress]?.decimal || 18 */}
-          {/*        ) */}
-          {/*        setAmountInit(initValue) */}
-          {/*        setA((Number(initValue) / 2.5).toString()) */}
-          {/*        setB((Number(initValue) / 2.5).toString()) */}
+          {/*  <Text fontSize={16} fontWeight={600}> */}
+          {/*    Permanent config */}
+          {/*  </Text> */}
+          {/* </div> */}
+          {/* <div className='ddl-pool-page__content--pool-config mt-18px'> */}
+          {/*  <div className='config-item'> */}
+          {/*    <TextBlue fontSize={14} fontWeight={600}> */}
+          {/*      UniswapV3 Pair */}
+          {/*    </TextBlue> */}
+          {/*    <Input */}
+          {/*      inputWrapProps={{ */}
+          {/*        className: 'config-input' */}
+          {/*      }} */}
+          {/*      placeholder='0x...' */}
+          {/*      onChange={(e) => { */}
+          {/*        // @ts-ignore */}
+          {/*        setPairAddr((e.target as HTMLInputElement).value) */}
+          {/*      }} */}
+          {/*    /> */}
+          {/*    <ButtonAdd */}
+          {/*      className='add-btn' */}
+          {/*      onClick={async () => { */}
+          {/*        if (ddlEngine) { */}
+          {/*          try { */}
+          {/*            console.log('pairAddr', pairAddr) */}
+          {/*            const res = await ddlEngine.UNIV3PAIR.getPairInfo({ */}
+          {/*              pairAddress: pairAddr */}
+          {/*            }) */}
+          {/*            console.log(res) */}
+          {/*            if (res.token0.symbol.toLowerCase().includes('us') || res.token0.symbol.toLowerCase().includes('dai')) { */}
+          {/*              setPairInfo([ */}
+          {/*                res.token1.symbol + '/' + res.token0.symbol, */}
+          {/*                res.token0.symbol + '/' + res.token1.symbol */}
+          {/*              ]) */}
+          {/*              setQuoteTokenIndex('0') */}
+          {/*              suggestConfigs('0', res.token0.decimals) */}
+          {/*            } else { */}
+          {/*              setPairInfo([ */}
+          {/*                res.token0.symbol + '/' + res.token1.symbol, */}
+          {/*                res.token1.symbol + '/' + res.token0.symbol */}
+          {/*              ]) */}
+          {/*              setQuoteTokenIndex('1') */}
+          {/*              suggestConfigs('1', res.token1.decimals) */}
+          {/*            } */}
+          {/*          } catch (error) { */}
+          {/*            console.log(error) */}
+          {/*            setPairInfo(['Can not get UniswapV3 Pair Info']) */}
+          {/*          } */}
+          {/*        } */}
           {/*      }} */}
           {/*    > */}
-          {/*      Balance:{' '} */}
-          {/*      {balances && balances[baseTokenAddress] */}
-          {/*        ? formatWeiToDisplayNumber( */}
-          {/*          balances[baseTokenAddress], */}
-          {/*          4, */}
-          {/*          tokens[baseTokenAddress]?.decimal || 18 */}
-          {/*        ) */}
-          {/*        : 0} */}
-          {/*    </Text> */}
-          {/*  </SkeletonLoader> */}
+          {/*      <PlusIcon /> */}
+          {/*    </ButtonAdd> */}
+          {/*  </div> */}
           {/* </div> */}
-          {/* <Input */}
-          {/*  type='number' */}
-          {/*  placeholder='0.0' */}
-          {/*  className='fs-24' */}
-          {/*  value={amountInit} */}
-          {/*  onChange={(e) => { */}
-          {/*    // @ts-ignore */}
-          {/*    if (Number(e.target.value) >= 0) { */}
-          {/*      const initValue = Number(e.target.value) */}
-          {/*      setAmountInit(initValue.toString()) */}
-          {/*      setA((initValue / 2.5).toString()) */}
-          {/*      setB((initValue / 2.5).toString()) */}
+          {/* {pairInfo.length === 2 ? ( */}
+          {/*  <ButtonBuy */}
+          {/*    className='switch-btn' */}
+          {/*    onClick={async () => { */}
+          {/*      console.log(ddlEngine) */}
+          {/*      if (ddlEngine) { */}
+          {/*        const res = await ddlEngine.UNIV3PAIR.getPairInfo({ */}
+          {/*          pairAddress: pairAddr */}
+          {/*        }) */}
+          {/*        console.log(res) */}
+          {/*        if (quoteTokenIndex === '0') { */}
+          {/*          setQuoteTokenIndex('1') */}
+          {/*          suggestConfigs('1', res.token1.decimals) */}
+          {/*        } else { */}
+          {/*          setQuoteTokenIndex('0') */}
+          {/*          suggestConfigs('0', res.token0.decimals) */}
+          {/*        } */}
+          {/*      } */}
+          {/*    }} */}
+          {/*  > */}
+          {/*    { */}
+          {/*      quoteTokenIndex === '0' ? pairInfo[0] : pairInfo[1] */}
           {/*    } */}
-          {/*  }} */}
-          {/* /> */}
-          <div className='ddl-pool-page__content--pool-config mt-18px'>
-            {/* <div className='config-item mt-18px'> */}
-            {/*  <TextBlue fontSize={14} fontWeight={600}> */}
-            {/*    a */}
-            {/*  </TextBlue> */}
-            {/*  <Input */}
-            {/*    inputWrapProps={{ */}
-            {/*      className: `config-input ${isValidAB ? '' : 'error-input'}` */}
-            {/*    }} */}
-            {/*    type='number' */}
-            {/*    placeholder='0.0' */}
-            {/*    value={a} */}
-            {/*    onChange={(e) => { */}
-            {/*      // @ts-ignore */}
-            {/*      if (Number(e.target.value) >= 0) { */}
-            {/*        setA((e.target as HTMLInputElement).value) */}
-            {/*      } */}
-            {/*      // check 4ab <= R^2 */}
-            {/*      if (4 * Number(e.target.value) * Number(b) <= Math.pow(Number(amountInit), 2)) { */}
-            {/*        setIsValidAB(true) */}
-            {/*      } else { */}
-            {/*        setIsValidAB(false) */}
-            {/*      } */}
-            {/*    }} */}
-            {/*  /> */}
-            {/* </div> */}
-            {/* <div className='config-item mt-18px'> */}
-            {/*  <TextBlue fontSize={14} fontWeight={600}> */}
-            {/*    b */}
-            {/*  </TextBlue> */}
-            {/*  <Input */}
-            {/*    inputWrapProps={{ */}
-            {/*      className: `config-input ${isValidAB ? '' : 'error-input'}` */}
-            {/*    }} */}
-            {/*    type='number' */}
-            {/*    placeholder='0.0' */}
-            {/*    value={b} */}
-            {/*    onChange={(e) => { */}
-            {/*      // @ts-ignore */}
-            {/*      if (Number(e.target.value) >= 0) { */}
-            {/*        setB((e.target as HTMLInputElement).value) */}
-            {/*      } */}
-            {/*      // check 4ab <= R^2 */}
-            {/*      if (4 * Number(a) * Number(e.target.value) <= Math.pow(Number(amountInit), 2)) { */}
-            {/*        setIsValidAB(true) */}
-            {/*      } else { */}
-            {/*        setIsValidAB(false) */}
-            {/*      } */}
-            {/*    }} */}
-            {/*  /> */}
-            {/* </div> */}
-          </div>
+          {/*    <SwapIcon /> */}
+          {/*  </ButtonBuy> */}
+          {/* ) : ( */}
+          {/*  <div className='oracle-radio text-red'>{pairInfo[0]}</div> */}
+          {/* )} */}
+          {/* <div className='ddl-pool-page__content--pool-config mt-18px'> */}
+          {/*  <div className='config-item'> */}
+          {/*    <TextBlue fontSize={14} fontWeight={600}> */}
+          {/*      Window time (s) */}
+          {/*    </TextBlue> */}
+          {/*    <Input */}
+          {/*      inputWrapProps={{ */}
+          {/*        className: `config-input ${windowTimeSuggest.includes(windowTime) ? '' : 'warning-input'}` */}
+          {/*      }} */}
+          {/*      type='number' */}
+          {/*      placeholder='0' */}
+          {/*      value={windowTime} */}
+          {/*      onChange={(e) => { */}
+          {/*        // @ts-ignore */}
+          {/*        if (Number(e.target.value) >= 0) { */}
+          {/*          setWindowTime((e.target as HTMLInputElement).value) */}
+          {/*        } */}
+          {/*      }} */}
+          {/*    /> */}
+          {/*  </div> */}
+          {/* </div> */}
+          {/* <div className='ddl-pool-page__content--pool-config mt-18px'> */}
+          {/*  <div className='config-item'> */}
+          {/*    <TextBlue fontSize={14} fontWeight={600}> */}
+          {/*      Power */}
+          {/*    </TextBlue> */}
+          {/*    <Input */}
+          {/*      inputWrapProps={{ */}
+          {/*        className: 'config-input' */}
+          {/*      }} */}
+          {/*      type='number' */}
+          {/*      placeholder='0.0' */}
+          {/*      value={power} */}
+          {/*      onChange={(e) => { */}
+          {/*        // @ts-ignore */}
+          {/*        if (Number(e.target.value) >= 0) { */}
+          {/*          setPower((e.target as HTMLInputElement).value) */}
+          {/*        } */}
+          {/*      }} */}
+          {/*      onBlur={(e) => { */}
+          {/*        if (Number(e.target.value) >= 0) { */}
+          {/*          const powerRounded = Math.round(Number(e.target.value) * 2) / 2 */}
+          {/*          setPower(powerRounded.toString()) */}
+          {/*        } */}
+          {/*      }} */}
+          {/*    /> */}
+          {/*  </div> */}
+          {/* </div> */}
+
+          <OracleConfigBox />
+          <ChangeableConfigBox />
+          {/* <div className='ddl-pool-page__content--lable mt-18px'> */}
+          {/*  <Text fontSize={16} fontWeight={600}> */}
+          {/*    Changable config */}
+          {/*  </Text> */}
+          {/* </div> */}
+          {/* <div className='ddl-pool-page__content--pool-config mt-18px'> */}
+          {/*  /!* <div className='config-item mt-18px'> *!/ */}
+          {/*  /!*  <TextBlue fontSize={14} fontWeight={600}> *!/ */}
+          {/*  /!*    Mark *!/ */}
+          {/*  /!*  </TextBlue> *!/ */}
+          {/*  /!*  <Input *!/ */}
+          {/*  /!*    inputWrapProps={{ *!/ */}
+          {/*  /!*      className: `config-input ${markSuggest.includes(mark) ? '' : 'warning-input'}` *!/ */}
+          {/*  /!*    }} *!/ */}
+          {/*  /!*    type='number' *!/ */}
+          {/*  /!*    placeholder='0.0' *!/ */}
+          {/*  /!*    value={mark} *!/ */}
+          {/*  /!*    onChange={(e) => { *!/ */}
+          {/*  /!*      // @ts-ignore *!/ */}
+          {/*  /!*      if (Number(e.target.value) >= 0) { *!/ */}
+          {/*  /!*        setMark((e.target as HTMLInputElement).value) *!/ */}
+          {/*  /!*      } *!/ */}
+          {/*  /!*    }} *!/ */}
+          {/*  /!*  /> *!/ */}
+          {/*  /!* </div> *!/ */}
+          {/*  /!* <div className='config-item mt-18px'> *!/ */}
+          {/*  /!*  <TextBlue fontSize={14} fontWeight={600}> *!/ */}
+          {/*  /!*    Init time *!/ */}
+          {/*  /!*  </TextBlue> *!/ */}
+          {/*  /!*  <Input *!/ */}
+          {/*  /!*    inputWrapProps={{ *!/ */}
+          {/*  /!*      className: `config-input ${initTimeSuggest.includes(initTime) ? '' : 'warning-input'}` *!/ */}
+          {/*  /!*    }} *!/ */}
+          {/*  /!*    type='number' *!/ */}
+          {/*  /!*    placeholder='0' *!/ */}
+          {/*  /!*    value={initTime} *!/ */}
+          {/*  /!*    onChange={(e) => { *!/ */}
+          {/*  /!*      // @ts-ignore *!/ */}
+          {/*  /!*      if (Number(e.target.value) >= 0) { *!/ */}
+          {/*  /!*        setInitTime((e.target as HTMLInputElement).value) *!/ */}
+          {/*  /!*      } *!/ */}
+          {/*  /!*    }} *!/ */}
+          {/*  /!*  /> *!/ */}
+          {/*  /!* </div> *!/ */}
+          {/*  <div className='config-item mt-18px'> */}
+          {/*    <TextBlue fontSize={14} fontWeight={600}> */}
+          {/*      Daily funding rate (%) */}
+          {/*    </TextBlue> */}
+          {/*    <Input */}
+          {/*      inputWrapProps={{ */}
+          {/*        className: 'config-input' */}
+          {/*      }} */}
+          {/*      type='number' */}
+          {/*      placeholder='0' */}
+          {/*      onChange={(e) => { */}
+          {/*        // @ts-ignore */}
+          {/*        if (Number(e.target.value) >= 0) { */}
+          {/*          setDailyFundingRate((e.target as HTMLInputElement).value) */}
+          {/*        } */}
+          {/*      }} */}
+          {/*    /> */}
+          {/*  </div> */}
+
+          {/*  <div className='config-item mt-18px'> */}
+          {/*    <TextBlue fontSize={14} fontWeight={600}> */}
+          {/*      Maturity */}
+          {/*    </TextBlue> */}
+          {/*    <Input */}
+          {/*      inputWrapProps={{ */}
+          {/*        className: 'config-input' */}
+          {/*      }} */}
+          {/*      type='number' */}
+          {/*      placeholder='0' */}
+          {/*      onChange={(e) => { */}
+          {/*        // @ts-ignore */}
+          {/*        if (Number(e.target.value) >= 0) { */}
+          {/*          setDailyFundingRate((e.target as HTMLInputElement).value) */}
+          {/*        } */}
+          {/*      }} */}
+          {/*    /> */}
+          {/*  </div> */}
+
+          {/*  <div className='config-item mt-18px'> */}
+          {/*    <TextBlue fontSize={14} fontWeight={600}> */}
+          {/*      Premium rate */}
+          {/*    </TextBlue> */}
+          {/*    <Input */}
+          {/*      inputWrapProps={{ */}
+          {/*        className: 'config-input' */}
+          {/*      }} */}
+          {/*      type='number' */}
+          {/*      placeholder='0' */}
+          {/*      onChange={(e) => { */}
+          {/*        // @ts-ignore */}
+          {/*        if (Number(e.target.value) >= 0) { */}
+          {/*          setDailyFundingRate((e.target as HTMLInputElement).value) */}
+          {/*        } */}
+          {/*      }} */}
+          {/*    /> */}
+          {/*  </div> */}
+
+          {/*  <div className='config-item mt-18px'> */}
+          {/*    <TextBlue fontSize={14} fontWeight={600}> */}
+          {/*      Lock discount rate */}
+          {/*    </TextBlue> */}
+          {/*    <Input */}
+          {/*      inputWrapProps={{ */}
+          {/*        className: 'config-input' */}
+          {/*      }} */}
+          {/*      type='number' */}
+          {/*      placeholder='0' */}
+          {/*      onChange={(e) => { */}
+          {/*        // @ts-ignore */}
+          {/*        if (Number(e.target.value) >= 0) { */}
+          {/*          setDailyFundingRate((e.target as HTMLInputElement).value) */}
+          {/*        } */}
+          {/*      }} */}
+          {/*    /> */}
+          {/*  </div> */}
+          {/* </div> */}
+          {/* /!* <div className='ddl-pool-page__content--lable mt-18px'> *!/ */}
+          {/* /!*  <div className='ddl-pool-page__content--icon-and-name'> *!/ */}
+          {/* /!*    <TokenIcon size={24} tokenAddress={baseTokenAddress} /> *!/ */}
+          {/* /!*    <TokenSymbol token={tokens[baseTokenAddress]} /> *!/ */}
+          {/* /!*  </div> *!/ */}
+          {/* /!*  <SkeletonLoader loading={!balances[baseTokenAddress]}> *!/ */}
+          {/* /!*    <Text *!/ */}
+          {/* /!*      className='ddl-pool-page__content--balance' *!/ */}
+          {/* /!*      onClick={() => { *!/ */}
+          {/* /!*        const initValue = weiToNumber( *!/ */}
+          {/* /!*          balances[baseTokenAddress], *!/ */}
+          {/* /!*          tokens[baseTokenAddress]?.decimal || 18 *!/ */}
+          {/* /!*        ) *!/ */}
+          {/* /!*        setAmountInit(initValue) *!/ */}
+          {/* /!*        setA((Number(initValue) / 2.5).toString()) *!/ */}
+          {/* /!*        setB((Number(initValue) / 2.5).toString()) *!/ */}
+          {/* /!*      }} *!/ */}
+          {/* /!*    > *!/ */}
+          {/* /!*      Balance:{' '} *!/ */}
+          {/* /!*      {balances && balances[baseTokenAddress] *!/ */}
+          {/* /!*        ? formatWeiToDisplayNumber( *!/ */}
+          {/* /!*          balances[baseTokenAddress], *!/ */}
+          {/* /!*          4, *!/ */}
+          {/* /!*          tokens[baseTokenAddress]?.decimal || 18 *!/ */}
+          {/* /!*        ) *!/ */}
+          {/* /!*        : 0} *!/ */}
+          {/* /!*    </Text> *!/ */}
+          {/* /!*  </SkeletonLoader> *!/ */}
+          {/* /!* </div> *!/ */}
+          {/* /!* <Input *!/ */}
+          {/* /!*  type='number' *!/ */}
+          {/* /!*  placeholder='0.0' *!/ */}
+          {/* /!*  className='fs-24' *!/ */}
+          {/* /!*  value={amountInit} *!/ */}
+          {/* /!*  onChange={(e) => { *!/ */}
+          {/* /!*    // @ts-ignore *!/ */}
+          {/* /!*    if (Number(e.target.value) >= 0) { *!/ */}
+          {/* /!*      const initValue = Number(e.target.value) *!/ */}
+          {/* /!*      setAmountInit(initValue.toString()) *!/ */}
+          {/* /!*      setA((initValue / 2.5).toString()) *!/ */}
+          {/* /!*      setB((initValue / 2.5).toString()) *!/ */}
+          {/* /!*    } *!/ */}
+          {/* /!*  }} *!/ */}
+          {/* /!* /> *!/ */}
+          {/* <div className='ddl-pool-page__content--pool-config mt-18px'> */}
+          {/*  /!* <div className='config-item mt-18px'> *!/ */}
+          {/*  /!*  <TextBlue fontSize={14} fontWeight={600}> *!/ */}
+          {/*  /!*    a *!/ */}
+          {/*  /!*  </TextBlue> *!/ */}
+          {/*  /!*  <Input *!/ */}
+          {/*  /!*    inputWrapProps={{ *!/ */}
+          {/*  /!*      className: `config-input ${isValidAB ? '' : 'error-input'}` *!/ */}
+          {/*  /!*    }} *!/ */}
+          {/*  /!*    type='number' *!/ */}
+          {/*  /!*    placeholder='0.0' *!/ */}
+          {/*  /!*    value={a} *!/ */}
+          {/*  /!*    onChange={(e) => { *!/ */}
+          {/*  /!*      // @ts-ignore *!/ */}
+          {/*  /!*      if (Number(e.target.value) >= 0) { *!/ */}
+          {/*  /!*        setA((e.target as HTMLInputElement).value) *!/ */}
+          {/*  /!*      } *!/ */}
+          {/*  /!*      // check 4ab <= R^2 *!/ */}
+          {/*  /!*      if (4 * Number(e.target.value) * Number(b) <= Math.pow(Number(amountInit), 2)) { *!/ */}
+          {/*  /!*        setIsValidAB(true) *!/ */}
+          {/*  /!*      } else { *!/ */}
+          {/*  /!*        setIsValidAB(false) *!/ */}
+          {/*  /!*      } *!/ */}
+          {/*  /!*    }} *!/ */}
+          {/*  /!*  /> *!/ */}
+          {/*  /!* </div> *!/ */}
+          {/*  /!* <div className='config-item mt-18px'> *!/ */}
+          {/*  /!*  <TextBlue fontSize={14} fontWeight={600}> *!/ */}
+          {/*  /!*    b *!/ */}
+          {/*  /!*  </TextBlue> *!/ */}
+          {/*  /!*  <Input *!/ */}
+          {/*  /!*    inputWrapProps={{ *!/ */}
+          {/*  /!*      className: `config-input ${isValidAB ? '' : 'error-input'}` *!/ */}
+          {/*  /!*    }} *!/ */}
+          {/*  /!*    type='number' *!/ */}
+          {/*  /!*    placeholder='0.0' *!/ */}
+          {/*  /!*    value={b} *!/ */}
+          {/*  /!*    onChange={(e) => { *!/ */}
+          {/*  /!*      // @ts-ignore *!/ */}
+          {/*  /!*      if (Number(e.target.value) >= 0) { *!/ */}
+          {/*  /!*        setB((e.target as HTMLInputElement).value) *!/ */}
+          {/*  /!*      } *!/ */}
+          {/*  /!*      // check 4ab <= R^2 *!/ */}
+          {/*  /!*      if (4 * Number(a) * Number(e.target.value) <= Math.pow(Number(amountInit), 2)) { *!/ */}
+          {/*  /!*        setIsValidAB(true) *!/ */}
+          {/*  /!*      } else { *!/ */}
+          {/*  /!*        setIsValidAB(false) *!/ */}
+          {/*  /!*      } *!/ */}
+          {/*  /!*    }} *!/ */}
+          {/*  /!*  /> *!/ */}
+          {/*  /!* </div> *!/ */}
+          {/* </div> */}
 
           {/* <ButtonExecute */}
           {/*  className='create-btn mt-18px' */}
