@@ -245,7 +245,7 @@ export const CreatePool = () => {
           {/* </div> */}
 
           <OracleConfigBox />
-          <ChangeableConfigBox />
+          {/* <ChangeableConfigBox /> */}
           {/* <div className='ddl-pool-page__content--lable mt-18px'> */}
           {/*  <Text fontSize={16} fontWeight={600}> */}
           {/*    Changable config */}

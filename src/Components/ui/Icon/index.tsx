@@ -199,19 +199,18 @@ export const PlusIcon = (props: any) => {
 export const SwapIcon = (props: any) => {
   return (
     <svg
+      width={props.size ? props.size : '24'}
+      height={props.size ? props.size : '24'}
+      viewBox='0 0 24 24' id='swap'
       xmlns='http://www.w3.org/2000/svg'
-      width='24'
-      height='24'
-      fill='currentColor'
-      className='bi bi-arrow-repeat'
-      viewBox='0 0 16 16'
     >
-      {' '}
-      <path d='M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z' />{' '}
-      <path
-        fillRule='evenodd'
-        d='M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z'
-      />{' '}
+      <g data-name='Layer 2'>
+        <path
+          d='M4 9h13l-1.6 1.2a1 1 0 0 0-.2 1.4 1 1 0 0 0 .8.4 1 1 0 0 0 .6-.2l4-3a1 1 0 0 0 0-1.59l-3.86-3a1 1 0 0 0-1.23 1.58L17.08 7H4a1 1 0 0 0 0 2zm16 7H7l1.6-1.2a1 1 0 0 0-1.2-1.6l-4 3a1 1 0 0 0 0 1.59l3.86 3a1 1 0 0 0 .61.21 1 1 0 0 0 .79-.39 1 1 0 0 0-.17-1.4L6.92 18H20a1 1 0 0 0 0-2z'
+          data-name='swap'
+          fill='#01A7FA'
+        />
+      </g>
     </svg>
   )
 }

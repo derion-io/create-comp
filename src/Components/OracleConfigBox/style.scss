@@ -4,6 +4,32 @@
   &-box {
     position: relative;
     padding: 1.5rem;
+
+    .config-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  }
+
+  &__select-token-box {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+    align-items: center;
+  }
+
+  &__select-fee-box {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+    align-items: center;
+
+    .btn-select-fee {
+      &.active {
+        background: $color-buy;
+      }
+    }
   }
 
   &__title {
