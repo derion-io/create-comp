@@ -10,7 +10,7 @@ export default {
     <img src={`data:image/svg+xml;base64,${btoa(svgText)}`} {...props} />
   ),
   name: 'Dapp',
-  path: '/exposure',
+  path: '/pools/create',
   children: [
     {
       name: 'Create Pool',
