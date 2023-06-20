@@ -5,6 +5,7 @@ import { bn, numberToWei, weiToNumber } from '../utils/helpers'
 import { useListTokens } from '../state/token/hook'
 import { useListPool } from '../state/pools/hooks/useListPool'
 import { PoolType } from '../state/types'
+import _ from 'lodash'
 
 const barColors = ['#01A7FA', '#FF98E5', '#4FBF67', '#3DBAA2']
 
@@ -58,7 +59,7 @@ export const useGenerateLeverageData = (pairAddr: string, power: string, amountI
   }, [pools])
 
   return useMemo(() => {
-    const result = { ...oldLeverageData }
+    const result = _.cloneDeep(oldLeverageData)
 
     if (amountIn && Number(power) > 0) {
       const size = bn(numberToWei(getTokenValue(
@@ -73,6 +74,7 @@ export const useGenerateLeverageData = (pairAddr: string, power: string, amountI
           size,
           color: '#ffffff'
         })
+        result[power].totalSize = result[power].totalSize.add(size)
       } else {
         result[power] = {
           x: power,

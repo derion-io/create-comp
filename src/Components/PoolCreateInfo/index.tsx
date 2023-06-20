@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import LeverageSlider from 'leverage-slider/dist/component'
-import { bn } from '../../utils/helpers'
+import { bn, formatFloat } from '../../utils/helpers'
 import './style.scss'
 import { Input } from '../ui/Input'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
@@ -10,13 +10,14 @@ import { useListTokens } from '../../state/token/hook'
 import { Text, TextBlue } from '../ui/Text'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { NATIVE_ADDRESS, ZERO_ADDRESS } from '../../utils/constant'
-import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
+import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import { TxFee } from '../TxFee'
 import { ButtonExecute } from '../ui/Button'
 import { useWeb3React } from '../../state/customWeb3React/hook'
 import { useGenerateLeverageData } from '../../hooks/useGenerateLeverageData'
-import { useListPool } from '../../state/pools/hooks/useListPool'
 import { NoDataIcon } from '../ui/Icon'
+import { Box } from '../ui/Box'
+import { useTokenValue } from '../../hooks/useTokenValue'
 
 export const PoolCreateInfo = ({ pairAddr, power }: { pairAddr: string, power: string }) => {
   const [amountIn, setAmountIn] = useState<any>()
@@ -24,10 +25,15 @@ export const PoolCreateInfo = ({ pairAddr, power }: { pairAddr: string, power: s
   const { tokens } = useListTokens()
   const { balances } = useWalletBalance()
   const [recipient, setRecipient] = useState<string>(ZERO_ADDRESS)
+  const [visibleRecipient, setVisibleRecipient] = useState<boolean>(false)
   const inputTokenAddress = NATIVE_ADDRESS
   const { account } = useWeb3React()
-  const { poolGroups } = useListPool()
   const data = useGenerateLeverageData(pairAddr, power, amountIn)
+
+  const { value } = useTokenValue({
+    amount: amountIn,
+    tokenAddress: NATIVE_ADDRESS
+  })
 
   useMemo(() => {
     if (account) {
@@ -83,6 +89,51 @@ export const PoolCreateInfo = ({ pairAddr, power }: { pairAddr: string, power: s
         />
       </div>
 
+      <Box
+        borderColor='blue'
+        className='estimate-box swap-info-box mt-2 mb-2'
+      >
+        <TextBlue className='estimate-box__title liquidity'>
+          Liquidity {barData?.x}x
+        </TextBlue>
+        <InfoRow>
+          <span>
+              Value
+          </span>
+          <span className={`delta-box ${!amountIn && 'no-data'}`}>
+            <div className='text-left'>
+              <Text>0</Text>
+            </div>
+            {
+              amountIn && <React.Fragment>
+                <div className='icon-plus'><Text>+</Text></div>
+                <div className='text-right'>
+                  <Text>
+                    {formatLocalisedCompactNumber(formatFloat(value))}
+                  </Text>
+                </div>
+              </React.Fragment>
+            }
+          </span>
+        </InfoRow>
+        <InfoRow>
+          <span>
+              Expiration
+          </span>
+          <div className={`delta-box ${!amountIn && 'no-data'}`}>
+            <div className='text-left'>
+              <Text>0</Text>
+            </div>
+            {
+              amountIn && (<React.Fragment>
+                <div className='plus-icon'><Text>+</Text></div>
+                <div className='text-right'><Text>1s</Text></div>
+              </React.Fragment>)
+            }
+          </div>
+        </InfoRow>
+      </Box>
+
       {
         (data && data.length > 0)
           ? <LeverageSlider
@@ -97,12 +148,22 @@ export const PoolCreateInfo = ({ pairAddr, power }: { pairAddr: string, power: s
           </div>
       }
 
-      <div className='config-item mt-18px'>
-        <div className='mb-1'>
+      <div className='config-item mt-2 mb-1'>
+        <div className='recipient-box'>
           <TextBlue fontSize={14} fontWeight={600}>
             Recipient
           </TextBlue>
+          <TextBlue
+            className='btn-toggle'
+            fontSize={14} fontWeight={600}
+            onClick={() => {
+              setVisibleRecipient(!visibleRecipient)
+            }}
+          >
+            {visibleRecipient ? '-' : '+'}
+          </TextBlue>
         </div>
+        {visibleRecipient &&
         <Input
           inputWrapProps={{
             className: 'config-input'
@@ -110,15 +171,16 @@ export const PoolCreateInfo = ({ pairAddr, power }: { pairAddr: string, power: s
           value={recipient}
           placeholder='0x...'
           onChange={(e) => {
-            // @ts-ignore
+          // @ts-ignore
             setRecipient((e.target as HTMLInputElement).value)
           }}
         />
+        }
       </div>
 
       <TxFee gasUsed={bn(1000000)} />
       <ButtonExecute
-        className='create-pool-button w-100'
+        className='create-pool-button w-100 mt-1'
       >
         Create pool
       </ButtonExecute>
@@ -126,68 +188,14 @@ export const PoolCreateInfo = ({ pairAddr, power }: { pairAddr: string, power: s
   )
 }
 
-const LEVERAGE_DATA = [
-  {
-    x: 5,
-    xDisplay: '5x',
-    totalSize: bn('0x4dec282667716233'),
-    bars: [
-      {
-        x: 5,
-        token: '0x767311aeb1818218E25655aeEE096982bb690013-16',
-        size: 69.36,
-        color: '#01A7FA',
-        reserve: bn('0x360d7792eba77258')
-      },
-      {
-        x: 5,
-        token: '0x7c4a2262C23fCc45e102BD8D0fA3541Ec544e59E-16',
-        size: 30.63,
-        color: '#FF98E5',
-        reserve: bn('0x17deb0937bc9efdb')
+const InfoRow = (props: any) => {
+  return (
+    <div
+      className={
+        'd-flex jc-space-between info-row font-size-12 ' + props.className
       }
-    ]
-  },
-  {
-    x: 9,
-    xDisplay: '9x',
-    totalSize: bn('0x1813e2fe4ba5869a'),
-    bars: [
-      {
-        x: 9,
-        token: '0x086D9928f862C95359C6624B74e4fEf3a9e79a74-16',
-        size: 30.89,
-        color: '#01A7FA',
-        reserve: bn('0x1813e2fe4ba5869a')
-      }
-    ]
-  },
-  {
-    x: 21,
-    xDisplay: '21x',
-    totalSize: bn('0x17d868afc6b2f74b'),
-    bars: [
-      {
-        x: 21,
-        token: '0x43200e62dC33C82C0e69D355480a7140eE527088-16',
-        size: 30.6,
-        color: '#01A7FA',
-        reserve: bn('0x17d868afc6b2f74b')
-      }
-    ]
-  },
-  {
-    x: 33,
-    xDisplay: '33x',
-    totalSize: bn('0x17a38db0b0646c82'),
-    bars: [
-      {
-        x: 33,
-        token: '0x37De2624B664e3da084F9c2177b6FCf0Fd2406de-16',
-        size: 30.33,
-        color: '#01A7FA',
-        reserve: bn('0x17a38db0b0646c82')
-      }
-    ]
-  }
-]
+    >
+      {props.children}
+    </div>
+  )
+}

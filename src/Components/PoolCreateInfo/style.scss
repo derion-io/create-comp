@@ -1,3 +1,5 @@
+@import "src/styles/abstracts/variables";
+
 .pool-create-info {
   width: 400px;
   padding: 1rem;
@@ -30,6 +32,56 @@
     gap: 1rem;
     align-items: center;
     padding: 1rem;
+  }
+
+  .estimate-box {
+    position: relative;
+    padding: 1.5rem;
+
+    &__title {
+      position: absolute;
+      display: block;
+      transform: translateY(calc(-50% - 1.5rem));
+      left: 2rem;
+      padding: 0.5rem;
+      background: $color-card-bg;
+    }
+  }
+
+  .delta-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    width: 200px;
+
+    &.no-data {
+      .text-left {
+        text-align: right;
+        flex: 1;
+        width: inherit;
+      }
+    }
+
+    .text-left {
+      width: 60px;
+    }
+    .text-right {
+      width: 100px;
+    }
+    .icon-plus {
+      width: 10px;
+    }
+  }
+
+  .recipient-box {
+    display: flex;
+    justify-content: space-between;
+
+    .btn-toggle {
+      cursor: pointer;
+      display: block;
+      padding: 0.5rem;
+    }
   }
 
   .create-pool-button {

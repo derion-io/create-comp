@@ -11,8 +11,8 @@ export const TxFee = ({ gasUsed } : {gasUsed: BigNumber}) => {
   const { chainId } = useConfigs()
   const { data: nativePrice } = useNativePrice()
 
-  return <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
-    <InfoRow>
+  return <Box borderColor='default' className='swap-info-box mt-1 mb-1 p-1'>
+    <InfoRow className='mb-1'>
       <TextGrey>Gas Used</TextGrey>
       <span>
         <Text>{formatWeiToDisplayNumber(gasUsed, 0, 0)} Gas</Text>
