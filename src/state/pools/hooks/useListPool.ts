@@ -1,7 +1,6 @@
 import { useConfigs } from '../../config/useConfigs'
 import { addPoolsWithChain } from '../reducer'
 import { useDispatch, useSelector } from 'react-redux'
-// eslint-disable-next-line no-unused-vars
 import { State } from '../../types'
 import { addTokensReduce } from '../../token/reducer'
 import { useSwapHistory } from '../../wallet/hooks/useSwapHistory'
@@ -20,16 +19,20 @@ export const useListPool = () => {
     if (ddlEngine) {
       ddlEngine.RESOURCE.getResourceCached(account).then((data: any) => {
         dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
-        dispatch(addPoolsWithChain({ pools: data.poolGroups, chainId }))
+        dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
         updateSwapTxsHandle(account, data.swapLogs)
       })
       ddlEngine.RESOURCE.getNewResource(account).then((data: any) => {
         dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
-        dispatch(addPoolsWithChain({ pools: data.poolGroups, chainId }))
+        dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
         updateSwapTxsHandle(account, data.swapLogs)
       })
     }
   }
 
-  return { initListPool, updateSwapTxsHandle, pools: pools[chainId] }
+  return {
+    initListPool,
+    updateSwapTxsHandle,
+    pools: pools[chainId]
+  }
 }

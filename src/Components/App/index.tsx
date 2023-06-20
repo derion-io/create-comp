@@ -13,6 +13,7 @@ import { CreatePool } from '../../pages/CreatePool'
 
 export const App = () => {
   const { tokens } = useListTokens()
+  const { poolGroups } = useListPool()
   const { fetchBalanceAndAllowance } = useWalletBalance()
   const { account } = useWeb3React()
   const { chainId, location } = useConfigs()

@@ -31,8 +31,7 @@ export const PoolCreateInfo = () => {
   }, [account])
 
   return (
-    <Card className='pool-create-info'>
-
+    <div className='pool-create-info'>
       <div className='amount-input-box'>
         <div className='amount-input-box__head'>
           <SkeletonLoader loading={!tokens[Object.keys(tokens)[0]]}>
@@ -111,7 +110,7 @@ export const PoolCreateInfo = () => {
       >
         Create pool
       </ButtonExecute>
-    </Card>
+    </div>
   )
 }
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { TextBlue } from '../ui/Text'
+import { Text, TextBlue } from '../ui/Text'
 import { Input } from '../ui/Input'
 import { Box } from '../ui/Box'
 import './style.scss'
@@ -9,15 +9,15 @@ export const ChangeableConfigBox = () => {
 
   return <Box
     borderColor='blue'
-    className='changeable-config-box mt-1 mb-1'
+    className='changeable-config-box mt-2'
   >
-    <span className='changeable-config__title'>
+    <TextBlue className='changeable-config__title'>
       Changeable Config
-    </span>
+    </TextBlue>
     <div className='config-item'>
-      <TextBlue fontSize={14} fontWeight={600}>
+      <Text fontSize={14} fontWeight={600}>
         Daily funding rate (%)
-      </TextBlue>
+      </Text>
       <Input
         inputWrapProps={{
           className: 'config-input'
@@ -34,9 +34,9 @@ export const ChangeableConfigBox = () => {
     </div>
 
     <div className='config-item mt-18px'>
-      <TextBlue fontSize={14} fontWeight={600}>
+      <Text fontSize={14} fontWeight={600}>
         Maturity
-      </TextBlue>
+      </Text>
       <Input
         inputWrapProps={{
           className: 'config-input'
@@ -53,9 +53,9 @@ export const ChangeableConfigBox = () => {
     </div>
 
     <div className='config-item mt-18px'>
-      <TextBlue fontSize={14} fontWeight={600}>
+      <Text fontSize={14} fontWeight={600}>
         Premium rate
-      </TextBlue>
+      </Text>
       <Input
         inputWrapProps={{
           className: 'config-input'
@@ -72,9 +72,9 @@ export const ChangeableConfigBox = () => {
     </div>
 
     <div className='config-item mt-18px'>
-      <TextBlue fontSize={14} fontWeight={600}>
+      <Text fontSize={14} fontWeight={600}>
         Lock discount rate
-      </TextBlue>
+      </Text>
       <Input
         inputWrapProps={{
           className: 'config-input'

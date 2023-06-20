@@ -4,11 +4,12 @@
 $element-gap: 2rem;
 
 .exposure-interface .ddl-pool-page {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  gap: 1rem;
-  align-items: flex-start;
+  //display: flex;
+  //justify-content: center;
+  //width: 100%;
+  //gap: 1rem;
+  //align-items: flex-start;
+  margin: 0 auto;
 
   //&__config-card {
   //  width: 648px;
@@ -34,29 +35,47 @@ $element-gap: 2rem;
     }
   }
 
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 24px;
+
+    &--back-btn {
+      position: absolute;
+      top: 1.25rem;
+      //transform: translateY(-50%);
+      left: 2rem;
+      padding: 0.25rem 0.5rem;
+    }
+  }
+
   &__content {
     padding-left: 24px;
     padding-right: 24px;
     padding-bottom: 24px;
+    display: flex;
+    gap: 2rem;
 
-    .oracle-radio {
-      margin-left: 125px;
-      margin-top: 8px;
-      input:nth-child(2) {
-        margin-left: 20px;
-      }
-    }
+    //.oracle-radio {
+    //  margin-left: 125px;
+    //  margin-top: 8px;
+    //  input:nth-child(2) {
+    //    margin-left: 20px;
+    //  }
+    //}
 
-    .switch-btn {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 10px;
-      margin-left: 122px;
-      .bi-arrow-repeat {
-        margin-left: 5px;
-      }
-    }
+    //.switch-btn {
+    //  display: flex;
+    //  justify-content: space-between;
+    //  align-items: center;
+    //  margin-top: 10px;
+    //  margin-left: 122px;
+    //  .bi-arrow-repeat {
+    //    margin-left: 5px;
+    //  }
+    //}
 
     &--lable {
       display: flex;
@@ -197,23 +216,6 @@ $element-gap: 2rem;
     }
 
     &--pool-config {
-      //.config-item {
-      //  display: flex;
-      //  justify-content: space-between;
-      //  align-items: center;
-      //  .add-btn {
-      //    width: 40px;
-      //    height: 40px;
-      //    display: flex;
-      //    padding: 8px;
-      //  }
-      //  .warning-input {
-      //    border-color: orange;
-      //  }
-      //  .error-input {
-      //    border-color: red;
-      //  }
-      //}
       .config-input {
         width: 416px;
       }
@@ -240,4 +242,9 @@ $element-gap: 2rem;
     }
   }
 
+  .config-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
 }

@@ -4,12 +4,6 @@
   &-box {
     position: relative;
     padding: 1.5rem;
-
-    .config-item {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
   }
 
   &__select-token-box {

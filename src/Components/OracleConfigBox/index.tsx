@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { TextBlue } from '../ui/Text'
+import { Text, TextBlue } from '../ui/Text'
 import { Input } from '../ui/Input'
 import { Button, ButtonAdd, ButtonBuy } from '../ui/Button'
 import { PlusIcon, SwapIcon } from '../ui/Icon'
@@ -178,36 +178,34 @@ export const OracleConfigBox = () => {
       borderColor='blue'
       className='oracle-config-box mt-1 mb-1'
     >
-      <span className='oracle-config__title'>
+      <TextBlue className='oracle-config__title'>
       Permanent Config
-      </span>
+      </TextBlue>
 
-      <div>
-        <div className='config-item'>
-          <TextBlue fontSize={14} fontWeight={600}>
-            Window time (s)
-          </TextBlue>
-          <Input
-            inputWrapProps={{
-              className: `config-input ${windowTimeSuggest.includes(windowTime) ? '' : 'warning-input'}`
-            }}
-            type='number'
-            placeholder='0'
-            value={windowTime}
-            onChange={(e) => {
-              // @ts-ignore
-              if (Number(e.target.value) >= 0) {
-                setWindowTime((e.target as HTMLInputElement).value)
-              }
-            }}
-          />
-        </div>
+      <div className='config-item'>
+        <Text fontSize={14} fontWeight={600}>
+          Window time (s)
+        </Text>
+        <Input
+          inputWrapProps={{
+            className: `config-input ${windowTimeSuggest.includes(windowTime) ? '' : 'warning-input'}`
+          }}
+          type='number'
+          placeholder='0'
+          value={windowTime}
+          onChange={(e) => {
+            // @ts-ignore
+            if (Number(e.target.value) >= 0) {
+              setWindowTime((e.target as HTMLInputElement).value)
+            }
+          }}
+        />
       </div>
       <div className='ddl-pool-page__content--pool-config mt-18px'>
         <div className='config-item'>
-          <TextBlue fontSize={14} fontWeight={600}>
+          <Text fontSize={14} fontWeight={600}>
             Power
-          </TextBlue>
+          </Text>
           <Input
             inputWrapProps={{
               className: 'config-input'
