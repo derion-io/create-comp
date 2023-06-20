@@ -1,13 +1,14 @@
 import { useConfigs } from '../../config/useConfigs'
-import { addPoolsWithChain } from '../reducer'
+import { addPoolGroupsWithChain, addPoolsWithChain } from '../reducer'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../types'
 import { addTokensReduce } from '../../token/reducer'
 import { useSwapHistory } from '../../wallet/hooks/useSwapHistory'
 
 export const useListPool = () => {
-  const { pools } = useSelector((state: State) => {
+  const { poolGroups, pools } = useSelector((state: State) => {
     return {
+      poolGroups: state.pools.poolGroups,
       pools: state.pools.pools
     }
   })
@@ -19,11 +20,13 @@ export const useListPool = () => {
     if (ddlEngine) {
       ddlEngine.RESOURCE.getResourceCached(account).then((data: any) => {
         dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
+        dispatch(addPoolGroupsWithChain({ poolGroups: data.poolGroups, chainId }))
         dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
         updateSwapTxsHandle(account, data.swapLogs)
       })
       ddlEngine.RESOURCE.getNewResource(account).then((data: any) => {
         dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
+        dispatch(addPoolGroupsWithChain({ poolGroups: data.poolGroups, chainId }))
         dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
         updateSwapTxsHandle(account, data.swapLogs)
       })
@@ -33,6 +36,7 @@ export const useListPool = () => {
   return {
     initListPool,
     updateSwapTxsHandle,
+    poolGroups: poolGroups[chainId],
     pools: pools[chainId]
   }
 }

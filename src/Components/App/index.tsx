@@ -13,20 +13,20 @@ import { CreatePool } from '../../pages/CreatePool'
 
 export const App = () => {
   const { tokens } = useListTokens()
-  const { poolGroups } = useListPool()
   const { fetchBalanceAndAllowance } = useWalletBalance()
   const { account } = useWeb3React()
-  const { chainId, location } = useConfigs()
+  const { ddlEngine, chainId, location } = useConfigs()
   const chainIdRef = useRef(null)
   const { initListPool } = useListPool()
 
   useEffect(() => {
+    if (!ddlEngine) return
     initListPool(account)
     const intervalId = setInterval(() => {
       initListPool(account)
     }, TIME_TO_REFRESH_STATE)
     return () => clearInterval(intervalId)
-  }, [chainId, account])
+  }, [chainId, account, ddlEngine])
 
   useEffect(() => {
     if (account && Object.keys(tokens).length > 0) {

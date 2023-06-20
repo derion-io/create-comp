@@ -90,9 +90,8 @@ export const OracleConfigBox = () => {
   }
 
   const fetchPairInfo = async () => {
-    if (ddlEngine) {
+    if (ddlEngine && pairAddr && pairAddr !== ZERO_ADDRESS) {
       try {
-        console.log('pairAddr', pairAddr)
         const res = await ddlEngine.UNIV3PAIR.getPairInfo({
           pairAddress: pairAddr
         })

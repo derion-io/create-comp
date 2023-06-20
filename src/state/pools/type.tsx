@@ -1,6 +1,5 @@
 import { BigNumber } from 'ethers'
 import { ListTokensType } from '../token/type'
-import { Engine } from 'derivable-tools/dist/engine'
 
 export type BalancesType = { [key: string]: BigNumber }
 export type AllowancesType = { [key: string]: BigNumber }
@@ -36,29 +35,36 @@ export type PoolType = {
   INIT_TIME: BigNumber
 }
 
+export type PoolGroupType = any
+
 export interface poolsState {
+  poolGroups: {
+    [key: number]: {[key: string]: PoolGroupType}
+  },
   pools: {
     [key: number]: {[key: string]: PoolType}
   },
   tokens: {
     [key: string]: ListTokensType
   },
+  prices: {
+    [key: number]: {[key: string]: BigNumber}
+  },
   swapLogs: {[key: string]: any[] }
+}
+const initDataEachChain = {
+  56: {},
+  31337: {},
+  1337: {},
+  97: {},
+  42161: {}
 }
 
 export const initialState: poolsState = {
-  pools: {
-    56: {},
-    31337: {},
-    1337: {},
-    97: {}
-  },
-  tokens: {
-    56: {},
-    31337: {},
-    1337: {},
-    97: {}
-  },
+  poolGroups: initDataEachChain,
+  pools: initDataEachChain,
+  tokens: initDataEachChain,
+  prices: initDataEachChain,
   swapLogs: {
   }
 }
