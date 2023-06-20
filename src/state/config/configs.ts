@@ -110,6 +110,9 @@ export default {
     rpcToGetLogs: 'https://arb1.arbitrum.io/rpc',
     explorer: 'https://arbiscan.io',
     scanApi: 'https://api.arbiscan.io/api',
+    candleChartApi: 'https://api.lz.finance/56/chart/',
+    // theGraphExchange: 'https://api.thegraph.com/subgraphs/name/sushi-v2/sushiswap-arbitrum',
+    theGraphExchange: 'https://api.thegraph.com/subgraphs/name/sushiswap/arbitrum-exchange',
     scanName: 'Arbitrum Scan',
     ddlGenesisBlock: 70615018,
     timePerBlock: 1000,
@@ -122,13 +125,17 @@ export default {
     addresses: {
       multiCall: '0x07BBBb79619a45D041549Baf8Ee7A60376d649cf',
       tokensInfo: '0x696630d3aE600147902c71bF967ec3eb7a2C8b44',
-      uniV3Factory: '0x1F98431c8aD98523631AE4a59f267346ea31F984',
       pairsInfo: '0x81C8f6bC2a602B9Ad403116ab4c0EC1a0e5B49B1',
       bnA: '0x357FF35761979254F93a21995b20d9071904603d',
       wrapToken: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
       nativeToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
       poolFactory: '0x848389D3c869dEF538b148cE5864eFee71C868e1',
       router: '0xbc9a257e43f7b3b1a03aEBE909f15e95A4928834'
-    }
+    },
+    stableCoins: [
+      '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+      '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+      '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1'
+    ]
   }
 }

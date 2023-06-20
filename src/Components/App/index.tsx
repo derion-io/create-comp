@@ -10,6 +10,7 @@ import { useConfigs } from '../../state/config/useConfigs'
 import { useListPool } from '../../state/pools/hooks/useListPool'
 import { TIME_TO_REFRESH_STATE } from '../../utils/constant'
 import { CreatePool } from '../../pages/CreatePool'
+import { useFetchTokenPrice } from '../../state/pools/hooks/useTokenPrice'
 
 export const App = () => {
   const { tokens } = useListTokens()
@@ -18,6 +19,7 @@ export const App = () => {
   const { ddlEngine, chainId, location } = useConfigs()
   const chainIdRef = useRef(null)
   const { initListPool } = useListPool()
+  useFetchTokenPrice()
 
   useEffect(() => {
     if (!ddlEngine) return

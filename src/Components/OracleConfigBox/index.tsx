@@ -14,13 +14,21 @@ import { useListTokens } from '../../state/token/hook'
 import { useContract } from '../../hooks/useContract'
 import { utils } from 'ethers'
 
-export const OracleConfigBox = () => {
+export const OracleConfigBox = ({
+  power,
+  setPower,
+  pairAddr,
+  setPairAddr
+}: {
+  power: string,
+  setPower: any,
+  pairAddr: string,
+  setPairAddr: any
+}) => {
   const { ddlEngine } = useConfigs()
   const { pools } = useListPool()
   const [pairInfo, setPairInfo] = useState<string[]>([])
   const [quoteTokenIndex, setQuoteTokenIndex] = useState<string>('0')
-  const [pairAddr, setPairAddr] = useState<string>(ZERO_ADDRESS)
-  const [power, setPower] = useState<string>('')
   const [windowTimeSuggest, setWindowTimeSuggest] = useState<string[]>([])
   const [mark, setMark] = useState<string>('')
   const [markSuggest, setMarkSuggest] = useState<string[]>([])

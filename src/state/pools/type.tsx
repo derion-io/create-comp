@@ -33,6 +33,7 @@ export type PoolType = {
   ORACLE: string,
   MARK: BigNumber,
   INIT_TIME: BigNumber
+  TOKEN_R: string
 }
 
 export type PoolGroupType = any

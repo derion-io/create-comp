@@ -1,41 +1,25 @@
 import React, { useState, useMemo } from 'react'
-import { ethers } from 'ethers'
 import './style.scss'
 import 'react-tabs/style/react-tabs.css'
-import { ZERO_ADDRESS, SECONDS_PER_DAY } from '../../utils/constant'
+import { ZERO_ADDRESS } from '../../utils/constant'
 import { Card } from '../../Components/ui/Card'
-import { IconArrowLeft, PlusIcon, SwapIcon } from '../../Components/ui/Icon'
+import { IconArrowLeft } from '../../Components/ui/Icon'
 import {
-  ButtonGrey,
-  ButtonExecute,
-  ButtonAdd,
-  ButtonBuy
+  ButtonGrey
 } from '../../Components/ui/Button'
-import { TokenIcon } from '../../Components/ui/TokenIcon'
-import { TokenSymbol } from '../../Components/ui/TokenSymbol'
-import { SkeletonLoader } from '../../Components/ui/SkeletonLoader'
-import { Input } from '../../Components/ui/Input'
 import { useWeb3React } from '../../state/customWeb3React/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
 import { useListPool } from '../../state/pools/hooks/useListPool'
 import { useConfigs } from '../../state/config/useConfigs'
-import { Text, TextBlue } from '../../Components/ui/Text'
-import { bn, numberToWei, weiToNumber, parseCallStaticError } from '../../utils/helpers'
-import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
-import { toast } from 'react-toastify'
+import { Text } from '../../Components/ui/Text'
+import { bn } from '../../utils/helpers'
 import { PoolCreateInfo } from '../../Components/PoolCreateInfo'
 import { OracleConfigBox } from '../../Components/OracleConfigBox'
 import { ChangeableConfigBox } from '../../Components/ChangeableConfigBox'
 
 export const CreatePool = () => {
-  const { ddlEngine } = useConfigs()
   const { account } = useWeb3React()
-  const { pools } = useListPool()
-  const [amountInit, setAmountInit] = useState<string>('')
-  const [createPoolLoading, setCreatePoolLoading] = useState<boolean>(false)
-  const [pairAddr, setPairAddr] = useState<string>(ZERO_ADDRESS)
-  const [quoteTokenIndex, setQuoteTokenIndex] = useState<string>('0')
   const [quoteTokenDecimal, setQuoteTokenDecimal] = useState<string>('0')
   const [windowTime, setWindowTime] = useState<string>('')
   const [windowTimeSuggest, setWindowTimeSuggest] = useState<string[]>([])
@@ -43,17 +27,11 @@ export const CreatePool = () => {
   const [markSuggest, setMarkSuggest] = useState<string[]>([])
   const [initTime, setInitTime] = useState<string>('')
   const [initTimeSuggest, setInitTimeSuggest] = useState<string[]>([])
-  const [power, setPower] = useState<string>('')
-  const [a, setA] = useState<string>('')
-  const [b, setB] = useState<string>('')
-  const [isValidAB, setIsValidAB] = useState<boolean>(true)
-  const [dailyFundingRate, setDailyFundingRate] = useState<string>('0')
   const [recipient, setRecipient] = useState<string>(ZERO_ADDRESS)
   const { configs } = useConfigs()
   const baseTokenAddress = configs.addresses?.nativeToken
-  const { balances } = useWalletBalance()
-  const { tokens } = useListTokens()
-  const [pairInfo, setPairInfo] = useState<string[]>([])
+  const [pairAddr, setPairAddr] = useState<string>('')
+  const [power, setPower] = useState<string>('')
 
   useMemo(() => {
     if (account) {
@@ -63,8 +41,8 @@ export const CreatePool = () => {
 
   const twoDecimal = (a: any) =>
     (a.toString().match(/e/)
-        ? Number(a.toString().match(/[^e]*/)[0])
-        : a
+      ? Number(a.toString().match(/[^e]*/)[0])
+      : a
     ).toFixed(0)
 
   const suggestConfigs = (qTIndex: string, qTDecimal: string) => {
@@ -109,11 +87,19 @@ export const CreatePool = () => {
 
         <div className='ddl-pool-page__content'>
           <div className='ddl-pool-page__content--left'>
-            <OracleConfigBox />
+            <OracleConfigBox
+              pairAddr={pairAddr}
+              setPairAddr={setPairAddr}
+              power={power}
+              setPower={setPower}
+            />
             <ChangeableConfigBox />
           </div>
           <div className='ddl-pool-page__content--right'>
-            <PoolCreateInfo />
+            <PoolCreateInfo
+              pairAddr={pairAddr}
+              power={power}
+            />
           </div>
         </div>
       </Card>

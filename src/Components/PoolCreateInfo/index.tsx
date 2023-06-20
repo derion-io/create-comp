@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react'
-import { Card } from '../ui/Card'
 import LeverageSlider from 'leverage-slider/dist/component'
 import { bn } from '../../utils/helpers'
 import './style.scss'
@@ -15,14 +14,20 @@ import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import { TxFee } from '../TxFee'
 import { ButtonExecute } from '../ui/Button'
 import { useWeb3React } from '../../state/customWeb3React/hook'
+import { useGenerateLeverageData } from '../../hooks/useGenerateLeverageData'
+import { useListPool } from '../../state/pools/hooks/useListPool'
+import { NoDataIcon } from '../ui/Icon'
 
-export const PoolCreateInfo = () => {
-  const [barData, setBarData] = useState<any>(LEVERAGE_DATA[0].bars[0])
+export const PoolCreateInfo = ({ pairAddr, power }: { pairAddr: string, power: string }) => {
+  const [amountIn, setAmountIn] = useState<any>()
+  const [barData, setBarData] = useState<any>({ x: 0 })
   const { tokens } = useListTokens()
   const { balances } = useWalletBalance()
   const [recipient, setRecipient] = useState<string>(ZERO_ADDRESS)
   const inputTokenAddress = NATIVE_ADDRESS
   const { account } = useWeb3React()
+  const { poolGroups } = useListPool()
+  const data = useGenerateLeverageData(pairAddr, power, amountIn)
 
   useMemo(() => {
     if (account) {
@@ -53,13 +58,13 @@ export const PoolCreateInfo = () => {
                 // setAmountIn(weiToNumber(balances[inputTokenAddress], tokens[inputTokenAddress]?.decimal || 18))
               }}
             >Balance: {balances && balances[inputTokenAddress]
-              ? formatWeiToDisplayNumber(
-                balances[inputTokenAddress],
-                4,
+                ? formatWeiToDisplayNumber(
+                  balances[inputTokenAddress],
+                  4,
                 tokens[inputTokenAddress]?.decimal || 18
-              )
-              : 0
-            }
+                )
+                : 0
+              }
             </Text>
           </SkeletonLoader>
         </div>
@@ -68,22 +73,29 @@ export const PoolCreateInfo = () => {
           // suffix={Number(valueIn) > 0 ? <TextGrey>${formatLocalisedCompactNumber(formatFloat(valueIn))}</TextGrey> : ''}
           className='fs-24'
           // @ts-ignore
-          // value={amountIn}
+          value={amountIn}
           onChange={(e) => {
             // @ts-ignore
             if (Number(e.target.value) >= 0) {
-              // setAmountIn((e.target as HTMLInputElement).value)
+              setAmountIn((e.target as HTMLInputElement).value)
             }
           }}
         />
       </div>
 
-      <LeverageSlider
-        setBarData={setBarData}
-        barData={barData}
-        leverageData={LEVERAGE_DATA}
-        height={100}
-      />
+      {
+        (data && data.length > 0)
+          ? <LeverageSlider
+            setBarData={setBarData}
+            barData={barData}
+            leverageData={data}
+            height={100}
+          />
+          : <div className='no-leverage-chart-box'>
+            <NoDataIcon />
+            <Text> Leverage chart here </Text>
+          </div>
+      }
 
       <div className='config-item mt-18px'>
         <div className='mb-1'>

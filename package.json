@@ -40,7 +40,7 @@
     "assisted-json-rpc-provider": "git+ssh://git@github.com:derivable-labs/AssistedJsonRpcProvider.git#1662bda1343be76618331a2d671bfa56f0d0e305",
     "caniuse-lite": "^1.0.30001434",
     "derivable-tools": "git+ssh://git@github.com:blackskin18/derivable-tools.git#ff26d25a444591c96347abb283d3d56e4d957808",
-    "leverage-slider": "git+ssh://git@github.com:blackskin18/leverage-slider-comp.git#cdee36f45095986e948fa6a39bba3961d8d81e0a",
+    "leverage-slider": "git+ssh://git@github.com:blackskin18/leverage-slider-comp.git#904c904fa6d0b4723b14b8c79c29e6b2fe95a64b",
     "ethereum-multicall": "^2.15.0",
     "ethers": "^5.4.6",
     "graphql": "^15.5.0",

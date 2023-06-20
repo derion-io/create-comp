@@ -8224,9 +8224,9 @@ levenary@^1.1.1:
   dependencies:
     leven "^3.1.0"
 
-"leverage-slider@git+ssh://git@github.com:blackskin18/leverage-slider-comp.git#cdee36f45095986e948fa6a39bba3961d8d81e0a":
+"leverage-slider@git+ssh://git@github.com:blackskin18/leverage-slider-comp.git#e82822eebc50ae1b90aa732b0b0e539483745f7d":
   version "1.0.0"
-  resolved "git+ssh://git@github.com:blackskin18/leverage-slider-comp.git#cdee36f45095986e948fa6a39bba3961d8d81e0a"
+  resolved "git+ssh://git@github.com:blackskin18/leverage-slider-comp.git#e82822eebc50ae1b90aa732b0b0e539483745f7d"
   dependencies:
     "@reduxjs/toolkit" "^1.7.1"
     "@types/lodash" "^4.14.186"
