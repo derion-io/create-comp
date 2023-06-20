@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { Text, TextBlue } from '../ui/Text'
 import { Input } from '../ui/Input'
-import { Button, ButtonAdd, ButtonBuy } from '../ui/Button'
-import { PlusIcon, SwapIcon } from '../ui/Icon'
+import { ButtonGrey } from '../ui/Button'
+import { SwapIcon } from '../ui/Icon'
 import { useConfigs } from '../../state/config/useConfigs'
-import { useListPool } from '../../state/pools/hooks/useListPool'
 import { ZERO_ADDRESS } from '../../utils/constant'
 import { bn } from '../../utils/helpers'
 import { Box } from '../ui/Box'
@@ -26,7 +25,6 @@ export const OracleConfigBox = ({
   setPairAddr: any
 }) => {
   const { ddlEngine } = useConfigs()
-  const { pools } = useListPool()
   const [pairInfo, setPairInfo] = useState<string[]>([])
   const [quoteTokenIndex, setQuoteTokenIndex] = useState<string>('0')
   const [windowTimeSuggest, setWindowTimeSuggest] = useState<string[]>([])
@@ -35,7 +33,6 @@ export const OracleConfigBox = ({
   const [initTime, setInitTime] = useState<string>('')
   const [initTimeSuggest, setInitTimeSuggest] = useState<string[]>([])
   const [windowTime, setWindowTime] = useState<string>('')
-  const [pairInfo1, setPairInfo1] = useState<any>({})
   const [token0, setToken0] = useState<any>({})
   const [token1, setToken1] = useState<any>({})
   const [fee, setFee] = useState<any>(0)
@@ -155,29 +152,29 @@ export const OracleConfigBox = ({
         </div>
       </div>
       <div className='oracle-config__select-token-box'>
-        <Button
+        <ButtonGrey
           onClick={() => {
             setSelectingToken('token0')
             setVisibleSelectTokenModal(true)
           }}
-        >{(quoteTokenIndex === '0' ? token0?.symbol : token1?.symbol) || 'Select token'}</Button>
+        >{(quoteTokenIndex === '0' ? token0?.symbol : token1?.symbol) || 'Select token'}</ButtonGrey>
         <span
           onClick={() => {
             setQuoteTokenIndex(quoteTokenIndex === '0' ? '1' : '0')
           }}
         ><SwapIcon /></span>
-        <Button
+        <ButtonGrey
           onClick={() => {
             setSelectingToken('token1')
             setVisibleSelectTokenModal(true)
           }}
-        >{(quoteTokenIndex === '0' ? token1?.symbol : token0?.symbol) || 'Select token'}</Button>
+        >{(quoteTokenIndex === '0' ? token1?.symbol : token0?.symbol) || 'Select token'}</ButtonGrey>
       </div>
       <div className='oracle-config__select-fee-box'>
-        <Button className={`btn-select-fee ${fee === 100 && 'active'}`} onClick={() => setFee(100)}>0.01%</Button>
-        <Button className={`btn-select-fee ${fee === 300 && 'active'}`} onClick={() => setFee(300)}>0.03%</Button>
-        <Button className={`btn-select-fee ${fee === 500 && 'active'}`} onClick={() => setFee(500)}>0.05%</Button>
-        <Button className={`btn-select-fee ${fee === 1000 && 'active'}`} onClick={() => setFee(1000)}>0.1%</Button>
+        <ButtonGrey className={`btn-select-fee ${fee === 100 && 'active'}`} onClick={() => setFee(100)}>0.01%</ButtonGrey>
+        <ButtonGrey className={`btn-select-fee ${fee === 300 && 'active'}`} onClick={() => setFee(300)}>0.03%</ButtonGrey>
+        <ButtonGrey className={`btn-select-fee ${fee === 500 && 'active'}`} onClick={() => setFee(500)}>0.05%</ButtonGrey>
+        <ButtonGrey className={`btn-select-fee ${fee === 1000 && 'active'}`} onClick={() => setFee(1000)}>0.1%</ButtonGrey>
       </div>
     </Box>
 
