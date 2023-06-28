@@ -13,7 +13,7 @@ export default {
   path: '/pools/create',
   children: [
     {
-      name: 'Create Pool',
+      name: 'Create',
       path: '/pools/create',
       menuLink: '/pools/create'
     }
