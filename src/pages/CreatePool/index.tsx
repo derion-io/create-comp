@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react'
 import './style.scss'
 import 'react-tabs/style/react-tabs.css'
-import { ZERO_ADDRESS } from '../../utils/constant'
+import {UNDER_CONSTRUCTION, ZERO_ADDRESS} from '../../utils/constant'
 import { Card } from '../../Components/ui/Card'
 import { IconArrowLeft } from '../../Components/ui/Icon'
 import {
@@ -76,7 +76,7 @@ export const CreatePool = () => {
   }
 
   return (
-    <div className='ddl-pool-page'>
+    <div className={`ddl-pool-page ${UNDER_CONSTRUCTION && 'blur-3'}`}>
       <Card className='ddl-pool-page__config-card'>
         <div className='ddl-pool-page__head'>
           <ButtonGrey className='ddl-pool-page__head--back-btn'>

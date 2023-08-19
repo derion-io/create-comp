@@ -8,9 +8,10 @@ import { useWeb3React } from '../../state/customWeb3React/hook'
 import { ToastContainer } from 'react-toastify'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useListPool } from '../../state/pools/hooks/useListPool'
-import { TIME_TO_REFRESH_STATE } from '../../utils/constant'
+import { TIME_TO_REFRESH_STATE, UNDER_CONSTRUCTION } from '../../utils/constant'
 import { CreatePool } from '../../pages/CreatePool'
 import { useFetchTokenPrice } from '../../state/pools/hooks/useTokenPrice'
+import { UnderConstruction } from '../UnderConstruction'
 
 export const App = () => {
   const { tokens } = useListTokens()
@@ -39,9 +40,9 @@ export const App = () => {
   const renderAppContent = () => {
     switch (true) {
       case isMatchWithPath('/pools/create'):
-        return <CreatePool />
+        return <CreatePool/>
       default:
-        return <CreatePool />
+        return <CreatePool/>
     }
   }
 
@@ -55,7 +56,10 @@ export const App = () => {
 
   return (
     <div className='exposure-interface app'>
-      <input type='hidden' value={chainId} ref={chainIdRef} />
+      <input type='hidden' value={chainId} ref={chainIdRef}/>
+      {
+        UNDER_CONSTRUCTION && <UnderConstruction/>
+      }
       {renderAppContent()}
       <ToastContainer
         position='top-right'
