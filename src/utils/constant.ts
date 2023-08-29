@@ -10,9 +10,9 @@ export const LP_PRICE_UNIT = 10000
 export const TIME_TO_REFRESH_STATE = 30000
 export const DEFAULT_CHAIN = 1337
 export const CHAINS = {
-  LOCAL: 31337,
   GANACHE: 1337,
-  BSC: 56
+  ARBITRUM: 42161,
+  BASE: 8453
 }
 
 export const LOCALSTORAGE_KEY = {

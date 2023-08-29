@@ -1,5 +1,6 @@
 import { BigNumber } from 'ethers'
 import { ListTokensType } from '../token/type'
+import {CHAINS} from "../../utils/constant";
 
 export type BalancesType = { [key: string]: BigNumber }
 export type AllowancesType = { [key: string]: BigNumber }
@@ -54,11 +55,9 @@ export interface poolsState {
   swapLogs: {[key: string]: any[] }
 }
 const initDataEachChain = {
-  56: {},
-  31337: {},
-  1337: {},
-  97: {},
-  42161: {}
+  [CHAINS.GANACHE]: {},
+  [CHAINS.ARBITRUM]: {},
+  [CHAINS.BASE]: {}
 }
 
 export const initialState: poolsState = {

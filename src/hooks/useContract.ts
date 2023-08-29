@@ -37,7 +37,7 @@ export const useContract = () => {
   }
 
   const getUniV3FactoryContract = () => {
-    return getContract(UniV3FactoryAbi, configs.addresses.uniV3Factory)
+    return getContract(UniV3FactoryAbi, configs.addresses.uniswapFactory)
   }
 
   return {

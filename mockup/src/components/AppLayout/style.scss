@@ -16,6 +16,7 @@
   background: $sidebar-color;
   display: flex;
   justify-content: space-between;
+  z-index: 2000;
   //flex-direction: column;
   @include respond(phone) {
     height: inherit;
