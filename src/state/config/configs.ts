@@ -1,40 +1,6 @@
 import { CHAINS } from '../../utils/constant'
 
 export default {
-  [CHAINS.GANACHE]: {
-    rpcUrl: 'http://localhost:8545/',
-    rpcToGetLogs: 'http://localhost:8545/',
-    explorer: 'https://bscscan.com',
-    scanApi: '',
-    scanName: 'Localhost Scan',
-    ddlGenesisBlock: 0,
-    timePerBlock: 3000,
-    nativeToken: {
-      name: 'ETH',
-      symbol: 'ETH',
-      decimal: 18,
-      address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-    },
-    addresses: {
-      reserveTokenPrice: '0x0000000000000000000000000000000000000001',
-      uniswapFactory: '0x2B528278eEEf8d30838fCC6297e6f28D4F03b1BD',
-      token: '0x2e10024346cDd08E1e9071B16a51d89d46de8003',
-      multiCall: '0x7AF7e1669Af4c76B566BFeC7AB722ba6dE0719A3',
-      pairsInfo: '0xa3030Cef13eFd3E625c576A622E6123Cf7B4006d',
-      pairsV3Info: '0x72d6D4aB65491cbF6DAF5D38838fdEBb7603f4B0',
-      bnA: '0x0748990Cd23F13545805295eD1aED30D9f335984',
-      tokensInfo: '0x2bdcF38cd1cb4db04ac6604ECaa02C2fbf1e13e2',
-      router: '0x4F1111145AB659CF9BBB45442F54A5D427783DaA',
-      wrapToken: '0x56403E93d5D593E29d47eE5C743058A5993FD2B3',
-      wrapUsdPair: '0x215bfCCF305135AbCAa18b9C0e9738924a53A0E6',
-      poolFactory: '0x964fD9F84e0e543648Bd1835A6A3A33DEbC7E0f8',
-      stateCalHelper: '0x270bf3040041160e309130d6AF61c1a7aBf2497D',
-      logic: '0xE1550e06C6759b48cD0a6f5851029A30a6Fee735',
-    },
-    stableCoins: [
-      '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d'
-    ]
-  },
   [CHAINS.ARBITRUM]: {
     rpcUrl: 'https://arb1.arbitrum.io/rpc',
     rpcToGetLogs: 'https://arb1.arbitrum.io/rpc',

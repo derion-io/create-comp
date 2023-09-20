@@ -55,7 +55,6 @@ export interface poolsState {
   swapLogs: {[key: string]: any[] }
 }
 const initDataEachChain = {
-  [CHAINS.GANACHE]: {},
   [CHAINS.ARBITRUM]: {},
   [CHAINS.BASE]: {}
 }
