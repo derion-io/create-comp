@@ -1,12 +1,21 @@
 import { useSelector } from 'react-redux'
 import { State } from '../types'
-import configs from './configs'
-import { DEFAULT_CHAIN } from '../../utils/constant'
 
 export const useConfigs = () => {
-  const { engine, initialledConfig, location, useHistory, chainId, useSubPage, language, env } = useSelector(
+  const {
+    engine,
+    configs,
+    initialledConfig,
+    location,
+    useHistory,
+    chainId,
+    useSubPage,
+    language,
+    env
+  } = useSelector(
     (state: State) => {
       return {
+        configs: state.configs.configs,
         engine: state.configs.engine,
         initialledConfig: state.configs.initialledConfig,
         chainId: state.configs.chainId,
@@ -27,7 +36,7 @@ export const useConfigs = () => {
     env,
     location,
     useHistory,
-    configs: configs[chainId || DEFAULT_CHAIN],
+    configs,
     ddlEngine: engine
   }
 }

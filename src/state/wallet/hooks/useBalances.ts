@@ -60,7 +60,7 @@ export const useWalletBalance = () => {
         if (tokenAddress === poolAddress || isErc1155Address(tokenAddress)) {
           const poolAddress = decodeErc1155Address(tokenAddress).address
           const contract = getPoolContract(poolAddress, signer)
-          const txRes = await contract.setApprovalForAll(configs.addresses.router, true)
+          const txRes = await contract.setApprovalForAll(configs.helperContract.utr, true)
           await txRes.wait(1)
           hash = txRes.hash
 
@@ -78,7 +78,7 @@ export const useWalletBalance = () => {
           })
         } else {
           const contract = new ethers.Contract(tokenAddress, ERC20Abi, signer)
-          const txRes = await contract.approve(configs.addresses.router, LARGE_VALUE)
+          const txRes = await contract.approve(configs.helperContract.utr, LARGE_VALUE)
           await txRes.wait(1)
           hash = txRes.hash
           updateBalanceAndAllowances({ balances: {}, routerAllowances: { [tokenAddress]: bn(LARGE_VALUE) } })
@@ -102,7 +102,7 @@ export const useWalletBalance = () => {
     const { balances, allowances } = await ddlEngine.BNA.getBalanceAndAllowance({
       account,
       tokens: tokensArr,
-      rpcUrl: configs.rpcUrl,
+      rpcUrl: configs.rpc,
       chainId: chainId
     })
     updateBalanceAndAllowances({

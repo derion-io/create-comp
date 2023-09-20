@@ -1,4 +1,6 @@
 import { Engine } from 'derivable-tools/dist/engine'
+import { INetworkConfig } from 'derivable-tools/dist/utils/configs'
+import {DEFAULT_CHAIN} from "../../utils/constant";
 
 export interface configsState {
   chainId: number
@@ -6,37 +8,20 @@ export interface configsState {
   language: string
   location: any
   useHistory: any
-  env: 'development' | 'production',
-  configs: {
-    addresses: {[key: string]: string}
-    rpcUrl: string
-    scanApi: string
-    ddlGenesisBlock: number
-    explorer: string
-    scanName: string
-    dTokens: string[]
-    powers: number[]
-  },
+  env: 'development' | 'production'
+  configs: INetworkConfig
   initialledConfig: boolean
   engine?: Engine
 }
 
 export const initialState: configsState = {
-  chainId: 56,
+  chainId: DEFAULT_CHAIN,
   useSubPage: () => {},
   language: 'en',
   env: 'production',
   location: {},
   useHistory: () => {},
-  configs: {
-    addresses: {},
-    rpcUrl: '',
-    ddlGenesisBlock: 0,
-    scanApi: '',
-    explorer: '',
-    scanName: '',
-    dTokens: [],
-    powers: []
-  },
+  // @ts-ignore
+  configs: {},
   initialledConfig: false
 }

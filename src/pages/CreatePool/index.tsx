@@ -1,16 +1,13 @@
 import React, { useState, useMemo } from 'react'
 import './style.scss'
 import 'react-tabs/style/react-tabs.css'
-import {UNDER_CONSTRUCTION, ZERO_ADDRESS} from '../../utils/constant'
+import {NATIVE_ADDRESS, UNDER_CONSTRUCTION, ZERO_ADDRESS} from '../../utils/constant'
 import { Card } from '../../Components/ui/Card'
 import { IconArrowLeft } from '../../Components/ui/Icon'
 import {
   ButtonGrey
 } from '../../Components/ui/Button'
 import { useWeb3React } from '../../state/customWeb3React/hook'
-import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
-import { useListTokens } from '../../state/token/hook'
-import { useListPool } from '../../state/pools/hooks/useListPool'
 import { useConfigs } from '../../state/config/useConfigs'
 import { Text } from '../../Components/ui/Text'
 import { bn } from '../../utils/helpers'
@@ -29,7 +26,7 @@ export const CreatePool = () => {
   const [initTimeSuggest, setInitTimeSuggest] = useState<string[]>([])
   const [recipient, setRecipient] = useState<string>(ZERO_ADDRESS)
   const { configs } = useConfigs()
-  const baseTokenAddress = configs.addresses?.nativeToken
+  const baseTokenAddress = NATIVE_ADDRESS
   const [pairAddr, setPairAddr] = useState<string>('')
   const [power, setPower] = useState<string>('')
 

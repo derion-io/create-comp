@@ -5163,7 +5163,7 @@ depd@~1.1.2:
 
 "derivable-tools@git+ssh://git@github.com:derivable-labs/derivable-tools.git#dev-build":
   version "1.0.0"
-  resolved "git+ssh://git@github.com:derivable-labs/derivable-tools.git#13fc668fab8279dc1bc8d96ad904b0fb58e500f5"
+  resolved "git+ssh://git@github.com:derivable-labs/derivable-tools.git#6ef1c449d29590bd169da3f06c8d874610c25189"
   dependencies:
     "@ethersproject/providers" "https://gitpkg.now.sh/derivable-labs/ethers.js/packages/providers?master"
     assisted-json-rpc-provider "git+ssh://git@github.com:derivable-labs/AssistedJsonRpcProvider.git#dev"
@@ -5171,6 +5171,7 @@ depd@~1.1.2:
     ethereum-multicall "^2.15.0"
     ethers "^5.5.4"
     lodash "^4.17.21"
+    move-decimal-point "^0.0.4"
     node-fetch "^2.6.7"
     powerLib "git+ssh://git@github.com:derivable-labs/power-lib.git#build"
 
@@ -9264,6 +9265,11 @@ move-concurrently@^1.0.1:
     mkdirp "^0.5.1"
     rimraf "^2.5.4"
     run-queue "^1.0.3"
+
+move-decimal-point@^0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/move-decimal-point/-/move-decimal-point-0.0.4.tgz#29a6c0f07f60058380a79d58dae16bc90516e4c4"
+  integrity sha512-cZrpE/ykbwSmD0DnKAcKa49zaK5LaftD6DzpQDmjSMPRK6i4D4xvnVBCIuZXkpAqvon6DP9Oum2TcLZjclVB/Q==
 
 mri@^1.1.0:
   version "1.2.0"

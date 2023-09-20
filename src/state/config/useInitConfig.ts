@@ -1,10 +1,9 @@
 import { useDispatch } from 'react-redux'
 import { useEffect } from 'react'
-import { setConfigs, setEngine } from './reducer'
-import configs from './configs'
+import { seNetworkConfigs, setConfigs } from './reducer'
 import { addTokensReduce } from '../token/reducer'
 import { Engine } from 'derivable-tools/dist/engine'
-import { DEFAULT_CHAIN } from '../../utils/constant'
+import { DEFAULT_CHAIN, NATIVE_ADDRESS, ZERO_ADDRESS } from '../../utils/constant'
 
 export const useInitConfig = ({
   library,
@@ -30,15 +29,7 @@ export const useInitConfig = ({
 
   useEffect(() => {
     dispatch(
-      addTokensReduce({
-        tokens: [configs[chainId || DEFAULT_CHAIN].nativeToken],
-        chainId: chainId || DEFAULT_CHAIN
-      })
-    )
-    dispatch(
       setConfigs({
-        configs: configs[chainId || DEFAULT_CHAIN],
-        chainId: chainId || DEFAULT_CHAIN,
         useSubPage,
         language,
         env,
@@ -49,25 +40,48 @@ export const useInitConfig = ({
   }, [location, useHistory, chainId, useSubPage, language, env])
 
   useEffect(() => {
-    if (!chainId) return
-    if (!account) {
-      return console.log('=======await sync account========')
+    const intConfig = async () => {
+      if (!chainId) return
+      if (!account) {
+        console.log('=======await sync account========')
+      }
+
+      const engine = new Engine(
+        {
+          env,
+          chainId,
+          account: account || ZERO_ADDRESS,
+          signer: library?.getSigner(),
+          scanApiKey: '',
+          storage: {
+            // @ts-ignore
+            setItem: (itemName, value) => localStorage.setItem(itemName, value),
+            // @ts-ignore
+            getItem: (itemName) => localStorage.getItem(itemName)
+          }
+        }
+      )
+      await engine.initServices()
+      console.log(engine.profile.configs)
+      dispatch(
+        addTokensReduce({
+          tokens: [{
+            name: engine.profile.configs.nativeSymbol,
+            symbol: engine.profile.configs.nativeSymbol,
+            decimal: 18,
+            address: NATIVE_ADDRESS
+          }],
+          chainId: chainId || DEFAULT_CHAIN
+        })
+      )
+      dispatch(seNetworkConfigs({
+        chainId,
+        engine,
+        configs: engine.profile.configs
+      }))
+      // dispatch(setEngine({ engine }))
     }
-    const engine = new Engine(
-      account,
-      {
-        storage: {
-          // @ts-ignore
-          setItem: (itemName, value) => localStorage.setItem(itemName, value),
-          // @ts-ignore
-          getItem: (itemName) => localStorage.getItem(itemName)
-        },
-        signer: library?.getSigner(),
-        ...configs[chainId || DEFAULT_CHAIN],
-        account
-      },
-      chainId
-    )
-    dispatch(setEngine({ engine }))
-  }, [library, account, chainId])
+
+    intConfig()
+  }, [library, account, chainId, env])
 }

@@ -43,7 +43,8 @@ export const useExchangeData = () => {
     baseToken: string
   }) => {
     try {
-      const client = new GraphQLClient(configs.theGraphExchange)
+      // @ts-ignore
+      const client = new GraphQLClient(configs.subGraph)
       const query = getQueryHourDatas(pair, interval)
       const res: { pairHourDatas: PairHourDataType[]} = await client.request(query)
       return res.pairHourDatas?.map((item) => {
@@ -72,7 +73,8 @@ export const useExchangeData = () => {
     baseToken: string
   }) => {
     try {
-      const client = new GraphQLClient(configs.theGraphExchange)
+      // @ts-ignore
+      const client = new GraphQLClient(configs.subGraph)
       const query = getQueryDayDatas(pair, interval)
       const res: { pairDayDatas: PairDayDataType[]} = await client.request(query)
       return res.pairDayDatas?.map((item) => {

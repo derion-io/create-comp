@@ -46,7 +46,7 @@ export const useTokenValue = ({
         const tokenPrice = parseSqrtX96(
           prices[pool.TOKEN_R]?.mul(rX)?.div(sX).mul(numberToWei(1, 9)) || bn(0),
           tokens[address] || {},
-          tokens[configs.stableCoins[0]] || {}
+          tokens[configs.stablecoins[0]] || {}
         )
 
         value = weiToNumber(
@@ -58,7 +58,7 @@ export const useTokenValue = ({
       const tokenPrice = prices[address] && prices[address].gt(0) ? parseSqrtX96(
         prices[address]?.mul(numberToWei(1, 9)) || bn(0),
         tokens[address] || {},
-        tokens[configs.stableCoins[0]] || {}
+        tokens[configs.stablecoins[0]] || {}
       ) : numberToWei(1, 36)
 
       value = weiToNumber(

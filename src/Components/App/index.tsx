@@ -17,19 +17,18 @@ export const App = () => {
   const { tokens } = useListTokens()
   const { fetchBalanceAndAllowance } = useWalletBalance()
   const { account } = useWeb3React()
-  const { ddlEngine, chainId, location } = useConfigs()
+  const { ddlEngine, chainId, location, configs } = useConfigs()
   const chainIdRef = useRef(null)
   const { initListPool } = useListPool()
   useFetchTokenPrice()
 
   useEffect(() => {
-    if (!ddlEngine) return
     initListPool(account)
     const intervalId = setInterval(() => {
       initListPool(account)
     }, TIME_TO_REFRESH_STATE)
     return () => clearInterval(intervalId)
-  }, [chainId, account, ddlEngine])
+  }, [ddlEngine, configs.name])
 
   useEffect(() => {
     if (account && Object.keys(tokens).length > 0) {

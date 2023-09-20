@@ -34,7 +34,7 @@ export const useFetchTokenPrice = () => {
     const tokenAddress = _.uniq(
       [
         ...Object.keys(tokens),
-        configs.addresses.wrapToken
+        configs.wrappedTokenAddress
       ].filter((a) => {
         return isAddress(a) && a !== NATIVE_ADDRESS
       })

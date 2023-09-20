@@ -3,6 +3,7 @@ import { State } from '../../types'
 import { useListPool } from '../../pools/hooks/useListPool'
 import { useConfigs } from '../../config/useConfigs'
 import { setCandleChartIsLoadingReduce, setChartTimeFocusReduce, setCurrentPoolInfo } from '../reducer'
+import {NATIVE_ADDRESS} from "../../../utils/constant";
 
 export const useCurrentPool = () => {
   const { pools } = useListPool()
@@ -76,13 +77,13 @@ export const useCurrentPool = () => {
     } else if (power === 'Q') {
       return quoteToken
     } else if (power === 'N') { // native token
-      return configs.addresses.nativeToken
+      return NATIVE_ADDRESS
     }
     const index = powers.findIndex((p) => p === Number(power))
     return dTokens[index]
   }
   const detectChangeType = (address: string) => {
-    if (address === baseToken || address === configs.addresses.nativeToken) {
+    if (address === baseToken || address === NATIVE_ADDRESS) {
       return 'B'
     } else if (address === quoteToken) {
       return 'Q'

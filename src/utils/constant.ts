@@ -8,12 +8,13 @@ export const SECONDS_PER_DAY = 60 * 60 * 24
 export const MINI_SECOND_PER_DAY = 86400000
 export const LP_PRICE_UNIT = 10000
 export const TIME_TO_REFRESH_STATE = 30000
-export const DEFAULT_CHAIN = 1337
+export const DEFAULT_CHAIN = 42161
 export const CHAINS = {
-  GANACHE: 1337,
   ARBITRUM: 42161,
   BASE: 8453
 }
+
+export const SUPPORTED_CHAINS = Object.values(CHAINS)
 
 export const LOCALSTORAGE_KEY = {
   DDL_LOGS: 'ddl-log-v1.0',
