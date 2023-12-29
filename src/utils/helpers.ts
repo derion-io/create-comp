@@ -2,22 +2,154 @@ import { BigNumber, ethers, utils } from 'ethers'
 
 export const bn = ethers.BigNumber.from
 
-export const shortenAddressString = (address: string) => {
-  return address.slice?.(0, 6) + '...' + address.slice?.(address.length - 4, address.length)
+const mdp = require('move-decimal-point')
+
+export const BIG = (num: number | string | BigNumber): BigNumber => {
+  if (!num) {
+    return BigNumber.from(0)
+  }
+  switch (typeof num) {
+    case 'string':
+      if (num?.includes('e')) {
+        num = Number(num)
+      }
+    case 'number':
+      return BigNumber.from(num || 0)
+    default:
+      return num
+  }
 }
 
-export const weiToNumber = (wei: any, decimal: number = 18, decimalToDisplay?: number): string => {
+export const NUM = (num: number | string | BigNumber): number => {
+  if (!num) {
+    return 0
+  }
+  switch (typeof num) {
+    case 'number':
+      return num
+    case 'string':
+      if (num == '∞') {
+        return Number.POSITIVE_INFINITY
+      }
+      if (num == '-∞') {
+        return Number.NEGATIVE_INFINITY
+      }
+      return Number.parseFloat(num)
+    default:
+      return num.toNumber()
+  }
+}
+export const STR = (
+  num: number | string | BigNumber,
+  minimumSignificantDigits?: number
+): string => {
+  if (!num) {
+    return '0'
+  }
+  switch (typeof num) {
+    case 'string':
+      if (!num?.includes('e')) {
+        return num
+      }
+      num = Number(num)
+    case 'number':
+      if (!isFinite(num)) {
+        return num > 0 ? '∞' : '-∞'
+      }
+      return num.toLocaleString(['en-US', 'fullwide'], {
+        useGrouping: false,
+        minimumSignificantDigits
+      })
+    default:
+      return String(num)
+  }
+}
+
+function _replaceAt(str: string, index: number, replacement: string) {
+  return (
+    str.substring(0, index) +
+    replacement +
+    str.substring(index + replacement.length)
+  )
+}
+export const truncate = (
+  num: string,
+  decimals: number = 0,
+  rounding: boolean = false
+): string => {
+  let index = Math.max(num.lastIndexOf('.'), num.lastIndexOf(','))
+  if (index < 0) {
+    index = num.length
+  }
+  index += decimals + (decimals > 0 ? 1 : 0)
+  if (rounding) {
+    let shouldRoundUp = false
+    for (let i = index; i < num.length; ++i) {
+      if (num.charAt(i) == '.') {
+        continue
+      }
+      if (Number(num.charAt(i)) >= 5) {
+        shouldRoundUp = true
+        break
+      }
+    }
+    for (let i = index - 1; shouldRoundUp && i >= 0; --i) {
+      let char = num.charAt(i)
+      if (char == '.') {
+        continue
+      }
+      if (char == '9') {
+        char = '0'
+      } else {
+        char = (Number(char) + 1).toString()
+        shouldRoundUp = false
+      }
+      num = _replaceAt(num, i, char)
+    }
+  }
+  return num.substring(0, index)
+}
+
+export const WEI = (num: number | string, decimals: number = 18): string => {
+  return truncate(mdp(STR(num), decimals))
+}
+
+export const IEW = (
+  wei: BigNumber | string,
+  decimals: number = 18,
+  decimalsToDisplay?: number
+): string => {
+  let num = mdp(STR(wei), -decimals)
+  if (decimalsToDisplay != null) {
+    num = truncate(num, decimalsToDisplay)
+  }
+  return num
+}
+
+export const shortenAddressString = (address: string) => {
+  return (
+    address.slice?.(0, 6) +
+    '...' +
+    address.slice?.(address.length - 4, address.length)
+  )
+}
+
+export const weiToNumber = (
+  wei: any,
+  decimal: number = 18,
+  decimalToDisplay?: number
+): string => {
   if (!wei || !Number(wei)) return '0'
   wei = wei.toString()
   const result = utils.formatUnits(wei, decimal)
-  const num = result.indexOf('.') === result.length - 1
-    ? result.slice(0, -1)
-    : result
+  const num =
+    result.indexOf('.') === result.length - 1 ? result.slice(0, -1) : result
   if (decimalToDisplay) {
     return num.slice(0, result.indexOf('.') + decimalToDisplay)
   }
   return num
 }
+
 export const numberToWei = (number: any, decimal: number = 18) => {
   if (!number) return '0'
   number = number.toString()
@@ -204,8 +336,8 @@ export const detectDecimalFromPrice = (price: number | string) => {
   } else {
     const rate = !bn(numberToWei(price)).isZero()
       ? weiToNumber(
-        BigNumber.from(numberToWei(1, 36)).div(numberToWei(price)).toString()
-      )
+          BigNumber.from(numberToWei(1, 36)).div(numberToWei(price)).toString()
+        )
       : '0'
     return rate.split('.')[0].length + 3
   }

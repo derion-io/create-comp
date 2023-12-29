@@ -39,9 +39,9 @@ export const App = () => {
   const renderAppContent = () => {
     switch (true) {
       case isMatchWithPath('/pools/create'):
-        return <CreatePool/>
+        return <CreatePool />
       default:
-        return <CreatePool/>
+        return <CreatePool />
     }
   }
 
@@ -55,10 +55,8 @@ export const App = () => {
 
   return (
     <div className='exposure-interface app'>
-      <input type='hidden' value={chainId} ref={chainIdRef}/>
-      {
-        UNDER_CONSTRUCTION && <UnderConstruction/>
-      }
+      <input type='hidden' value={chainId} ref={chainIdRef} />
+      {UNDER_CONSTRUCTION && <UnderConstruction />}
       {renderAppContent()}
       <ToastContainer
         position='top-right'

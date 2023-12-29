@@ -1,5 +1,5 @@
 import { useConfigs } from './useConfigs'
-import {NATIVE_ADDRESS} from "../../utils/constant";
+import { NATIVE_ADDRESS } from '../../utils/constant'
 
 export const useHelper = () => {
   const { configs, chainId } = useConfigs()
@@ -7,7 +7,7 @@ export const useHelper = () => {
   const convertNativeAddressToWrapAddress = (address: string) => {
     if (!address) return address
 
-    return address?.toLowerCase() === NATIVE_ADDRESS
+    return address?.toLowerCase() === NATIVE_ADDRESS.toLowerCase()
       ? configs.wrappedTokenAddress
       : address
   }

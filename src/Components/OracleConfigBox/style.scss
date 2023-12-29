@@ -35,3 +35,11 @@
     background: $color-card-bg;
   }
 }
+
+.grid {
+  &-container {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-gap: 1rem;
+  }
+}

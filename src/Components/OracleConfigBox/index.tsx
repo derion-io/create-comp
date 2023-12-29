@@ -4,7 +4,7 @@ import { Input } from '../ui/Input'
 import { ButtonGrey } from '../ui/Button'
 import { SwapIcon } from '../ui/Icon'
 import { useConfigs } from '../../state/config/useConfigs'
-import { ZERO_ADDRESS } from '../../utils/constant'
+import { SECONDS_PER_DAY, ZERO_ADDRESS } from '../../utils/constant'
 import { bn } from '../../utils/helpers'
 import { Box } from '../ui/Box'
 import './style.scss'
@@ -12,27 +12,11 @@ import { SelectTokenModal } from '../SelectTokenModal'
 import { useListTokens } from '../../state/token/hook'
 import { useContract } from '../../hooks/useContract'
 import { utils } from 'ethers'
-import { get } from 'http'
+import { usePoolSettings } from '../../state/poolSettings/hook'
+import { rateToHL } from 'derivable-tools/dist/utils/helper'
 
-export const OracleConfigBox = (props: any) => {
-  const {
-    power,
-    pairAddr,
-    windowTime,
-    interestRate,
-    vesting,
-    closingFee,
-    closingFeeDuration,
-    premiumRate,
-    setPower,
-    setPairAddr,
-    setWindowTime,
-    setInterestRate,
-    setVesting,
-    setClosingFee,
-    setClosingFeeDuration,
-    setPremiumRate
-  } = props
+export const OracleConfigBox = () => {
+  const { poolSettings, updatePoolSettings } = usePoolSettings()
   const { ddlEngine } = useConfigs()
   const [pairInfo, setPairInfo] = useState<string[]>([])
   const [quoteTokenIndex, setQuoteTokenIndex] = useState<string>('0')
@@ -54,7 +38,7 @@ export const OracleConfigBox = (props: any) => {
 
   const suggestConfigs = (qTIndex: string, qTDecimal: string) => {
     // const filterExistPoolData = Object.entries(pools).filter(([key]) => {
-    //   return key.includes(pairAddr.substring(2).toLowerCase())
+    //   return key.includes(poolSettings.pairAddress.substring(2).toLowerCase())
     // })
     const filterExistPoolData: any = []
     const wTimeArr = []
@@ -80,7 +64,9 @@ export const OracleConfigBox = (props: any) => {
         iTimeArr.push(poolData.INIT_TIME.toNumber().toString())
       }
     }
-    setWindowTime(wTimeArr[0])
+    updatePoolSettings({
+      window: parseInt(wTimeArr[0])
+    })
     setWindowTimeSuggest(wTimeArr)
     setMark(markArr[0])
     setMarkSuggest(markArr)
@@ -90,22 +76,22 @@ export const OracleConfigBox = (props: any) => {
 
   useEffect(() => {
     if (token0 && token1 && fee) {
-      console.log(token0, token1, fee)
       getPairAddress()
     }
   }, [token0, token1, fee])
 
   useEffect(() => {
     fetchPairInfo()
-  }, [pairAddr])
+  }, [poolSettings.pairAddress])
 
   const getPairAddress = async () => {
     try {
       const contract = getUniV3FactoryContract()
       const res = await contract.getPool(token0.address, token1.address, fee)
-      console.log(res)
-      if (res !== pairAddr) {
-        setPairAddr(utils.getAddress(res))
+      if (res !== poolSettings.pairAddress) {
+        updatePoolSettings({
+          pairAddress: utils.getAddress(res)
+        })
       }
     } catch (e) {
       console.log(e)
@@ -115,17 +101,21 @@ export const OracleConfigBox = (props: any) => {
   const { getUniV3PairContract } = useContract()
 
   const fetchPairInfo = async () => {
-    if (ddlEngine && pairAddr && pairAddr !== ZERO_ADDRESS) {
+    if (
+      ddlEngine &&
+      poolSettings.pairAddress &&
+      poolSettings.pairAddress !== ZERO_ADDRESS
+    ) {
       try {
         const res = await ddlEngine.UNIV3PAIR.getPairInfo({
-          pairAddress: pairAddr
+          pairAddress: poolSettings.pairAddress
         })
-        const pairContract = getUniV3PairContract(pairAddr)
+        const pairContract = getUniV3PairContract(poolSettings.pairAddress)
         const fee = await pairContract.fee()
         setToken0(formatTokenType(res.token0))
         setToken1(formatTokenType(res.token1))
         setFee(fee)
-        // setPairInfo1({ pair: pairAddr, ...res })
+        // setPairInfo1({ pair: poolSettings.pairAddress, ...res })
         // console.log(res)
         // if (res.token0.symbol.toLowerCase().includes('us') || res.token0.symbol.toLowerCase().includes('dai')) {
         //   setPairInfo([
@@ -144,7 +134,7 @@ export const OracleConfigBox = (props: any) => {
         // }
       } catch (error) {
         console.log(error)
-        setPairInfo(['Can not get UniswapV3 Pair Info'])
+        setPairInfo(['Can not get Pair Address Info'])
       }
     }
   }
@@ -152,7 +142,7 @@ export const OracleConfigBox = (props: any) => {
   return (
     <React.Fragment>
       <Box className='oracle-config-box mt-1 mb-2' borderColor='blue'>
-        <TextBlue className='oracle-config__title'>UniswapV3 Pair</TextBlue>
+        <TextBlue className='oracle-config__title'>Pair Address</TextBlue>
         <div className='ddl-pool-page__content--pool-config'>
           <div className='config-item'>
             {/* <TextBlue fontSize={14} fontWeight={600} /> */}
@@ -160,11 +150,13 @@ export const OracleConfigBox = (props: any) => {
               inputWrapProps={{
                 className: 'config-input'
               }}
-              value={pairAddr}
+              value={poolSettings.pairAddress}
               placeholder='0x...'
               onChange={(e) => {
                 // @ts-ignore
-                setPairAddr((e.target as HTMLInputElement).value)
+                updatePoolSettings({
+                  pairAddress: (e.target as HTMLInputElement).value
+                })
               }}
             />
           </div>
@@ -224,29 +216,36 @@ export const OracleConfigBox = (props: any) => {
         </div>
       </Box>
 
-      <Box borderColor='blue' className='oracle-config-box mt-1 mb-1'>
+      <Box
+        borderColor='blue'
+        className='oracle-config-box mt-1 mb-1 grid-container'
+      >
         <div className='config-item'>
           <Text fontSize={14} fontWeight={600}>
-            Window time (blocks)
+            Window time (s)
           </Text>
           <Input
             inputWrapProps={{
               className: `config-input ${
-                windowTimeSuggest.includes(windowTime) ? '' : 'warning-input'
+                windowTimeSuggest.includes(poolSettings.window.toString())
+                  ? ''
+                  : 'warning-input'
               }`
             }}
             type='number'
             placeholder='0'
-            value={windowTime}
+            value={poolSettings.window}
             onChange={(e) => {
               // @ts-ignore
               if (Number(e.target.value) >= 0) {
-                setWindowTime((e.target as HTMLInputElement).value)
+                updatePoolSettings({
+                  window: parseFloat((e.target as HTMLInputElement).value)
+                })
               }
             }}
           />
         </div>
-        <div className='ddl-pool-page__content--pool-config mt-18px'>
+        <div className='config-item'>
           <div className='config-item'>
             <Text fontSize={14} fontWeight={600}>
               Power
@@ -257,36 +256,26 @@ export const OracleConfigBox = (props: any) => {
               }}
               type='number'
               placeholder='0.0'
-              value={power}
+              value={poolSettings.power}
               onChange={(e) => {
                 // @ts-ignore
                 if (Number(e.target.value) >= 0) {
-                  setPower((e.target as HTMLInputElement).value)
+                  updatePoolSettings({
+                    power: parseFloat((e.target as HTMLInputElement).value)
+                  })
                 }
               }}
               onBlur={(e) => {
                 if (Number(e.target.value) >= 0) {
                   const powerRounded =
                     Math.round(Number(e.target.value) * 2) / 2
-                  setPower(powerRounded.toString())
+                  updatePoolSettings({ power: powerRounded })
                 }
               }}
             />
           </div>
         </div>
-        <SelectTokenModal
-          visible={visibleSelectTokenModal}
-          setVisible={setVisibleSelectTokenModal}
-          iniTokens={Object.values(tokens)}
-          onSelectToken={(token: any) => {
-            console.log(selectingToken)
-            if (selectingToken === 'token0') {
-              setToken0(token)
-            } else {
-              setToken1(token)
-            }
-          }}
-        />
+
         <div className='config-item'>
           <Text fontSize={14} fontWeight={600}>
             Interest Rate (%)
@@ -297,17 +286,31 @@ export const OracleConfigBox = (props: any) => {
             }}
             type='number'
             placeholder='0'
-            value={interestRate}
+            value={poolSettings.interestRate}
             onChange={(e) => {
               // @ts-ignore
               if (Number(e.target.value) >= 0) {
-                setInterestRate((e.target as HTMLInputElement).value)
+                updatePoolSettings({
+                  interestRate: parseFloat((e.target as HTMLInputElement).value)
+                })
               }
             }}
+            suffix={
+              poolSettings.interestRate !== 0
+                ? (
+                    rateToHL(
+                      poolSettings.interestRate / 100,
+                      poolSettings.power
+                    ) / SECONDS_PER_DAY
+                  )
+                    .toFixed(2)
+                    .toString() + ' days'
+                : ''
+            }
           />
         </div>
 
-        <div className='config-item mt-18px'>
+        <div className='config-item'>
           <Text fontSize={14} fontWeight={600}>
             Closing fee (%)
           </Text>
@@ -317,19 +320,21 @@ export const OracleConfigBox = (props: any) => {
             }}
             type='number'
             placeholder='0'
-            value={closingFee}
+            value={poolSettings.closingFee}
             onChange={(e) => {
               // @ts-ignore
               if (Number(e.target.value) >= 0) {
-                setClosingFee((e.target as HTMLInputElement).value)
+                updatePoolSettings({
+                  closingFee: parseFloat((e.target as HTMLInputElement).value)
+                })
               }
             }}
           />
         </div>
 
-        <div className='config-item mt-18px'>
+        <div className='config-item'>
           <Text fontSize={14} fontWeight={600}>
-            Closing fee duration (h)
+            Maturity (h)
           </Text>
           <Input
             inputWrapProps={{
@@ -337,17 +342,21 @@ export const OracleConfigBox = (props: any) => {
             }}
             type='number'
             placeholder='0'
-            value={closingFeeDuration}
+            value={poolSettings.closingFeeDuration}
             onChange={(e) => {
               // @ts-ignore
               if (Number(e.target.value) >= 0) {
-                setClosingFeeDuration((e.target as HTMLInputElement).value)
+                updatePoolSettings({
+                  closingFeeDuration: parseFloat(
+                    (e.target as HTMLInputElement).value
+                  )
+                })
               }
             }}
           />
         </div>
 
-        <div className='config-item mt-18px'>
+        <div className='config-item'>
           <Text fontSize={14} fontWeight={600}>
             Vesting Period (s)
           </Text>
@@ -357,17 +366,24 @@ export const OracleConfigBox = (props: any) => {
             }}
             type='number'
             placeholder={'0'}
-            value={vesting}
+            value={poolSettings.vesting}
             onChange={(e) => {
               // @ts-ignore
               if (Number(e.target.value) >= 0) {
-                setVesting((e.target as HTMLInputElement).value)
+                updatePoolSettings({
+                  vesting: parseFloat((e.target as HTMLInputElement).value)
+                })
               }
             }}
+            suffix={
+              poolSettings.vesting
+                ? (poolSettings.vesting / 60).toFixed(2).toString() + ' min(s)'
+                : ''
+            }
           />
         </div>
-
-        <div className='config-item mt-18px'>
+            
+        <div className='config-item'>
           <Text fontSize={14} fontWeight={600}>
             Premium Rate (%)
           </Text>
@@ -377,16 +393,41 @@ export const OracleConfigBox = (props: any) => {
             }}
             type='number'
             placeholder={'0'}
-            value={premiumRate}
+            value={poolSettings.premiumRate}
             onChange={(e) => {
               // @ts-ignore
               if (Number(e.target.value) >= 0) {
-                setPremiumRate((e.target as HTMLInputElement).value)
+                updatePoolSettings({
+                  premiumRate: parseFloat((e.target as HTMLInputElement).value)
+                })
               }
             }}
+            suffix={
+              (
+                rateToHL(
+                  poolSettings.premiumRate ? poolSettings.premiumRate / 100 : 0,
+                  poolSettings.power
+                ) / SECONDS_PER_DAY
+              )
+                .toFixed(2)
+                .toString() + ' days'
+            }
           />
         </div>
       </Box>
+      <SelectTokenModal
+        visible={visibleSelectTokenModal}
+        setVisible={setVisibleSelectTokenModal}
+        iniTokens={Object.values(tokens)}
+        onSelectToken={(token: any) => {
+          console.log(selectingToken)
+          if (selectingToken === 'token0') {
+            setToken0(token)
+          } else {
+            setToken1(token)
+          }
+        }}
+      />
     </React.Fragment>
   )
 }

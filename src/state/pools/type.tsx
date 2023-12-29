@@ -11,31 +11,60 @@ export type ParseLogType = {
   topic: string
   args: any
 }
-export type PoolType = {
-  pool: string
-  logic: string
-  cTokenPrice: number
-  baseSymbol: string
-  states: any
-  baseToken: string
-  quoteToken: string
-  cToken: string
-  powers: number[]
-  dTokens: string[]
-  priceToleranceRatio: BigNumber
-  quoteSymbol: string
-  rentRate: BigNumber
-  deleverageRate: BigNumber
-  poolAddress: string
-  quoteId: number
-  baseId: number
-  basePrice: string
-  cPrice: number
-  ORACLE: string
-  MARK: BigNumber
-  INIT_TIME: BigNumber
-  TOKEN_R: string
+
+export type FeeDataType = {
+  gasPrice: BigNumber
+  lastBaseFeePerGas: BigNumber
+  maxFeePerGas: BigNumber
+  maxPriorityFeePerGas: BigNumber
 }
+
+export interface resourcesState {
+  poolGroups: {
+    [key: number]: { [key: string]: PoolGroupType }
+  }
+  pools: {
+    [key: number]: { [key: string]: PoolType }
+  }
+  tokens: {
+    [key: string]: ListTokensType
+  }
+  prices: {
+    [key: number]: { [key: string]: string }
+  }
+  feeData: {
+    [key: string]: { [key: string]: FeeDataType }
+  }
+  swapLogs: { [key: string]: any[] }
+}
+
+// export type PoolType = {
+//   pool: string
+//   logic: string
+//   cTokenPrice: number
+//   baseSymbol: string
+//   states: any
+//   baseToken: string
+//   quoteToken: string
+//   cToken: string
+//   powers: number[]
+//   dTokens: string[]
+//   priceToleranceRatio: BigNumber
+//   quoteSymbol: string
+//   rentRate: BigNumber
+//   deleverageRate: BigNumber
+//   poolAddress: string
+//   quoteId: number
+//   baseId: number
+//   basePrice: string
+//   cPrice: number
+//   ORACLE: string
+//   MARK: BigNumber
+//   INIT_TIME: BigNumber
+//   TOKEN_R: string
+// }
+
+export type PoolType = any
 
 export type PoolGroupType = any
 
@@ -52,6 +81,9 @@ export interface poolsState {
   prices: {
     [key: number]: { [key: string]: BigNumber }
   }
+  feeData: {
+    [key: string]: { [key: string]: FeeDataType }
+  }
   swapLogs: { [key: string]: any[] }
 }
 const initDataEachChain = {
@@ -65,5 +97,6 @@ export const initialState: poolsState = {
   pools: initDataEachChain,
   tokens: initDataEachChain,
   prices: initDataEachChain,
+  feeData: initDataEachChain,
   swapLogs: {}
 }

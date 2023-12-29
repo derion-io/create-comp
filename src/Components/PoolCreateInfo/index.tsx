@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import LeverageSlider from 'leverage-slider/dist/component'
 import { bn, formatFloat, weiToNumber } from '../../utils/helpers'
 import './style.scss'
@@ -7,7 +7,7 @@ import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { TokenIcon } from '../ui/TokenIcon'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { useListTokens } from '../../state/token/hook'
-import { Text, TextBlue } from '../ui/Text'
+import { Text, TextBlue, TextGrey, TextPink } from '../ui/Text'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { NATIVE_ADDRESS, ZERO_ADDRESS } from '../../utils/constant'
 import formatLocalisedCompactNumber, {
@@ -20,46 +20,37 @@ import { useGenerateLeverageData } from '../../hooks/useGenerateLeverageData'
 import { NoDataIcon } from '../ui/Icon'
 import { Box } from '../ui/Box'
 import { useTokenValue } from '../../hooks/useTokenValue'
-import { deployPool } from '../../utils/deployHelper'
+import { usePoolSettings } from '../../state/poolSettings/hook'
+import { useTokenPrice } from '../../state/pools/hooks/useTokenPrice'
+import { useConfigs } from '../../state/config/useConfigs'
+import { store } from '../../state'
+import { useNativePrice } from '../../hooks/useTokenPrice'
 
-export const PoolCreateInfo = ({
-  pairAddr,
-  windowTime,
-  power,
-  interestRate,
-  premiumRate,
-  vesting,
-  closingFeeDuration,
-  closingFee,
-  reserveToken,
-  amountIn,
-  setAmountIn
-}: {
-  pairAddr: string
-  windowTime: string
-  power: string
-  interestRate: number
-  premiumRate: number
-  vesting: number
-  closingFeeDuration: number
-  closingFee: number
-  reserveToken?: string
-  amountIn: string
-  setAmountIn: any
-}) => {
+export const PoolCreateInfo = () => {
+  const {
+    poolSettings,
+    updatePoolSettings,
+    deployPool,
+    calculateParamsForPools
+  } = usePoolSettings()
   const { chainId, provider } = useWeb3React()
   const [barData, setBarData] = useState<any>({ x: 0 })
   const { tokens } = useListTokens()
   const { balances } = useWalletBalance()
   const [recipient, setRecipient] = useState<string>(ZERO_ADDRESS)
   const [visibleRecipient, setVisibleRecipient] = useState<boolean>(false)
-  const inputTokenAddress = NATIVE_ADDRESS
   const { account } = useWeb3React()
+  const { configs } = useConfigs()
+  const wrappedTokenAddress = configs.wrappedTokenAddress
   // const data = useGenerateLeverageData(pairAddr, power, amountIn)
+  console.log(poolSettings.reserveToken, balances[poolSettings.reserveToken])
+  console.log(balances)
 
   const { value } = useTokenValue({
-    amount: amountIn,
-    tokenAddress: NATIVE_ADDRESS
+    amount: poolSettings.amountIn.toString(),
+    tokenAddress:
+      poolSettings.reserveToken || NATIVE_ADDRESS || wrappedTokenAddress
+    // NATIVE_ADDRESS
   })
 
   useMemo(() => {
@@ -68,7 +59,20 @@ export const PoolCreateInfo = ({
     }
   }, [account])
 
+  useEffect(() => {
+    const handlePoolChange = setTimeout(() => {
+      if (chainId && provider && poolSettings.pairAddress) {
+        const signer = provider.getSigner()
+        calculateParamsForPools(chainId, provider, signer)
+      }
+    }, 1000)
+    return () => {
+      clearTimeout(handlePoolChange)
+    }
+  }, [poolSettings])
+
   const handleCreatePool = async () => {
+    const pairAddress = poolSettings.pairAddress
     // const settings = {
     //   // pairAddress: '0xC31E54c7a869B9FcBEcc14363CF510d1c41fa443',
     //   // pairAddress: '0x8d76e9c2bd1adde00a3dcdc315fcb2774cb3d1d6',
@@ -84,21 +88,9 @@ export const PoolCreateInfo = ({
     //   // openingFee: 0/100,
     //   // R: 0.0001, // init liquidity
     // }
-    if (chainId && provider && account && pairAddr) {
+    if (chainId && provider && pairAddress) {
       const signer = provider.getSigner()
-      const settings = {
-        pairAddress: [pairAddr],
-        windowBlocks: parseInt(windowTime),
-        power: parseInt(power),
-        interestRate: interestRate / 100,
-        premiumRate: premiumRate / 100,
-        vesting: vesting,
-        closingFeeDuration: closingFeeDuration * 60 * 60,
-        closingFee: closingFee / 100,
-        reserveToken: reserveToken,
-        R: amountIn
-      }
-      await deployPool(settings, chainId, provider, signer)
+      await deployPool(chainId, provider, signer)
     }
   }
 
@@ -114,28 +106,32 @@ export const PoolCreateInfo = ({
                 // setTokenTypeToSelect('input')
               }}
             >
-              <TokenIcon size={24} tokenAddress={inputTokenAddress} />
+              <TokenIcon size={24} tokenAddress={poolSettings.reserveToken} />
               <Text>
-                <TokenSymbol token={tokens[inputTokenAddress]} />
+                <TokenSymbol token={tokens[poolSettings.reserveToken]} />
               </Text>
             </span>
           </SkeletonLoader>
-          <SkeletonLoader loading={!balances[inputTokenAddress]}>
+          <SkeletonLoader loading={!balances[poolSettings.reserveToken]}>
             <Text
               className='amount-input-box__head--balance'
               onClick={() => {
-                // setAmountIn(weiToNumber(balances[inputTokenAddress], tokens[inputTokenAddress]?.decimal || 18))
+                updatePoolSettings({
+                  amountIn: weiToNumber(
+                    balances[poolSettings.reserveToken],
+                    tokens[poolSettings.reserveToken]?.decimals || 18
+                  )
+                })
               }}
             >
               Balance:{' '}
-              {balances && balances[inputTokenAddress]
+              {balances && balances[poolSettings.reserveToken]
                 ? formatWeiToDisplayNumber(
-                  balances[inputTokenAddress],
+                  balances[poolSettings.reserveToken],
                   4,
-                tokens[inputTokenAddress]?.decimals || 18
+                    tokens[poolSettings.reserveToken]?.decimals || 18
                 )
-                : 0
-              }
+                : 0}
             </Text>
           </SkeletonLoader>
         </div>
@@ -144,35 +140,60 @@ export const PoolCreateInfo = ({
           // suffix={Number(valueIn) > 0 ? <TextGrey>${formatLocalisedCompactNumber(formatFloat(valueIn))}</TextGrey> : ''}
           className='fs-24'
           // @ts-ignore
-          value={amountIn}
+          value={poolSettings.amountIn}
           onChange={(e) => {
             // @ts-ignore
             if (Number(e.target.value) >= 0) {
-              setAmountIn((e.target as HTMLInputElement).value)
+              updatePoolSettings({
+                amountIn: (e.target as HTMLInputElement).value
+              })
             }
           }}
+          suffix={
+            Number(value) > 0 ? (
+              <TextGrey>
+                ${formatLocalisedCompactNumber(formatFloat(value))}
+              </TextGrey>
+            ) : (
+              ''
+            )
+          }
         />
       </div>
 
       <Box borderColor='blue' className='estimate-box swap-info-box mt-2 mb-2'>
         <TextBlue className='estimate-box__title liquidity'>
-          Liquidity {barData?.x}x
+          Liquidity {poolSettings.x}x
         </TextBlue>
         <InfoRow>
           <span>Value</span>
-          <span className={`delta-box ${!amountIn && 'no-data'}`}>
+          <span className={`delta-box ${!poolSettings.amountIn && 'no-data'}`}>
             <div className='text-left'>
               <Text>0</Text>
             </div>
-            {amountIn && (
+            {poolSettings.amountIn && (
               <React.Fragment>
                 <div className='icon-plus'>
                   <Text>+</Text>
                 </div>
                 <div className='text-right'>
-                  <Text>
-                    {formatLocalisedCompactNumber(formatFloat(value))}
-                  </Text>
+                  {value && parseFloat(poolSettings.amountIn.toString()) > 0 ? (
+                    <Text>
+                      {formatLocalisedCompactNumber(
+                        formatFloat(poolSettings.amountIn, 4)
+                      )}{' '}
+                      <Text>
+                        <TokenSymbol
+                          token={tokens[poolSettings.reserveToken]}
+                        />
+                      </Text>
+                      {' ($'}
+                      {formatLocalisedCompactNumber(formatFloat(value, 2)) +
+                        ')'}
+                    </Text>
+                  ) : (
+                    '0'
+                  )}
                 </div>
               </React.Fragment>
             )}
@@ -180,20 +201,29 @@ export const PoolCreateInfo = ({
         </InfoRow>
         <InfoRow>
           <span>Expiration</span>
-          <div className={`delta-box ${!amountIn && 'no-data'}`}>
+          <div className={`delta-box ${!poolSettings.amountIn && 'no-data'}`}>
             <div className='text-left'>
               <Text>0</Text>
             </div>
-            {amountIn && (
+            {poolSettings.amountIn && (
               <React.Fragment>
                 <div className='plus-icon'>
                   <Text>+</Text>
                 </div>
                 <div className='text-right'>
-                  <Text>1s</Text>
+                  <Text>{poolSettings.closingFeeDuration} hr(s)</Text>
                 </div>
               </React.Fragment>
             )}
+          </div>
+        </InfoRow>
+
+        <InfoRow>
+          <span>Mark Price: </span>
+          <div className={`delta-box ${!poolSettings.amountIn && 'no-data'}`}>
+            <div className='text-right'>
+              <Text>${poolSettings.markPrice}</Text>
+            </div>
           </div>
         </InfoRow>
       </Box>
@@ -243,13 +273,14 @@ export const PoolCreateInfo = ({
         )}
       </div>
 
-      <TxFee gasUsed={bn(1000000)} />
+      <TxFee gasUsed={bn(poolSettings.gasUsed)} />
       <ButtonExecute
         className='create-pool-button w-100 mt-1'
         onClick={handleCreatePool}
       >
         Create pool
       </ButtonExecute>
+      <TextPink>{poolSettings.errorMessage}</TextPink>
     </div>
   )
 }
