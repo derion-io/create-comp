@@ -1,9 +1,9 @@
 // import configs from '../config/configs'
 
-import {CHAINS} from "../../utils/constant";
+import { CHAINS } from '../../utils/constant'
 
 export interface TokenType {
-  decimal: number
+  decimals: number
   name: string
   symbol: string
   icon?: string

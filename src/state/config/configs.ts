@@ -14,7 +14,7 @@ export default {
     nativeToken: {
       name: 'ETH',
       symbol: 'ETH',
-      decimal: 18,
+      decimals: 18,
       address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
     },
     addresses: {
@@ -52,7 +52,7 @@ export default {
     nativeToken: {
       name: 'ETH',
       symbol: 'ETH',
-      decimal: 18,
+      decimals: 18,
       address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
     },
     addresses: {

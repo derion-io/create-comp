@@ -61,13 +61,13 @@ export const PoolCreateInfo = ({ pairAddr, power }: { pairAddr: string, power: s
             <Text
               className='amount-input-box__head--balance'
               onClick={() => {
-                // setAmountIn(weiToNumber(balances[inputTokenAddress], tokens[inputTokenAddress]?.decimal || 18))
+                // setAmountIn(weiToNumber(balances[inputTokenAddress], tokens[inputTokenAddress]?.decimals || 18))
               }}
             >Balance: {balances && balances[inputTokenAddress]
                 ? formatWeiToDisplayNumber(
                   balances[inputTokenAddress],
                   4,
-                tokens[inputTokenAddress]?.decimal || 18
+                tokens[inputTokenAddress]?.decimals || 18
                 )
                 : 0
               }
@@ -144,7 +144,7 @@ export const PoolCreateInfo = ({ pairAddr, power }: { pairAddr: string, power: s
           />
           : <div className='no-leverage-chart-box'>
             <NoDataIcon />
-            <Text> Leverage chart here </Text>
+            <Text> Leversssage chart here </Text>
           </div>
       }
 

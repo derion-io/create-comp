@@ -45,7 +45,7 @@ const Component = ({
 
       addTokenToList({
         address: utils.getAddress(tokenAddress),
-        decimal: res[0].decimals,
+        decimals: res[0].decimals,
         symbol: res[0].symbol,
         name: res[0].name
       })
@@ -92,7 +92,7 @@ const Component = ({
                   ? formatWeiToDisplayNumber(
                     balances[token.address],
                     4,
-                    token?.decimal || 18
+                    token?.decimals || 18
                   )
                   : 0}
               </span>

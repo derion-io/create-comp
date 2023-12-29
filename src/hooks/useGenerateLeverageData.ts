@@ -18,11 +18,11 @@ export const useGenerateLeverageData = (pairAddr: string, power: string, amountI
 
   const oldLeverageData = useMemo(() => {
     const result = {}
-    if (Object.values(pools).length > 0) {
+    if (Object.values(pools || {})?.length > 0) {
       Object.values(pools).forEach((pool) => {
         const size = bn(numberToWei(getTokenValue(
           pool.TOKEN_R,
-          weiToNumber(pool.states.R, tokens[pool.TOKEN_R]?.decimal)
+          weiToNumber(pool.states.R, tokens[pool.TOKEN_R]?.decimals)
         )))
 
         const power = Math.abs(pool.k.toNumber() / 2)

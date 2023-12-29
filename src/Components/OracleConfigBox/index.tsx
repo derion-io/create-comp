@@ -252,7 +252,7 @@ export const OracleConfigBox = ({
 const formatTokenType = (token: any) => {
   return {
     address: utils.getAddress(token.adr),
-    decimal: token.decimals,
+    decimals: token.decimals,
     symbol: token.symbol,
     name: token.name
   }

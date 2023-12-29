@@ -63,7 +63,7 @@ const Component = ({ pool }: { pool: PoolType }) => {
             const SymBolText = powers[key] >= 0 ? TextBuy : TextSell
             if (balances[dToken] && balances[dToken].gt(0)) {
               return <div key={key}>
-                <Text>{weiToNumber(balances[dToken], tokens[dToken]?.decimal || 18, 4)} </Text>
+                <Text>{weiToNumber(balances[dToken], tokens[dToken]?.decimals || 18, 4)} </Text>
                 <SymBolText><TokenSymbol token={tokens[dToken]} /></SymBolText>
               </div>
             }
