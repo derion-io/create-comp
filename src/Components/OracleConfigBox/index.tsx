@@ -382,7 +382,7 @@ export const OracleConfigBox = () => {
             }
           />
         </div>
-            
+
         <div className='config-item'>
           <Text fontSize={14} fontWeight={600}>
             Premium Rate (%)

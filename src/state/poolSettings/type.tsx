@@ -1,3 +1,4 @@
+import { BigNumber } from 'ethers'
 import { type } from 'os'
 
 export type PoolSettingsType = {
@@ -19,6 +20,7 @@ export type PoolSettingsType = {
   R?: string | number
   x?: number
   newPoolAddress?: string
+  gasPrice: BigNumber
 }
 
 export const initialState: PoolSettingsType = {
@@ -37,5 +39,6 @@ export const initialState: PoolSettingsType = {
   errorMessage: '',
   gasUsed: 0,
   markPrice: 0,
-  x: 0
+  x: 0,
+  gasPrice: BigNumber.from(0),
 }

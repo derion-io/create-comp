@@ -13,6 +13,7 @@ import { poolsState } from './pools/type'
 // eslint-disable-next-line no-unused-vars
 import { BigNumber } from 'ethers'
 import { settingsState } from './setting/type'
+import { PoolSettingsType } from './poolSettings/type'
 
 export interface State {
   pools: poolsState
@@ -22,6 +23,7 @@ export interface State {
   wallet: walletState
   tokens: tokensState
   settings: settingsState
+  poolSettings: PoolSettingsType
 }
 
 export interface PoolType {

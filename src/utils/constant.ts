@@ -21,10 +21,6 @@ export const SECONDS_PER_HOUR = 60 * 60
 export const PAYMENT = 0
 export const PRECISION = 1000000
 
-export const gasPrices = {
-  56: 3e9
-}
-
 export const Q256M = bn(1).shl(256).sub(1)
 export const Q128 = bn(1).shl(128)
 export const Q64 = bn(1).shl(64)

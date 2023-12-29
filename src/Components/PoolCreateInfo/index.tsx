@@ -43,8 +43,6 @@ export const PoolCreateInfo = () => {
   const { configs } = useConfigs()
   const wrappedTokenAddress = configs.wrappedTokenAddress
   // const data = useGenerateLeverageData(pairAddr, power, amountIn)
-  console.log(poolSettings.reserveToken, balances[poolSettings.reserveToken])
-  console.log(balances)
 
   const { value } = useTokenValue({
     amount: poolSettings.amountIn.toString(),
@@ -180,7 +178,7 @@ export const PoolCreateInfo = () => {
                   {value && parseFloat(poolSettings.amountIn.toString()) > 0 ? (
                     <Text>
                       {formatLocalisedCompactNumber(
-                        formatFloat(poolSettings.amountIn, 4)
+                        formatFloat(poolSettings.amountIn)
                       )}{' '}
                       <Text>
                         <TokenSymbol
@@ -188,8 +186,7 @@ export const PoolCreateInfo = () => {
                         />
                       </Text>
                       {' ($'}
-                      {formatLocalisedCompactNumber(formatFloat(value, 2)) +
-                        ')'}
+                      {formatLocalisedCompactNumber(formatFloat(value)) + ')'}
                     </Text>
                   ) : (
                     '0'
