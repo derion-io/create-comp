@@ -13,7 +13,7 @@ export const useGenerateLeverageData = (pairAddr: string, power: string, amountI
   const { tokens } = useListTokens()
   const { getTokenValue } = useTokenValue({})
   const { poolGroups } = useListPool()
-
+  if (pairAddr.length === 0) return
   const pools: PoolType = poolGroups[pairAddr]?.pools || {}
 
   const oldLeverageData = useMemo(() => {
