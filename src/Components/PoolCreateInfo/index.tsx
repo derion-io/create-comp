@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import LeverageSlider from 'leverage-slider/dist/component'
-import { bn, formatFloat } from '../../utils/helpers'
+import { bn, formatFloat, weiToNumber } from '../../utils/helpers'
 import './style.scss'
 import { Input } from '../ui/Input'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
@@ -10,7 +10,9 @@ import { useListTokens } from '../../state/token/hook'
 import { Text, TextBlue } from '../ui/Text'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { NATIVE_ADDRESS, ZERO_ADDRESS } from '../../utils/constant'
-import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../utils/formatBalance'
+import formatLocalisedCompactNumber, {
+  formatWeiToDisplayNumber
+} from '../../utils/formatBalance'
 import { TxFee } from '../TxFee'
 import { ButtonExecute } from '../ui/Button'
 import { useWeb3React } from '../../state/customWeb3React/hook'
@@ -18,9 +20,34 @@ import { useGenerateLeverageData } from '../../hooks/useGenerateLeverageData'
 import { NoDataIcon } from '../ui/Icon'
 import { Box } from '../ui/Box'
 import { useTokenValue } from '../../hooks/useTokenValue'
+import { deployPool } from '../../utils/deployHelper'
 
-export const PoolCreateInfo = ({ pairAddr, power }: { pairAddr: string, power: string }) => {
-  const [amountIn, setAmountIn] = useState<any>()
+export const PoolCreateInfo = ({
+  pairAddr,
+  windowTime,
+  power,
+  interestRate,
+  premiumRate,
+  vesting,
+  closingFeeDuration,
+  closingFee,
+  reserveToken,
+  amountIn,
+  setAmountIn
+}: {
+  pairAddr: string
+  windowTime: string
+  power: string
+  interestRate: number
+  premiumRate: number
+  vesting: number
+  closingFeeDuration: number
+  closingFee: number
+  reserveToken?: string
+  amountIn: string
+  setAmountIn: any
+}) => {
+  const { chainId, provider } = useWeb3React()
   const [barData, setBarData] = useState<any>({ x: 0 })
   const { tokens } = useListTokens()
   const { balances } = useWalletBalance()
@@ -28,7 +55,7 @@ export const PoolCreateInfo = ({ pairAddr, power }: { pairAddr: string, power: s
   const [visibleRecipient, setVisibleRecipient] = useState<boolean>(false)
   const inputTokenAddress = NATIVE_ADDRESS
   const { account } = useWeb3React()
-  const data = useGenerateLeverageData(pairAddr, power, amountIn)
+  // const data = useGenerateLeverageData(pairAddr, power, amountIn)
 
   const { value } = useTokenValue({
     amount: amountIn,
@@ -40,6 +67,40 @@ export const PoolCreateInfo = ({ pairAddr, power }: { pairAddr: string, power: s
       setRecipient(account)
     }
   }, [account])
+
+  const handleCreatePool = async () => {
+    // const settings = {
+    //   // pairAddress: '0xC31E54c7a869B9FcBEcc14363CF510d1c41fa443',
+    //   // pairAddress: '0x8d76e9c2bd1adde00a3dcdc315fcb2774cb3d1d6',
+    //   pairAddress: ['0x31C77F72BCc209AD00E3B7be13d719c08cb7BA7B'],
+    //   windowBlocks: 120,
+    //   power: 2,
+    //   interestRate: 0.03 / 100,
+    //   premiumRate: 0.3 / 100,
+    //   vesting: 60,
+    //   closingFee: 0.3 / 100,
+    //   closingFeeDuration: 24 * 60 * 60,
+    //   reserveToken: 'PLD' // PlayDerivable
+    //   // openingFee: 0/100,
+    //   // R: 0.0001, // init liquidity
+    // }
+    if (chainId && provider && account && pairAddr) {
+      const signer = provider.getSigner()
+      const settings = {
+        pairAddress: [pairAddr],
+        windowBlocks: parseInt(windowTime),
+        power: parseInt(power),
+        interestRate: interestRate / 100,
+        premiumRate: premiumRate / 100,
+        vesting: vesting,
+        closingFeeDuration: closingFeeDuration * 60 * 60,
+        closingFee: closingFee / 100,
+        reserveToken: reserveToken,
+        R: amountIn
+      }
+      await deployPool(settings, chainId, provider, signer)
+    }
+  }
 
   return (
     <div className='pool-create-info'>
@@ -54,16 +115,20 @@ export const PoolCreateInfo = ({ pairAddr, power }: { pairAddr: string, power: s
               }}
             >
               <TokenIcon size={24} tokenAddress={inputTokenAddress} />
-              <Text><TokenSymbol token={tokens[inputTokenAddress]} /></Text>
+              <Text>
+                <TokenSymbol token={tokens[inputTokenAddress]} />
+              </Text>
             </span>
           </SkeletonLoader>
-          <SkeletonLoader loading={balances[inputTokenAddress]}>
+          <SkeletonLoader loading={!balances[inputTokenAddress]}>
             <Text
               className='amount-input-box__head--balance'
               onClick={() => {
-                // setAmountIn(weiToNumber(balances[inputTokenAddress], tokens[inputTokenAddress]?.decimals || 18))
+                // setAmountIn(weiToNumber(balances[inputTokenAddress], tokens[inputTokenAddress]?.decimal || 18))
               }}
-            >Balance: {balances && balances[inputTokenAddress]
+            >
+              Balance:{' '}
+              {balances && balances[inputTokenAddress]
                 ? formatWeiToDisplayNumber(
                   balances[inputTokenAddress],
                   4,
@@ -89,47 +154,46 @@ export const PoolCreateInfo = ({ pairAddr, power }: { pairAddr: string, power: s
         />
       </div>
 
-      <Box
-        borderColor='blue'
-        className='estimate-box swap-info-box mt-2 mb-2'
-      >
+      <Box borderColor='blue' className='estimate-box swap-info-box mt-2 mb-2'>
         <TextBlue className='estimate-box__title liquidity'>
           Liquidity {barData?.x}x
         </TextBlue>
         <InfoRow>
-          <span>
-              Value
-          </span>
+          <span>Value</span>
           <span className={`delta-box ${!amountIn && 'no-data'}`}>
             <div className='text-left'>
               <Text>0</Text>
             </div>
-            {
-              amountIn && <React.Fragment>
-                <div className='icon-plus'><Text>+</Text></div>
+            {amountIn && (
+              <React.Fragment>
+                <div className='icon-plus'>
+                  <Text>+</Text>
+                </div>
                 <div className='text-right'>
                   <Text>
                     {formatLocalisedCompactNumber(formatFloat(value))}
                   </Text>
                 </div>
               </React.Fragment>
-            }
+            )}
           </span>
         </InfoRow>
         <InfoRow>
-          <span>
-              Expiration
-          </span>
+          <span>Expiration</span>
           <div className={`delta-box ${!amountIn && 'no-data'}`}>
             <div className='text-left'>
               <Text>0</Text>
             </div>
-            {
-              amountIn && (<React.Fragment>
-                <div className='plus-icon'><Text>+</Text></div>
-                <div className='text-right'><Text>1s</Text></div>
-              </React.Fragment>)
-            }
+            {amountIn && (
+              <React.Fragment>
+                <div className='plus-icon'>
+                  <Text>+</Text>
+                </div>
+                <div className='text-right'>
+                  <Text>1s</Text>
+                </div>
+              </React.Fragment>
+            )}
           </div>
         </InfoRow>
       </Box>
@@ -144,7 +208,7 @@ export const PoolCreateInfo = ({ pairAddr, power }: { pairAddr: string, power: s
           />
           : <div className='no-leverage-chart-box'>
             <NoDataIcon />
-            <Text> Leversssage chart here </Text>
+            <Text> Leverage chart here </Text>
           </div>
       }
 
@@ -155,7 +219,8 @@ export const PoolCreateInfo = ({ pairAddr, power }: { pairAddr: string, power: s
           </TextBlue>
           <TextBlue
             className='btn-toggle'
-            fontSize={14} fontWeight={600}
+            fontSize={14}
+            fontWeight={600}
             onClick={() => {
               setVisibleRecipient(!visibleRecipient)
             }}
@@ -163,24 +228,25 @@ export const PoolCreateInfo = ({ pairAddr, power }: { pairAddr: string, power: s
             {visibleRecipient ? '-' : '+'}
           </TextBlue>
         </div>
-        {visibleRecipient &&
-        <Input
-          inputWrapProps={{
-            className: 'config-input'
-          }}
-          value={recipient}
-          placeholder='0x...'
-          onChange={(e) => {
-          // @ts-ignore
-            setRecipient((e.target as HTMLInputElement).value)
-          }}
-        />
-        }
+        {visibleRecipient && (
+          <Input
+            inputWrapProps={{
+              className: 'config-input'
+            }}
+            value={recipient}
+            placeholder='0x...'
+            onChange={(e) => {
+              // @ts-ignore
+              setRecipient((e.target as HTMLInputElement).value)
+            }}
+          />
+        )}
       </div>
 
       <TxFee gasUsed={bn(1000000)} />
       <ButtonExecute
         className='create-pool-button w-100 mt-1'
+        onClick={handleCreatePool}
       >
         Create pool
       </ButtonExecute>

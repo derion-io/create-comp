@@ -7,7 +7,8 @@ export default {
     explorer: 'https://arbiscan.io',
     scanApi: 'https://api.arbiscan.io/api',
     candleChartApi: 'https://api.derivable.org/56/chart/',
-    theGraphMessari: 'https://api.thegraph.com/subgraphs/name/messari/uniswap-v3-arbitrum',
+    theGraphMessari:
+      'https://api.thegraph.com/subgraphs/name/messari/uniswap-v3-arbitrum',
     scanName: 'Arbitrum Scan',
     ddlGenesisBlock: 70615018,
     timePerBlock: 1000,
@@ -45,7 +46,8 @@ export default {
     explorer: 'https://basescan.org',
     scanApi: 'https://api.basescan.org/api',
     candleChartApi: 'https://api.derivable.org/56/chart/',
-    theGraphMessari: 'https://api.thegraph.com/subgraphs/name/messari/uniswap-v3-base',
+    theGraphMessari:
+      'https://api.thegraph.com/subgraphs/name/messari/uniswap-v3-base',
     scanName: 'Base Scan',
     ddlGenesisBlock: 70615018,
     timePerBlock: 1000,
@@ -75,6 +77,46 @@ export default {
     stableCoins: [
       '0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca',
       '0x50c5725949a6f0c72e6c4a641f24049a917db0cb'
+    ]
+  },
+  [CHAINS.BSC]: {
+    rpcUrl: 'https://bsc-dataseed3.binance.org',
+    rpcToGetLogs: 'https://bscrpc.com',
+    explorer: 'https://bscscan.com',
+    scanApi: 'https://api.bscscan.com/api',
+    candleChartApi: 'https://api.derivable.org/56/chart/',
+    theGraphMessari:
+      'https://api.thegraph.com/subgraphs/name/messari/uniswap-v3-bsc',
+    scanName: 'BscScan',
+    ddlGenesisBlock: 70615018,
+    timePerBlock: 3000,
+    nativeToken: {
+      name: 'BNB',
+      symbol: 'BNB',
+      decimal: 18,
+      address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+    },
+    addresses: {
+      nativeToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+      reserveTokenPrice: '0x0772BD1981f6092329F12FC041B83b2faBBB1A25',
+      uniswapFactory: '0xdB1d10011AD0Ff90774D0C6Bb92e5C5c8b4461F7',
+      token: '0x0819281c74BeD5423C1B3283808F8E26AAd18DBe',
+      stateCalHelper: '0xC763aaE65755d72b59F8A82f2640a657147131B4',
+      multiCall: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      // pairsInfo: '0x81C8f6bC2a602B9Ad403116ab4c0EC1a0e5B49B1',
+      // pairsV3Info: '0x81C8f6bC2a602B9Ad403116ab4c0EC1a0e5B49B1',
+      bnA: '0x357FF35761979254F93a21995b20d9071904603d',
+      // tokensInfo: '0x696630d3aE600147902c71bF967ec3eb7a2C8b44',
+      router: '0xb29647dd03F9De2a9Fe9e32DF431dA5015c60353',
+      poolFactory: '0x3B202cef7108C2b13dDbEfDCd9d3df9FBafa5c7b',
+      logic: '0x838faCe8CA0256e7C3a6ae4F60CDB7318e986360',
+      wrapToken: '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c',
+      wrapUsdPair: '0x58F876857a02D6762E0101bb5C46A8c1ED44Dc16'
+    },
+    stableCoins: [
+      '0x55d398326f99059fF775485246999027B3197955',
+      '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
+      '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d'
     ]
   }
 }

@@ -26,6 +26,7 @@ export interface tokensState {
 export const initialState: tokensState = {
   tokens: {
     [CHAINS.ARBITRUM]: {},
-    [CHAINS.BASE]: {}
+    [CHAINS.BASE]: {},
+    [CHAINS.BSC]: {}
   }
 }

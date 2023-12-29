@@ -27,7 +27,7 @@ export const tokens = createSlice({
       state.initialledConfig = true
     },
 
-    seNetworkConfigs: (
+    setNetworkConfigs: (
       state,
       action: PayloadAction<{
         chainId: number
@@ -52,10 +52,6 @@ export const tokens = createSlice({
 })
 
 // Actions
-export const {
-  setConfigs,
-  setEngine,
-  seNetworkConfigs
-} = tokens.actions
+export const { setConfigs, setEngine, setNetworkConfigs } = tokens.actions
 
 export default tokens.reducer

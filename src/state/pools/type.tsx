@@ -1,6 +1,6 @@
 import { BigNumber } from 'ethers'
 import { ListTokensType } from '../token/type'
-import {CHAINS} from "../../utils/constant";
+import { CHAINS } from '../../utils/constant'
 
 export type BalancesType = { [key: string]: BigNumber }
 export type AllowancesType = { [key: string]: BigNumber }
@@ -12,14 +12,14 @@ export type ParseLogType = {
   args: any
 }
 export type PoolType = {
-  pool: string,
-  logic: string,
-  cTokenPrice: number,
+  pool: string
+  logic: string
+  cTokenPrice: number
   baseSymbol: string
   states: any
-  baseToken: string,
-  quoteToken: string,
-  cToken: string,
+  baseToken: string
+  quoteToken: string
+  cToken: string
   powers: number[]
   dTokens: string[]
   priceToleranceRatio: BigNumber
@@ -27,12 +27,12 @@ export type PoolType = {
   rentRate: BigNumber
   deleverageRate: BigNumber
   poolAddress: string
-  quoteId: number,
-  baseId: number,
+  quoteId: number
+  baseId: number
   basePrice: string
-  cPrice: number,
-  ORACLE: string,
-  MARK: BigNumber,
+  cPrice: number
+  ORACLE: string
+  MARK: BigNumber
   INIT_TIME: BigNumber
   TOKEN_R: string
 }
@@ -41,22 +41,23 @@ export type PoolGroupType = any
 
 export interface poolsState {
   poolGroups: {
-    [key: number]: {[key: string]: PoolGroupType}
-  },
+    [key: number]: { [key: string]: PoolGroupType }
+  }
   pools: {
-    [key: number]: {[key: string]: PoolType}
-  },
+    [key: number]: { [key: string]: PoolType }
+  }
   tokens: {
     [key: string]: ListTokensType
-  },
+  }
   prices: {
-    [key: number]: {[key: string]: BigNumber}
-  },
-  swapLogs: {[key: string]: any[] }
+    [key: number]: { [key: string]: BigNumber }
+  }
+  swapLogs: { [key: string]: any[] }
 }
 const initDataEachChain = {
   [CHAINS.ARBITRUM]: {},
-  [CHAINS.BASE]: {}
+  [CHAINS.BASE]: {},
+  [CHAINS.BSC]: {}
 }
 
 export const initialState: poolsState = {
@@ -64,6 +65,5 @@ export const initialState: poolsState = {
   pools: initDataEachChain,
   tokens: initDataEachChain,
   prices: initDataEachChain,
-  swapLogs: {
-  }
+  swapLogs: {}
 }

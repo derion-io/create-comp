@@ -19,6 +19,6 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true
   },
-  "include": ["src"],
+  "include": ["src", "src/utils/deployHelper.ts"],
   "exclude": ["node_modules", "dist", "example"]
 }

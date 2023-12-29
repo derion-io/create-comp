@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import {
-  bn, cutDecimal,
+  bn,
+  cutDecimal,
   decodeErc1155Address,
   isErc1155Address,
   numberToWei,
@@ -18,7 +19,7 @@ export const useTokenValue = ({
   amount,
   tokenAddress
 }: {
-  amount?: string,
+  amount?: string
   tokenAddress?: string
 }) => {
   const { prices } = useTokenPrice()
@@ -35,35 +36,46 @@ export const useTokenValue = ({
       const { address: poolAddress, id } = decodeErc1155Address(address)
       const pool = pools[poolAddress]
       if (pool && pool.states) {
-        const rX = Number(id) === POOL_IDS.A
-          ? pool.states.rA
-          : Number(id) === POOL_IDS.B ? pool.states.rB : pool.states.rB
+        const rX =
+          Number(id) === POOL_IDS.A
+            ? pool.states.rA
+            : Number(id) === POOL_IDS.B
+            ? pool.states.rB
+            : pool.states.rB
 
-        const sX = Number(id) === POOL_IDS.A
-          ? pool.states.sA
-          : Number(id) === POOL_IDS.B ? pool.states.sB : pool.states.sB
+        const sX =
+          Number(id) === POOL_IDS.A
+            ? pool.states.sA
+            : Number(id) === POOL_IDS.B
+            ? pool.states.sB
+            : pool.states.sB
 
         const tokenPrice = parseSqrtX96(
-          prices[pool.TOKEN_R]?.mul(rX)?.div(sX).mul(numberToWei(1, 9)) || bn(0),
+          prices[pool.TOKEN_R]?.mul(rX)?.div(sX).mul(numberToWei(1, 9)) ||
+            bn(0),
           tokens[address] || {},
           tokens[configs.stablecoins[0]] || {}
         )
 
         value = weiToNumber(
-          bn(numberToWei(_amount)).mul(numberToWei(tokenPrice))
-          , 54)
+          bn(numberToWei(_amount)).mul(numberToWei(tokenPrice)),
+          54
+        )
       }
     } else {
-      console.log(prices, address)
-      const tokenPrice = prices[address] && prices[address].gt(0) ? parseSqrtX96(
-        prices[address]?.mul(numberToWei(1, 9)) || bn(0),
-        tokens[address] || {},
-        tokens[configs.stablecoins[0]] || {}
-      ) : numberToWei(1, 36)
+      const tokenPrice =
+        prices[address] && prices[address].gt(0)
+          ? parseSqrtX96(
+              prices[address]?.mul(numberToWei(1, 9)) || bn(0),
+              tokens[address] || {},
+              tokens[configs.stablecoins[0]] || {}
+            )
+          : numberToWei(1, 36)
 
       value = weiToNumber(
-        bn(numberToWei(_amount)).mul(numberToWei(tokenPrice))
-        , 54)
+        bn(numberToWei(_amount)).mul(numberToWei(tokenPrice)),
+        54
+      )
     }
     return cutDecimal(value, 18)
   }

@@ -11,7 +11,8 @@ export const TIME_TO_REFRESH_STATE = 30000
 export const DEFAULT_CHAIN = 42161
 export const CHAINS = {
   ARBITRUM: 42161,
-  BASE: 8453
+  BASE: 8453,
+  BSC: 56
 }
 
 export const SUPPORTED_CHAINS = Object.values(CHAINS)
