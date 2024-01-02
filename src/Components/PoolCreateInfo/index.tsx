@@ -34,7 +34,7 @@ export const PoolCreateInfo = () => {
     calculateParamsForPools
   } = usePoolSettings()
   const { chainId, provider } = useWeb3React()
-  const [barData, setBarData] = useState<any>({ x: 0 })
+  const [barData, setBarData] = useState<any>({})
   const { tokens } = useListTokens()
   const { balances } = useWalletBalance()
   const [recipient, setRecipient] = useState<string>(ZERO_ADDRESS)
@@ -42,8 +42,13 @@ export const PoolCreateInfo = () => {
   const { account } = useWeb3React()
   const { configs } = useConfigs()
   const wrappedTokenAddress = configs.wrappedTokenAddress
-  // const data = useGenerateLeverageData(pairAddr, power, amountIn)
-
+  console.log(poolSettings)
+  const data = useGenerateLeverageData(
+    poolSettings.pairAddress,
+    poolSettings.power.toString(),
+    poolSettings.amountIn.toString()
+  )
+  console.log('#data', data)
   const { value } = useTokenValue({
     amount: poolSettings.amountIn.toString(),
     tokenAddress:
@@ -161,7 +166,7 @@ export const PoolCreateInfo = () => {
 
       <Box borderColor='blue' className='estimate-box swap-info-box mt-2 mb-2'>
         <TextBlue className='estimate-box__title liquidity'>
-          Liquidity {poolSettings.x}x
+          Liquidity {poolSettings.power}x
         </TextBlue>
         <InfoRow>
           <span>Value</span>
@@ -226,7 +231,7 @@ export const PoolCreateInfo = () => {
       </Box>
 
       {
-        (data && data.length > 0)
+        (data && data.length > 0 && Object.keys(barData).length > 0)
           ? <LeverageSlider
             setBarData={setBarData}
             barData={barData}

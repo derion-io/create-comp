@@ -109,7 +109,7 @@ export const useGenerateLeverageData = (
         return {
           ...bar,
           reserve: bar.size,
-          size: bar.size.mul(10000).div(maxTotalSize).toNumber() / 100
+          size: bar.size.mul(10000).div(Number(maxTotalSize) === 0 ? 1 : Number(maxTotalSize)).toNumber() / 100
           // size: 50 + leverage.x
         }
       })

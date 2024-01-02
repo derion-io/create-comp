@@ -336,8 +336,8 @@ export const detectDecimalFromPrice = (price: number | string) => {
   } else {
     const rate = !bn(numberToWei(price)).isZero()
       ? weiToNumber(
-          BigNumber.from(numberToWei(1, 36)).div(numberToWei(price)).toString()
-        )
+        BigNumber.from(numberToWei(1, 36)).div(numberToWei(price)).toString()
+      )
       : '0'
     return rate.split('.')[0].length + 3
   }

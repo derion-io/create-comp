@@ -1,25 +1,10 @@
-import { BigNumber, BigNumberish, ethers } from 'ethers'
-import jsonUniswapV3Pool from './abi/UniswapV3Pool.json'
-import jsonUniswapV2Pool from '@uniswap/v2-core/build/UniswapV2Pair.json'
-import jsonERC20 from '@uniswap/v2-core/build/ERC20.json'
-import { abi as poolFactoryAbi } from './abi/PoolFactory.json'
-import { abi as poolBaseAbi } from './abi/PoolBase.json'
-import { abi as univeralTokenRouterAbi } from './abi/UniversalTokenRouter.json'
-import { abi as helperAbi } from './abi/Helper.json'
-import { ZERO_ADDRESS } from './constant'
-import { bn, numberToWei } from './helpers'
-import { PoolSettingsType } from '../state/poolSettings/type'
-import { usePoolSettings } from '../state/poolSettings/hook'
+import { BigNumber } from 'ethers'
 import {
-  gasPrices,
-  Q64,
   Q128,
   Q256M,
-  SECONDS_PER_DAY,
-  SECONDS_PER_HOUR,
-  PRECISION
+  Q64
 } from './constant'
-import { rateToHL } from 'derivable-tools/dist/utils/helper'
+import { bn, numberToWei } from './helpers'
 
 export function feeToOpenRate(fee: any) {
   return bn(((1 - fee) * 10000).toFixed(0))
