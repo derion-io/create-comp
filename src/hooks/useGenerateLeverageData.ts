@@ -17,7 +17,9 @@ export const useGenerateLeverageData = (
   const { tokens } = useListTokens()
   const { getTokenValue } = useTokenValue({})
   const { poolGroups } = useListPool()
-  const pools: PoolType = (pairAddr ? poolGroups[pairAddr]?.pools : {}) || {}
+  console.log('#poolGroups', poolGroups[Object.keys(poolGroups)[0]]?.pools)
+  const pools: PoolType =
+    (pairAddr ? poolGroups[Object.keys(poolGroups)[0]]?.pools : {}) || {}
 
   const oldLeverageData = useMemo(() => {
     const result = {}
@@ -109,7 +111,11 @@ export const useGenerateLeverageData = (
         return {
           ...bar,
           reserve: bar.size,
-          size: bar.size.mul(10000).div(Number(maxTotalSize) === 0 ? 1 : Number(maxTotalSize)).toNumber() / 100
+          size:
+            bar.size
+              .mul(10000)
+              .div(bn(maxTotalSize).eq(bn(0)) ? bn(1) : bn(maxTotalSize))
+              .toNumber() / 100
           // size: 50 + leverage.x
         }
       })

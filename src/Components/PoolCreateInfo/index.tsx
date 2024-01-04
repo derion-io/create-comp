@@ -25,6 +25,7 @@ import { useTokenPrice } from '../../state/pools/hooks/useTokenPrice'
 import { useConfigs } from '../../state/config/useConfigs'
 import { store } from '../../state'
 import { useNativePrice } from '../../hooks/useTokenPrice'
+import { useListPool } from '../../state/pools/hooks/useListPool'
 
 export const PoolCreateInfo = () => {
   const {
@@ -40,21 +41,32 @@ export const PoolCreateInfo = () => {
   const [recipient, setRecipient] = useState<string>(ZERO_ADDRESS)
   const [visibleRecipient, setVisibleRecipient] = useState<boolean>(false)
   const { account } = useWeb3React()
+  const { pools } = useListPool()
+
   const { configs } = useConfigs()
   const wrappedTokenAddress = configs.wrappedTokenAddress
-  console.log(poolSettings)
   const data = useGenerateLeverageData(
     poolSettings.pairAddress,
     poolSettings.power.toString(),
     poolSettings.amountIn.toString()
   )
-  console.log('#data', data)
   const { value } = useTokenValue({
     amount: poolSettings.amountIn.toString(),
     tokenAddress:
       poolSettings.reserveToken || NATIVE_ADDRESS || wrappedTokenAddress
     // NATIVE_ADDRESS
   })
+
+  useEffect(() => {
+    if (Object.values(pools).length > 0) {
+      for (let i = 0; i < data.length; i++) {
+        const leve: any = data[i]
+        for (let k = 0; k < leve.bars.length; k++) {
+          setBarData(leve.bars[k])
+        }
+      }
+    }
+  }, [pools])
 
   useMemo(() => {
     if (account) {
@@ -230,19 +242,19 @@ export const PoolCreateInfo = () => {
         </InfoRow>
       </Box>
 
-      {
-        (data && data.length > 0 && Object.keys(barData).length > 0)
-          ? <LeverageSlider
-            setBarData={setBarData}
-            barData={barData}
-            leverageData={data}
-            height={100}
-          />
-          : <div className='no-leverage-chart-box'>
-            <NoDataIcon />
-            <Text> Leverage chart here </Text>
-          </div>
-      }
+      {data && data.length > 1 && Object.keys(barData).length > 0 ? (
+        <LeverageSlider
+          setBarData={setBarData}
+          barData={barData}
+          leverageData={data.slice(1, data.length)}
+          height={100}
+        />
+      ) : (
+        <div className='no-leverage-chart-box'>
+          <NoDataIcon />
+          <Text> Leverage chart here </Text>
+        </div>
+      )}
 
       <div className='config-item mt-2 mb-1'>
         <div className='recipient-box'>

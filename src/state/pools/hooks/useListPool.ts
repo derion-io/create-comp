@@ -18,9 +18,18 @@ export const useListPool = () => {
 
   const initListPool = async (account: string) => {
     if (ddlEngine) {
+      ddlEngine.RESOURCE.getWhiteListResource([]).then((data: any) => {
+        dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
+        dispatch(
+          addPoolGroupsWithChain({ poolGroups: data.poolGroups, chainId })
+        )
+        dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
+      })
       ddlEngine.RESOURCE.getResourceCached(account).then((data: any) => {
         dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
-        dispatch(addPoolGroupsWithChain({ poolGroups: data.poolGroups, chainId }))
+        dispatch(
+          addPoolGroupsWithChain({ poolGroups: data.poolGroups, chainId })
+        )
         dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
         updateSwapTxsHandle(account, data.swapLogs)
       })

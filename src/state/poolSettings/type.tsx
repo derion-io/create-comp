@@ -24,7 +24,7 @@ export type PoolSettingsType = {
 }
 
 export const initialState: PoolSettingsType = {
-  pairAddress: '',
+  pairAddress: '0xd02a4969DC12bB889754361F8BcF3385ac1B2077',
   window: 120,
   power: 2,
   interestRate: 0.03,
@@ -34,11 +34,11 @@ export const initialState: PoolSettingsType = {
   closingFee: 0.3,
   closingFeeDuration: 24,
   amountIn: '0',
-  // reserveToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE', // Native
-  reserveToken: '0xBa95100a0c3abaD1e10414Be77347D3D0900D8c2', // PlayDerivable
+  reserveToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE', // Native
+  // reserveToken: '0xBa95100a0c3abaD1e10414Be77347D3D0900D8c2', // PlayDerivable
   errorMessage: '',
   gasUsed: 0,
   markPrice: 0,
   x: 0,
-  gasPrice: BigNumber.from(0),
+  gasPrice: BigNumber.from(0)
 }

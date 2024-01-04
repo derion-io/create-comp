@@ -107,33 +107,18 @@ export const OracleConfigBox = () => {
       poolSettings.pairAddress !== ZERO_ADDRESS
     ) {
       try {
+        console.log('#pairss')
         const res = await ddlEngine.UNIV3PAIR.getPairInfo({
           pairAddress: poolSettings.pairAddress
         })
         const pairContract = getUniV3PairContract(poolSettings.pairAddress)
         const fee = await pairContract.fee()
+        console.log('#pair', res)
         setToken0(formatTokenType(res.token0))
         setToken1(formatTokenType(res.token1))
         setFee(fee)
-        // setPairInfo1({ pair: poolSettings.pairAddress, ...res })
-        // console.log(res)
-        // if (res.token0.symbol.toLowerCase().includes('us') || res.token0.symbol.toLowerCase().includes('dai')) {
-        //   setPairInfo([
-        //     res.token1.symbol + '/' + res.token0.symbol,
-        //     res.token0.symbol + '/' + res.token1.symbol
-        //   ])
-        //   setQuoteTokenIndex('0')
-        //   suggestConfigs('0', res.token0.decimals)
-        // } else {
-        //   setPairInfo([
-        //     res.token0.symbol + '/' + res.token1.symbol,
-        //     res.token1.symbol + '/' + res.token0.symbol
-        //   ])
-        //   setQuoteTokenIndex('1')
-        //   suggestConfigs('1', res.token1.decimals)
-        // }
       } catch (error) {
-        console.log(error)
+        console.log('#pair', error)
         setPairInfo(['Can not get Pair Address Info'])
       }
     }
@@ -365,7 +350,7 @@ export const OracleConfigBox = () => {
               className: 'config-input'
             }}
             type='number'
-            placeholder={'0'}
+            placeholder='0'
             value={poolSettings.vesting}
             onChange={(e) => {
               // @ts-ignore
@@ -392,7 +377,7 @@ export const OracleConfigBox = () => {
               className: 'config-input'
             }}
             type='number'
-            placeholder={'0'}
+            placeholder='0'
             value={poolSettings.premiumRate}
             onChange={(e) => {
               // @ts-ignore
