@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Text, TextBlue } from '../ui/Text'
 import { Input } from '../ui/Input'
 import { ButtonGrey } from '../ui/Button'
@@ -14,6 +14,8 @@ import { useContract } from '../../hooks/useContract'
 import { utils } from 'ethers'
 import { usePoolSettings } from '../../state/poolSettings/hook'
 import { rateToHL } from 'derivable-tools/dist/utils/helper'
+import { useHelper } from '../../state/config/useHelper'
+import { CurrencyLogo } from '../ui/CurrencyLogo'
 
 export const OracleConfigBox = () => {
   const { poolSettings, updatePoolSettings } = usePoolSettings()
@@ -29,6 +31,7 @@ export const OracleConfigBox = () => {
   const [token1, setToken1] = useState<any>({})
   const [fee, setFee] = useState<any>(0)
   const { tokens } = useListTokens()
+  const { getTokenIconUrl } = useHelper()
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] =
     useState<boolean>(false)
   const [selectingToken, setSelectingToken] = useState<
@@ -100,6 +103,16 @@ export const OracleConfigBox = () => {
 
   const { getUniV3PairContract } = useContract()
 
+  const formatTokenType = async (token: any) => {
+    return {
+      address: utils.getAddress(token.adr),
+      decimals: token.decimals,
+      symbol: token.symbol,
+      name: token.name,
+      logoURI: await getTokenIconUrl(utils.getAddress(token.adr))
+    }
+  }
+
   const fetchPairInfo = async () => {
     if (
       ddlEngine &&
@@ -114,8 +127,9 @@ export const OracleConfigBox = () => {
         const pairContract = getUniV3PairContract(poolSettings.pairAddress)
         const fee = await pairContract.fee()
         console.log('#pair-fetch', res)
-        setToken0(formatTokenType(res.token0))
-        setToken1(formatTokenType(res.token1))
+        console.log('#q', await formatTokenType(res.token0))
+        setToken0(await formatTokenType(res.token0))
+        setToken1(await formatTokenType(res.token1))
         setFee(fee)
         // setPairInfo1({ pair: poolSettings.pairAddress, ...res })
         // console.log(res)
@@ -140,6 +154,14 @@ export const OracleConfigBox = () => {
       }
     }
   }
+  const quoteToken = useMemo(
+    () => (quoteTokenIndex === '0' ? token0 : token1),
+    [token0, token1, quoteTokenIndex]
+  )
+  const baseToken = useMemo(
+    () => (quoteTokenIndex === '0' ? token1 : token0),
+    [token0, token1, quoteTokenIndex]
+  )
 
   return (
     <React.Fragment>
@@ -165,13 +187,16 @@ export const OracleConfigBox = () => {
         </div>
         <div className='oracle-config__select-token-box'>
           <ButtonGrey
+            style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
             onClick={() => {
               setSelectingToken('token0')
               setVisibleSelectTokenModal(true)
             }}
           >
-            {(quoteTokenIndex === '0' ? token0?.symbol : token1?.symbol) ||
-              'Select token'}
+            {quoteToken.logoURI && (
+              <CurrencyLogo currencyURI={quoteToken.logoURI} size={24} />
+            )}
+            {quoteToken.symbol || 'Select quote'}
           </ButtonGrey>
           <span
             onClick={() => {
@@ -181,13 +206,16 @@ export const OracleConfigBox = () => {
             <SwapIcon />
           </span>
           <ButtonGrey
+            style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
             onClick={() => {
               setSelectingToken('token1')
               setVisibleSelectTokenModal(true)
             }}
           >
-            {(quoteTokenIndex === '0' ? token1?.symbol : token0?.symbol) ||
-              'Select token'}
+            {baseToken.logoURI && (
+              <CurrencyLogo currencyURI={baseToken.logoURI} size={24} />
+            )}
+            {baseToken.symbol || 'Select base'}
           </ButtonGrey>
         </div>
         <div className='oracle-config__select-fee-box'>
@@ -432,13 +460,4 @@ export const OracleConfigBox = () => {
       />
     </React.Fragment>
   )
-}
-
-const formatTokenType = (token: any) => {
-  return {
-    address: utils.getAddress(token.adr),
-    decimals: token.decimals,
-    symbol: token.symbol,
-    name: token.name
-  }
 }
