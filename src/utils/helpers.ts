@@ -342,7 +342,15 @@ export const detectDecimalFromPrice = (price: number | string) => {
     return rate.split('.')[0].length + 3
   }
 }
+// extract the integer number before the decimal point
+export const numInt = (v: any): string => {
+  return v.split('.')[0]
+}
 
+// extract the decimals part including the decimal point
+export const numDec = (v: any): string => {
+  return v.match(/\.[\d₀₁₂₃₄₅₆₇₈₉]+$/g) || '\u00A0'
+}
 export const cutDecimal = (number: string, decimal?: number) => {
   if (!decimal) {
     decimal = detectDecimalFromPrice(number)

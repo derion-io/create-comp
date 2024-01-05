@@ -49,10 +49,8 @@
   }
 
   .delta-box {
-    display: flex;
     justify-content: space-between;
     align-items: start;
-    width: 200px;
 
     &.no-data {
       .text-left {
@@ -87,4 +85,18 @@
   .create-pool-button {
 
   }
+}
+
+.position-delta--right {
+  text-align: right;
+  &>div {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+  }
+}
+
+.position-delta--left {
+  text-align: left;
+  color: #9CA3AF;
 }

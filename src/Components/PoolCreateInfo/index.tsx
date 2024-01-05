@@ -1,6 +1,12 @@
 import React, { useMemo, useState, useEffect } from 'react'
 import LeverageSlider from 'leverage-slider/dist/component'
-import { bn, formatFloat, weiToNumber } from '../../utils/helpers'
+import {
+  bn,
+  formatFloat,
+  numDec,
+  numInt,
+  weiToNumber
+} from '../../utils/helpers'
 import './style.scss'
 import { Input } from '../ui/Input'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
@@ -26,7 +32,14 @@ import { useConfigs } from '../../state/config/useConfigs'
 import { store } from '../../state'
 import { useNativePrice } from '../../hooks/useTokenPrice'
 import { useListPool } from '../../state/pools/hooks/useListPool'
-
+function numSplit(v: string) {
+  return (
+    <div>
+      <span className='position-delta--right'>{numInt(v)}</span>
+      <span className='position-delta--left'>{numDec(v)}</span>
+    </div>
+  )
+}
 export const PoolCreateInfo = () => {
   const {
     poolSettings,
@@ -185,62 +198,81 @@ export const PoolCreateInfo = () => {
           Liquidity {poolSettings.power}x
         </TextBlue>
         <InfoRow>
-          <span>Value</span>
+          <TextGrey>Balance</TextGrey>
           <span className={`delta-box ${!poolSettings.amountIn && 'no-data'}`}>
-            <div className='text-left'>
-              <Text>0</Text>
-            </div>
+            <div className='text-left' />
             {poolSettings.amountIn && (
-              <React.Fragment>
-                <div className='icon-plus'>
-                  <Text>+</Text>
-                </div>
-                <div className='text-right'>
-                  {value && parseFloat(poolSettings.amountIn.toString()) > 0 ? (
-                    <Text>
-                      {formatLocalisedCompactNumber(
+              <div className='text-right'>
+                {value && parseFloat(poolSettings.amountIn.toString()) > 0 ? (
+                  <Text>
+                    {numSplit(
+                      formatLocalisedCompactNumber(
                         formatFloat(poolSettings.amountIn)
-                      )}{' '}
-                      <Text>
-                        <TokenSymbol
-                          token={tokens[poolSettings.reserveToken]}
-                        />
-                      </Text>
-                      {' ($'}
-                      {formatLocalisedCompactNumber(formatFloat(value)) + ')'}
-                    </Text>
-                  ) : (
-                    '0'
-                  )}
-                </div>
-              </React.Fragment>
+                      )
+                    )}
+                    {/* <Text>
+                      <TokenSymbol token={tokens[poolSettings.reserveToken]} />
+                    </Text> */}
+                    {/* {' ($'} */}
+                    {/* {formatLocalisedCompactNumber(formatFloat(value)) + ')'} */}
+                  </Text>
+                ) : (
+                  ''
+                )}
+              </div>
             )}
           </span>
         </InfoRow>
         <InfoRow>
-          <span>Expiration</span>
-          <div className={`delta-box ${!poolSettings.amountIn && 'no-data'}`}>
-            <div className='text-left'>
-              <Text>0</Text>
-            </div>
+          <TextGrey>Value</TextGrey>
+          <span className={`delta-box ${!poolSettings.amountIn && 'no-data'}`}>
+            <div className='text-left' />
             {poolSettings.amountIn && (
-              <React.Fragment>
-                <div className='plus-icon'>
-                  <Text>+</Text>
-                </div>
-                <div className='text-right'>
-                  <Text>{poolSettings.closingFeeDuration} hr(s)</Text>
-                </div>
-              </React.Fragment>
+              <div className='text-right'>
+                {value && parseFloat(poolSettings.amountIn.toString()) > 0 ? (
+                  <Text>
+                    {/* {numSplit(
+                      formatLocalisedCompactNumber(
+                        formatFloat(poolSettings.amountIn)
+                      )
+                    )} */}
+                    {/* <Text>
+                      <TokenSymbol token={tokens[poolSettings.reserveToken]} />
+                    </Text> */}
+                    {numSplit(
+                      '$' + formatLocalisedCompactNumber(formatFloat(value, 2))
+                    )}
+                  </Text>
+                ) : (
+                  ''
+                )}
+              </div>
+            )}
+          </span>
+        </InfoRow>
+
+        <InfoRow>
+          <TextGrey>Expiration</TextGrey>
+          <div className={`delta-box ${!poolSettings.amountIn && 'no-data'}`}>
+            <div className='text-left' />
+            {poolSettings.amountIn && (
+              <div className='text-right'>
+                <Text>
+                  {poolSettings.closingFeeDuration}{' '}
+                  <span className='position-delta--left'>hr(s)</span>
+                </Text>
+              </div>
             )}
           </div>
         </InfoRow>
 
         <InfoRow>
-          <span>Mark Price: </span>
+          <TextGrey>Mark Price</TextGrey>
           <div className={`delta-box ${!poolSettings.amountIn && 'no-data'}`}>
             <div className='text-right'>
-              <Text>${poolSettings.markPrice}</Text>
+              <SkeletonLoader loading={poolSettings.markPrice === 0}>
+                <Text>{numSplit('$' + String(poolSettings.markPrice))}</Text>
+              </SkeletonLoader>
             </div>
           </div>
         </InfoRow>
