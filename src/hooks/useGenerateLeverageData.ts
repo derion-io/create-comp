@@ -17,7 +17,6 @@ export const useGenerateLeverageData = (
   const { tokens } = useListTokens()
   const { getTokenValue } = useTokenValue({})
   const { poolGroups } = useListPool()
-  console.log('#poolGroups', poolGroups[Object.keys(poolGroups)[0]]?.pools)
   const pools: PoolType =
     (pairAddr ? poolGroups[Object.keys(poolGroups)[0]]?.pools : {}) || {}
 
@@ -38,7 +37,7 @@ export const useGenerateLeverageData = (
 
         if (!result[power]) {
           result[power] = {
-            x: power,
+            x: Number(power),
             xDisplay: power + 'x',
             totalSize: size,
             bars: [
@@ -53,7 +52,7 @@ export const useGenerateLeverageData = (
         } else {
           const bars = result[power].bars
           bars.push({
-            x: power,
+            x: Number(power),
             token: pool.poolAddress + '-' + POOL_IDS.C,
             size,
             color: barColors[bars.length]
@@ -75,7 +74,7 @@ export const useGenerateLeverageData = (
 
       if (oldLeverageData[power]) {
         result[power].bars.push({
-          x: power,
+          x: Number(power),
           token: ZERO_ADDRESS + '-' + POOL_IDS.C,
           size,
           color: '#ffffff'
@@ -83,7 +82,7 @@ export const useGenerateLeverageData = (
         result[power].totalSize = result[power].totalSize.add(size)
       } else {
         result[power] = {
-          x: power,
+          x: Number(power),
           xDisplay: power + 'x',
           totalSize: size,
           bars: [

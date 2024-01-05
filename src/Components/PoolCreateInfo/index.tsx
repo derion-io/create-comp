@@ -57,6 +57,10 @@ export const PoolCreateInfo = () => {
     // NATIVE_ADDRESS
   })
 
+  useMemo(() => {
+    console.log('#data', data)
+    console.log('#barData', barData)
+  }, [data, barData])
   useEffect(() => {
     if (Object.values(pools).length > 0) {
       for (let i = 0; i < data.length; i++) {
@@ -142,10 +146,10 @@ export const PoolCreateInfo = () => {
               Balance:{' '}
               {balances && balances[poolSettings.reserveToken]
                 ? formatWeiToDisplayNumber(
-                  balances[poolSettings.reserveToken],
-                  4,
+                    balances[poolSettings.reserveToken],
+                    4,
                     tokens[poolSettings.reserveToken]?.decimals || 18
-                )
+                  )
                 : 0}
             </Text>
           </SkeletonLoader>
@@ -242,11 +246,11 @@ export const PoolCreateInfo = () => {
         </InfoRow>
       </Box>
 
-      {data && data.length > 1 && Object.keys(barData).length > 0 ? (
+      {data && data.length > 0 && Object.keys(barData).length > 0 ? (
         <LeverageSlider
           setBarData={setBarData}
           barData={barData}
-          leverageData={data.slice(1, data.length)}
+          leverageData={data}
           height={100}
         />
       ) : (
