@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Text, TextBlue } from '../ui/Text'
+import { Text, TextBlue, TextGrey } from '../ui/Text'
 import { Input } from '../ui/Input'
 import { ButtonGrey } from '../ui/Button'
 import { SwapIcon } from '../ui/Icon'
@@ -16,7 +16,7 @@ import { usePoolSettings } from '../../state/poolSettings/hook'
 import { rateToHL } from 'derivable-tools/dist/utils/helper'
 import { useHelper } from '../../state/config/useHelper'
 import { CurrencyLogo } from '../ui/CurrencyLogo'
-
+export const feeOptions = [100, 300, 500, 1000]
 export const OracleConfigBox = () => {
   const { poolSettings, updatePoolSettings } = usePoolSettings()
   const { ddlEngine } = useConfigs()
@@ -29,7 +29,7 @@ export const OracleConfigBox = () => {
   const [initTimeSuggest, setInitTimeSuggest] = useState<string[]>([])
   const [token0, setToken0] = useState<any>({})
   const [token1, setToken1] = useState<any>({})
-  const [fee, setFee] = useState<any>(0)
+  const [fee, setFee] = useState<any>(null)
   const { tokens } = useListTokens()
   const { getTokenIconUrl } = useHelper()
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] =
@@ -126,7 +126,7 @@ export const OracleConfigBox = () => {
         })
         const pairContract = getUniV3PairContract(poolSettings.pairAddress)
         const fee = await pairContract.fee()
-        console.log('#pair-fetch', res)
+        console.log('#pair-fetch', res, fee)
         console.log('#q', await formatTokenType(res.token0))
         setToken0(await formatTokenType(res.token0))
         setToken1(await formatTokenType(res.token1))
@@ -198,13 +198,22 @@ export const OracleConfigBox = () => {
             )}
             {quoteToken.symbol || 'Select quote'}
           </ButtonGrey>
-          <span
+          <div
             onClick={() => {
               setQuoteTokenIndex(quoteTokenIndex === '0' ? '1' : '0')
             }}
+            style={{ textAlign: 'center' }}
           >
             <SwapIcon />
-          </span>
+            <br />
+            <TextGrey className='config-fee'>
+              {fee
+                ? `V3 (${fee / 10_000}%)`
+                : quoteToken?.symbol && baseToken.symbol
+                ? 'V2'
+                : ''}
+            </TextGrey>
+          </div>
           <ButtonGrey
             style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
             onClick={() => {
@@ -218,8 +227,22 @@ export const OracleConfigBox = () => {
             {baseToken.symbol || 'Select base'}
           </ButtonGrey>
         </div>
-        <div className='oracle-config__select-fee-box'>
-          <ButtonGrey
+        <div
+          // className='oracle-config__select-fee-box'
+          style={{ textAlign: 'center' }}
+        >
+          {/* {feeOptions.map((_fee, _) => {
+            return (
+              <ButtonGrey
+                key={_}
+                className={`btn-select-fee ${_fee === fee && 'active'}`}
+                onClick={() => setFee(_fee)}
+              >
+                {_fee / 10000}%
+              </ButtonGrey>
+            )
+          })} */}
+          {/* <ButtonGrey
             className={`btn-select-fee ${fee === 100 && 'active'}`}
             onClick={() => setFee(100)}
           >
@@ -242,7 +265,7 @@ export const OracleConfigBox = () => {
             onClick={() => setFee(1000)}
           >
             0.1%
-          </ButtonGrey>
+          </ButtonGrey> */}
         </div>
       </Box>
 
