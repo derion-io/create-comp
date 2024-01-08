@@ -29,6 +29,7 @@ export const OracleConfigBox = () => {
   const [initTimeSuggest, setInitTimeSuggest] = useState<string[]>([])
   const [token0, setToken0] = useState<any>({})
   const [token1, setToken1] = useState<any>({})
+  const { configs } = useConfigs()
   const [fee, setFee] = useState<any>(null)
   const { tokens } = useListTokens()
   const { getTokenIconUrl } = useHelper()
@@ -128,9 +129,31 @@ export const OracleConfigBox = () => {
         const fee = await pairContract.fee()
         console.log('#pair-fetch', res, fee)
         console.log('#q', await formatTokenType(res.token0))
-        setToken0(await formatTokenType(res.token0))
-        setToken1(await formatTokenType(res.token1))
+        const _token0 = await formatTokenType(res.token0)
+        const _token1 = await formatTokenType(res.token1)
+        setToken0(_token0)
+        setToken1(_token1)
         setFee(fee)
+        let QTI
+        if (QTI == null && _token0.symbol.includes('USD')) {
+          QTI = 0
+        }
+        if (QTI == null && _token1.symbol.includes('USD')) {
+          QTI = 1
+        }
+        if (QTI == null && configs.stablecoins.includes(token0)) {
+          QTI = 0
+        }
+        if (QTI == null && configs.stablecoins.includes(token1)) {
+          QTI = 1
+        }
+        if (QTI == null && configs.wrappedTokenAddress == token0) {
+          QTI = 0
+        }
+        if (QTI == null && configs.wrappedTokenAddress == token1) {
+          QTI = 1
+        }
+        setQuoteTokenIndex(String(QTI) || '0')
         // setPairInfo1({ pair: poolSettings.pairAddress, ...res })
         // console.log(res)
         // if (res.token0.symbol.toLowerCase().includes('us') || res.token0.symbol.toLowerCase().includes('dai')) {
@@ -210,8 +233,8 @@ export const OracleConfigBox = () => {
               {fee
                 ? `V3 (${fee / 10_000}%)`
                 : quoteToken?.symbol && baseToken.symbol
-                ? 'V2'
-                : ''}
+                  ? 'V2'
+                  : ''}
             </TextGrey>
           </div>
           <ButtonGrey
@@ -351,13 +374,13 @@ export const OracleConfigBox = () => {
             suffix={
               poolSettings.interestRate !== 0
                 ? (
-                    rateToHL(
-                      poolSettings.interestRate / 100,
-                      poolSettings.power
-                    ) / SECONDS_PER_DAY
-                  )
-                    .toFixed(2)
-                    .toString() + ' days'
+                  rateToHL(
+                    poolSettings.interestRate / 100,
+                    poolSettings.power
+                  ) / SECONDS_PER_DAY
+                )
+                  .toFixed(2)
+                  .toString() + ' days'
                 : ''
             }
           />
