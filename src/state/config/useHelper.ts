@@ -24,8 +24,9 @@ export const useHelper = () => {
   }
 
   const getTokenIconUrl = async (address: string) => {
+    console.log('#token', address)
     const wAddress = convertNativeAddressToWrapAddress(address)
-
+    console.log('#token', wAddress, configs)
     if (
       wAddress?.toLowerCase() === '0x82af49447d8a07e3bd95bd0d56f35241523fbab1'
     ) {
