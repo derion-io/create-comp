@@ -7,7 +7,7 @@ import { NATIVE_ADDRESS, Q128, Q256M, ZERO_ADDRESS } from '../../utils/constant'
 import jsonUniswapV3Pool from '../../utils/abi/UniswapV3Pool.json'
 import jsonUniswapV2Pool from '@uniswap/v2-core/build/UniswapV2Pair.json'
 import jsonERC20 from '@uniswap/v2-core/build/ERC20.json'
-import { abi as poolFactoryAbi } from '../../utils/abi/PoolFactory.json'
+import { abi as PoolDeployerAbi } from '../../utils/abi/PoolDeployer.json'
 import { abi as poolBaseAbi } from '../../utils/abi/PoolBase.json'
 import { abi as univeralTokenRouterAbi } from '../../utils/abi/UniversalTokenRouter.json'
 import { abi as helperAbi } from '../../utils/abi/Helper.json'
@@ -255,28 +255,32 @@ export const usePoolSettings = () => {
         MATURITY_RATE: feeToOpenRate(settings.closingFee ?? 0),
         OPEN_RATE: feeToOpenRate(settings.openingFee ?? 0)
       }
-
-      const poolFactory = new ethers.Contract(
-        configs.derivable.poolFactory,
-        poolFactoryAbi,
+      console.log('#configs.derivable.poolDeplyer', configs)
+      const poolDeplyer = new ethers.Contract(
+        configs.derivable.poolDeployer,
+        PoolDeployerAbi,
         deployer
       )
       const R = ethers.utils.parseEther(String(settings.amountIn))
       const initParams = calculateInitParamsFromPrice(config, MARK, R)
-
+      console.log('#configs.helperContract.utr', configs.helperContract.utr)
       const utr = new ethers.Contract(
         configs.helperContract.utr,
         univeralTokenRouterAbi,
         deployer
       )
-
+      console.log(
+        '#configs.derivable.helper',
+        configs.derivable.helper ?? configs.derivable.stateCalHelper
+      )
       const helper = new ethers.Contract(
         configs.derivable.helper ?? configs.derivable.stateCalHelper,
         helperAbi,
         deployer
       )
-
-      const poolAddress = await poolFactory.callStatic.createPool(config)
+      console.log('#pool-config', config)
+      const poolAddress = await poolDeplyer.callStatic.create(config)
+      console.log('#poolAddress', poolAddress)
       const pool = new ethers.Contract(poolAddress, poolBaseAbi, deployer)
 
       updatePoolSettings({
@@ -316,9 +320,8 @@ export const usePoolSettings = () => {
           [
             {
               inputs: [],
-              code: poolFactory.address,
-              data: (await poolFactory.populateTransaction.createPool(config))
-                .data
+              code: poolDeplyer.address,
+              data: (await poolDeplyer.populateTransaction.create(config)).data
             },
             {
               inputs: [
@@ -342,7 +345,7 @@ export const usePoolSettings = () => {
         params = [
           config,
           initParams,
-          configs.derivable.poolFactory,
+          configs.derivable.poolDeplyer,
           { value: R, gasPrice }
         ]
       }
@@ -350,14 +353,14 @@ export const usePoolSettings = () => {
       const gasUsed =
         TOKEN_R != configs.wrappedTokenAddress
           ? await utr.estimateGas.exec(...params)
-          : await helper.estimateGas.createPool(...params)
+          : await helper.estimateGas.create(...params)
       updatePoolSettings({
         gasUsed: gasUsed.toNumber()
       })
-
+      console.log('#gasUsed', gasPrice, gasUsed)
       return params
     } catch (err) {
-      console.log(err)
+      console.log('####', err.message)
       updatePoolSettings({
         errorMessage: err.reason ?? err.error ?? err
       })

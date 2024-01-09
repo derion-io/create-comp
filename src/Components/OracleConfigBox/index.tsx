@@ -16,6 +16,7 @@ import { usePoolSettings } from '../../state/poolSettings/hook'
 import { rateToHL } from 'derivable-tools/dist/utils/helper'
 import { useHelper } from '../../state/config/useHelper'
 import { CurrencyLogo } from '../ui/CurrencyLogo'
+import { isAddress } from 'ethers/lib/utils'
 export const feeOptions = [100, 300, 500, 1000]
 export const OracleConfigBox = () => {
   const { poolSettings, updatePoolSettings } = usePoolSettings()
@@ -118,7 +119,8 @@ export const OracleConfigBox = () => {
     if (
       ddlEngine &&
       poolSettings.pairAddress &&
-      poolSettings.pairAddress !== ZERO_ADDRESS
+      poolSettings.pairAddress !== ZERO_ADDRESS &&
+      isAddress(poolSettings.pairAddress)
     ) {
       try {
         console.log('#pair-start-fetch')
@@ -147,10 +149,10 @@ export const OracleConfigBox = () => {
         if (QTI == null && configs.stablecoins.includes(token1)) {
           QTI = 1
         }
-        if (QTI == null && configs.wrappedTokenAddress == token0) {
+        if (QTI == null && configs.wrappedTokenAddress === token0) {
           QTI = 0
         }
-        if (QTI == null && configs.wrappedTokenAddress == token1) {
+        if (QTI == null && configs.wrappedTokenAddress === token1) {
           QTI = 1
         }
         setQuoteTokenIndex(String(QTI) || '0')
@@ -231,10 +233,10 @@ export const OracleConfigBox = () => {
             <br />
             <TextGrey className='config-fee'>
               {fee
-                ? `V3 (${fee / 10_000}%)`
+                ? `Uniswap V3 (${fee / 10_000}% fee)`
                 : quoteToken?.symbol && baseToken.symbol
-                  ? 'V2'
-                  : ''}
+                ? 'Uniswap V2'
+                : ''}
             </TextGrey>
           </div>
           <ButtonGrey
@@ -374,13 +376,13 @@ export const OracleConfigBox = () => {
             suffix={
               poolSettings.interestRate !== 0
                 ? (
-                  rateToHL(
-                    poolSettings.interestRate / 100,
-                    poolSettings.power
-                  ) / SECONDS_PER_DAY
-                )
-                  .toFixed(2)
-                  .toString() + ' days'
+                    rateToHL(
+                      poolSettings.interestRate / 100,
+                      poolSettings.power
+                    ) / SECONDS_PER_DAY
+                  )
+                    .toFixed(2)
+                    .toString() + ' days'
                 : ''
             }
           />

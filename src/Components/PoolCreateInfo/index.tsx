@@ -47,6 +47,9 @@ export const PoolCreateInfo = () => {
     deployPool,
     calculateParamsForPools
   } = usePoolSettings()
+  useEffect(() => {
+    console.log('#poolSettings', poolSettings)
+  }, [poolSettings])
   const { chainId, provider } = useWeb3React()
   const [barData, setBarData] = useState<any>({})
   const { tokens } = useListTokens()
@@ -120,6 +123,7 @@ export const PoolCreateInfo = () => {
     //   // openingFee: 0/100,
     //   // R: 0.0001, // init liquidity
     // }
+    console.log('#deplyer', chainId, provider, pairAddress)
     if (chainId && provider && pairAddress) {
       const signer = provider.getSigner()
       await deployPool(chainId, provider, signer)
