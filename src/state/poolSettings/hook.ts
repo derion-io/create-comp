@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useEffect } from 'react'
 import { setPoolSettings } from './reducer'
 import { PoolSettingsType } from './type'
-import { ethers } from 'ethers'
+import { ethers, utils } from 'ethers'
 import { NATIVE_ADDRESS, Q128, Q256M, ZERO_ADDRESS } from '../../utils/constant'
 import jsonUniswapV3Pool from '../../utils/abi/UniswapV3Pool.json'
 import jsonUniswapV2Pool from '@uniswap/v2-core/build/UniswapV2Pair.json'
@@ -22,6 +22,7 @@ import { rateToHL } from 'derivable-tools/dist/utils/helper'
 import { State } from '../types'
 import { toast } from 'react-toastify'
 import { messageAndViewOnBsc } from '../../Components/MessageAndViewOnBsc'
+import { ADDRESS_ZERO } from '@uniswap/v3-sdk'
 
 export const usePoolSettings = () => {
   const { poolSettings } = useSelector((state: State) => {
@@ -62,7 +63,12 @@ export const usePoolSettings = () => {
         `https://raw.githubusercontent.com/derivable-labs/configs/dev/${chainID}/network.json`
       ).then((res) => res.json())
 
-      const TOKEN_R = settings.reserveToken
+      const TOKEN_R =
+        settings.reserveToken === 'PLD'
+          ? configs.derivable.playToken
+          : settings.reserveToken === NATIVE_ADDRESS
+            ? configs.wrappedTokenAddress
+            : settings.reserveToken
 
       let uniswapPair = new ethers.Contract(
         settings.pairAddress,
@@ -255,8 +261,8 @@ export const usePoolSettings = () => {
         MATURITY_RATE: feeToOpenRate(settings.closingFee ?? 0),
         OPEN_RATE: feeToOpenRate(settings.openingFee ?? 0)
       }
-      console.log('#configs.derivable.poolDeplyer', configs)
-      const poolDeplyer = new ethers.Contract(
+      console.log('#configs.derivable.poolDeployer', configs)
+      const poolDeployer = new ethers.Contract(
         configs.derivable.poolDeployer,
         PoolDeployerAbi,
         deployer
@@ -279,7 +285,7 @@ export const usePoolSettings = () => {
         deployer
       )
       console.log('#pool-config', config)
-      const poolAddress = await poolDeplyer.callStatic.create(config)
+      const poolAddress = await poolDeployer.callStatic.create(config)
       console.log('#poolAddress', poolAddress)
       const pool = new ethers.Contract(poolAddress, poolBaseAbi, deployer)
 
@@ -289,44 +295,103 @@ export const usePoolSettings = () => {
       if (R.eq(0)) {
         return []
       }
-      let params = []
+      // let params = []
 
-      if (TOKEN_R !== configs.wrappedTokenAddress) {
-        const deployerAddress = await deployer.getAddress()
-        if (
-          (TOKEN_R as String).toLowerCase() !== NATIVE_ADDRESS.toLowerCase()
-        ) {
-          const rERC20 = new ethers.Contract(TOKEN_R, jsonERC20.abi, deployer)
-          const rAllowance = await rERC20.allowance(
-            deployerAddress,
-            utr.address
-          )
-          if (rAllowance.lt(R)) {
-            updatePoolSettings({
-              errorMessage: 'Token reserve approval required'
-            })
-            // throw new Error('!!! Token reserve approval required !!!')
-          }
+      // if (TOKEN_R !== configs.wrappedTokenAddress) {
+      //   const deployerAddress = await deployer.getAddress()
+      //   if (
+      //     (TOKEN_R as String).toLowerCase() !== NATIVE_ADDRESS.toLowerCase()
+      //   ) {
+      //     const rERC20 = new ethers.Contract(TOKEN_R, jsonERC20.abi, deployer)
+      //     const rAllowance = await rERC20.allowance(
+      //       deployerAddress,
+      //       utr.address
+      //     )
+      //     if (rAllowance.lt(R)) {
+      //       updatePoolSettings({
+      //         errorMessage: 'Token reserve approval required'
+      //       })
+      //       // throw new Error('!!! Token reserve approval required !!!')
+      //     }
+      //   }
+      //   const payment = {
+      //     utr: utr.address,
+      //     payer: deployerAddress,
+      //     recipient: deployerAddress
+      //   }
+      //   const PAYMENT = 0
+
+      //   params = [
+      //     [],
+      //     [
+      //       {
+      //         inputs: [],
+      //         code: poolDeployer.address,
+      //         data: (await poolDeployer.populateTransaction.create(config)).data
+      //       },
+      //       {
+      //         inputs: [
+      //           {
+      //             mode: PAYMENT,
+      //             eip: 20,
+      //             token: TOKEN_R,
+      //             id: 0,
+      //             amountIn: R,
+      //             recipient: pool.address
+      //           }
+      //         ],
+      //         code: poolAddress,
+      //         data: (await pool.populateTransaction.init(initParams, payment))
+      //           .data
+      //       }
+      //     ],
+      //     { gasPrice }
+      //   ]
+      // } else {
+      //   params = [
+      //     config,
+      //     initParams,
+      //     configs.derivable.poolDeployer,
+      //     { value: R, gasPrice }
+      //   ]
+      // }
+
+      let params = []
+      const deployerAddress = await deployer.getAddress()
+      const [baseToken, baseSymbol] =
+        QTI == 1 ? [token0, symbol0] : [token1, symbol1]
+      const topic2 = (settings as any).topics?.[0] ?? baseSymbol.slice(0, -1)
+      const topic3 = (settings as any).topics?.[1] ?? baseSymbol.substring(1)
+      const topics = [baseToken, baseSymbol, topic2, topic3]
+      topics.forEach((_, i) => {
+        if (i > 0) {
+          topics[i] = utils.formatBytes32String(topics[i])
+        }
+      })
+      if (TOKEN_R != configs.wrappedTokenAddress && deployerAddress) {
+        console.log('#deployerAddress', deployerAddress, TOKEN_R)
+        const rToken = new ethers.Contract(TOKEN_R, jsonERC20.abi, deployer)
+        const rBalance = await rToken.balanceOf(deployerAddress)
+        if (rBalance.lt(R)) {
+          throw new Error(`TOKEN_R balance insufficient: ${rBalance} < ${R}`)
+        }
+        const rAllowance = await rToken.allowance(deployerAddress, utr.address)
+        if (rAllowance.lt(R)) {
+          // await rERC20.approve(utr.address, ethers.constants.MaxUint256)
+          throw new Error(`TOKEN_R approval required for UTR (${utr.address})`)
         }
         const payment = {
           utr: utr.address,
           payer: deployerAddress,
           recipient: deployerAddress
         }
-        const PAYMENT = 0
-
         params = [
           [],
           [
             {
-              inputs: [],
-              code: poolDeplyer.address,
-              data: (await poolDeplyer.populateTransaction.create(config)).data
-            },
-            {
               inputs: [
                 {
-                  mode: PAYMENT,
+                  mode: 0,
                   eip: 20,
                   token: TOKEN_R,
                   id: 0,
@@ -334,35 +399,52 @@ export const usePoolSettings = () => {
                   recipient: pool.address
                 }
               ],
-              code: poolAddress,
-              data: (await pool.populateTransaction.init(initParams, payment))
-                .data
+              code: poolDeployer.address,
+              data: (
+                await poolDeployer.populateTransaction.deploy(
+                  config,
+                  initParams,
+                  payment,
+                  ...topics
+                )
+              ).data
             }
           ],
           { gasPrice }
         ]
       } else {
+        const payment = {
+          utr: ADDRESS_ZERO,
+          payer: [],
+          recipient: deployerAddress
+        }
         params = [
           config,
           initParams,
-          configs.derivable.poolDeplyer,
+          payment,
+          ...topics,
           { value: R, gasPrice }
         ]
       }
-
+      console.log('#gas.config', params)
       const gasUsed =
         TOKEN_R != configs.wrappedTokenAddress
           ? await utr.estimateGas.exec(...params)
-          : await helper.estimateGas.create(...params)
+          : await poolDeployer.estimateGas.deploy(...params)
+
+      // const gasUsed =
+      //   TOKEN_R != configs.wrappedTokenAddress
+      //     ? await utr.estimateGas.exec(...params)
+      //     : await helper.estimateGas.createPool(...params)
       updatePoolSettings({
         gasUsed: gasUsed.toNumber()
       })
       console.log('#gasUsed', gasPrice, gasUsed)
       return params
     } catch (err) {
-      console.log('####', err.message)
+      console.log('####', err)
       updatePoolSettings({
-        errorMessage: err.reason ?? err.error ?? err
+        errorMessage: err?.reason ?? err?.error ?? 'unknown'
       })
       return []
     }
@@ -382,7 +464,12 @@ export const usePoolSettings = () => {
       const configs = await fetch(
         `https://raw.githubusercontent.com/derivable-labs/configs/dev/${chainID}/network.json`
       ).then((res) => res.json())
-      const TOKEN_R = settings.reserveToken
+      const TOKEN_R =
+        settings.reserveToken === 'PLD'
+          ? configs.derivable.playToken
+          : settings.reserveToken === NATIVE_ADDRESS
+            ? configs.wrappedTokenAddress
+            : settings.reserveToken
 
       const utr = new ethers.Contract(
         configs.helperContract.utr,
@@ -390,16 +477,23 @@ export const usePoolSettings = () => {
         deployer
       )
 
-      const helper = new ethers.Contract(
-        configs.derivable.helper ?? configs.derivable.stateCalHelper,
-        helperAbi,
-        deployer
-      )
+      // const helper = new ethers.Contract(
+      //   configs.derivable.helper ?? configs.derivable.stateCalHelper,
+      //   helperAbi,
+      //   deployer
+      // )
+
       try {
+        const poolDeployer = new ethers.Contract(
+          configs.derivable.poolDeployer,
+          PoolDeployerAbi,
+          deployer
+        )
+        console.log('#param', params, TOKEN_R != configs.wrappedTokenAddress)
         const tx =
           TOKEN_R != configs.wrappedTokenAddress
             ? await utr.exec(...params)
-            : await helper.createPool(...params)
+            : await poolDeployer.deploy(...params)
 
         console.log('Waiting for tx receipt...', tx.hash)
 
