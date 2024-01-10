@@ -46,6 +46,7 @@ export const useGenerateLeverageData = (
                 token: pool.poolAddress + '-' + POOL_IDS.C,
                 size,
                 color: barColors[0]
+                // isDashed: true
               }
             ]
           }
@@ -56,6 +57,7 @@ export const useGenerateLeverageData = (
             token: pool.poolAddress + '-' + POOL_IDS.C,
             size,
             color: barColors[bars.length]
+            // isDashed: true
           })
           result[power].bars = bars
           result[power].totalSize = result[power].totalSize.add(size)
@@ -77,7 +79,8 @@ export const useGenerateLeverageData = (
           x: Number(power),
           token: ZERO_ADDRESS + '-' + POOL_IDS.C,
           size,
-          color: '#ffffff'
+          color: '#01a7fa',
+          isDashed: true
         })
         result[power].totalSize = result[power].totalSize.add(size)
       } else {
@@ -90,7 +93,8 @@ export const useGenerateLeverageData = (
               x: power,
               token: ZERO_ADDRESS + '-' + POOL_IDS.C,
               size,
-              color: '#ffffff'
+              color: '#01a7fa',
+              isDashed: true
             }
           ]
         }

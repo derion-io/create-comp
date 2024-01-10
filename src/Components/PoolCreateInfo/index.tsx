@@ -1,5 +1,17 @@
-import React, { useMemo, useState, useEffect } from 'react'
 import LeverageSlider from 'leverage-slider/dist/component'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useGenerateLeverageData } from '../../hooks/useGenerateLeverageData'
+import { useTokenValue } from '../../hooks/useTokenValue'
+import { useConfigs } from '../../state/config/useConfigs'
+import { useWeb3React } from '../../state/customWeb3React/hook'
+import { usePoolSettings } from '../../state/poolSettings/hook'
+import { useListPool } from '../../state/pools/hooks/useListPool'
+import { useListTokens } from '../../state/token/hook'
+import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
+import { NATIVE_ADDRESS, ZERO_ADDRESS } from '../../utils/constant'
+import formatLocalisedCompactNumber, {
+  formatWeiToDisplayNumber
+} from '../../utils/formatBalance'
 import {
   bn,
   formatFloat,
@@ -7,31 +19,16 @@ import {
   numInt,
   weiToNumber
 } from '../../utils/helpers'
-import './style.scss'
+import { TxFee } from '../TxFee'
+import { Box } from '../ui/Box'
+import { ButtonExecute } from '../ui/Button'
+import { NoDataIcon } from '../ui/Icon'
 import { Input } from '../ui/Input'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
+import { Text, TextBlue, TextGrey, TextPink } from '../ui/Text'
 import { TokenIcon } from '../ui/TokenIcon'
 import { TokenSymbol } from '../ui/TokenSymbol'
-import { useListTokens } from '../../state/token/hook'
-import { Text, TextBlue, TextGrey, TextPink } from '../ui/Text'
-import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
-import { NATIVE_ADDRESS, ZERO_ADDRESS } from '../../utils/constant'
-import formatLocalisedCompactNumber, {
-  formatWeiToDisplayNumber
-} from '../../utils/formatBalance'
-import { TxFee } from '../TxFee'
-import { ButtonExecute } from '../ui/Button'
-import { useWeb3React } from '../../state/customWeb3React/hook'
-import { useGenerateLeverageData } from '../../hooks/useGenerateLeverageData'
-import { NoDataIcon } from '../ui/Icon'
-import { Box } from '../ui/Box'
-import { useTokenValue } from '../../hooks/useTokenValue'
-import { usePoolSettings } from '../../state/poolSettings/hook'
-import { useTokenPrice } from '../../state/pools/hooks/useTokenPrice'
-import { useConfigs } from '../../state/config/useConfigs'
-import { store } from '../../state'
-import { useNativePrice } from '../../hooks/useTokenPrice'
-import { useListPool } from '../../state/pools/hooks/useListPool'
+import './style.scss'
 function numSplit(v: string) {
   return (
     <div>
@@ -82,6 +79,7 @@ export const PoolCreateInfo = () => {
       for (let i = 0; i < data.length; i++) {
         const leve: any = data[i]
         for (let k = 0; k < leve.bars.length; k++) {
+          console.log('#leve-bar', leve.bars[k])
           setBarData(leve.bars[k])
         }
       }
@@ -274,7 +272,7 @@ export const PoolCreateInfo = () => {
           <TextGrey>Mark Price</TextGrey>
           <div className={`delta-box ${!poolSettings.amountIn && 'no-data'}`}>
             <div className='text-right'>
-              <SkeletonLoader loading={poolSettings.markPrice === 0}>
+              <SkeletonLoader loading={poolSettings.markPrice === '0'}>
                 <Text>{numSplit('$' + String(poolSettings.markPrice))}</Text>
               </SkeletonLoader>
             </div>

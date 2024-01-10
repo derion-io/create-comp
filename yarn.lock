@@ -5195,7 +5195,7 @@ depd@~1.1.2:
 
 "derivable-tools@git+ssh://git@github.com:derivable-labs/derivable-tools.git#dev-build":
   version "1.0.0"
-  resolved "git+ssh://git@github.com:derivable-labs/derivable-tools.git#a2f36498f4e065b7b070d432041d1530b7d67c9c"
+  resolved "git+ssh://git@github.com:derivable-labs/derivable-tools.git#adfc48e512c06210ef80fea08270880aac689e4b"
   dependencies:
     "@ethersproject/providers" "https://gitpkg.now.sh/derivable-labs/ethers.js/packages/providers?master"
     "@zoltu/ethereum-crypto" "^2.3.0"
@@ -8716,7 +8716,7 @@ levenary@^1.1.1:
 
 "leverage-slider@git+ssh://git@github.com:derivable-labs/leverage-slider-comp.git":
   version "1.0.0"
-  resolved "git+ssh://git@github.com:derivable-labs/leverage-slider-comp.git#cd9ded722c49c464d1df26aef326c2d75a14f5d7"
+  resolved "git+ssh://git@github.com:derivable-labs/leverage-slider-comp.git#e945a1f9fd91b433485be82a2eb17c272076243a"
   dependencies:
     "@reduxjs/toolkit" "^1.7.1"
     "@types/lodash" "^4.14.186"
