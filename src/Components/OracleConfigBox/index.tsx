@@ -5,7 +5,7 @@ import { ButtonGrey } from '../ui/Button'
 import { SwapIcon } from '../ui/Icon'
 import { useConfigs } from '../../state/config/useConfigs'
 import { SECONDS_PER_DAY, ZERO_ADDRESS } from '../../utils/constant'
-import { bn } from '../../utils/helpers'
+import { NUM, bn } from '../../utils/helpers'
 import { Box } from '../ui/Box'
 import './style.scss'
 import { SelectTokenModal } from '../SelectTokenModal'
@@ -17,6 +17,7 @@ import { rateToHL } from 'derivable-tools/dist/utils/helper'
 import { useHelper } from '../../state/config/useHelper'
 import { CurrencyLogo } from '../ui/CurrencyLogo'
 import { isAddress } from 'ethers/lib/utils'
+import NumberInput from '../ui/Input/InputNumber'
 export const feeOptions = [100, 300, 500, 1000]
 export const OracleConfigBox = () => {
   const { poolSettings, updatePoolSettings } = usePoolSettings()
@@ -70,7 +71,7 @@ export const OracleConfigBox = () => {
       }
     }
     updatePoolSettings({
-      window: parseInt(wTimeArr[0])
+      window: String(parseInt(wTimeArr[0]))
     })
     setWindowTimeSuggest(wTimeArr)
     setMark(markArr[0])
@@ -235,8 +236,8 @@ export const OracleConfigBox = () => {
               {fee
                 ? `Uniswap V3 (${fee / 10_000}% fee)`
                 : quoteToken?.symbol && baseToken.symbol
-                ? 'Uniswap V2'
-                : ''}
+                  ? 'Uniswap V2'
+                  : ''}
             </TextGrey>
           </div>
           <ButtonGrey
@@ -302,7 +303,7 @@ export const OracleConfigBox = () => {
           <Text fontSize={14} fontWeight={600}>
             Window time (s)
           </Text>
-          <Input
+          <NumberInput
             inputWrapProps={{
               className: `config-input ${
                 windowTimeSuggest.includes(poolSettings.window.toString())
@@ -310,14 +311,13 @@ export const OracleConfigBox = () => {
                   : 'warning-input'
               }`
             }}
-            type='number'
             placeholder='0'
-            value={poolSettings.window}
-            onChange={(e) => {
+            value={String(poolSettings.window)}
+            onValueChange={(e) => {
               // @ts-ignore
               if (Number(e.target.value) >= 0) {
                 updatePoolSettings({
-                  window: parseFloat((e.target as HTMLInputElement).value)
+                  window: (e.target as HTMLInputElement).value
                 })
               }
             }}
@@ -328,18 +328,17 @@ export const OracleConfigBox = () => {
             <Text fontSize={14} fontWeight={600}>
               Power
             </Text>
-            <Input
+            <NumberInput
               inputWrapProps={{
                 className: 'config-input'
               }}
-              type='number'
-              placeholder='0.0'
-              value={poolSettings.power}
-              onChange={(e) => {
+              placeholder='0'
+              value={String(poolSettings.power)}
+              onValueChange={(e) => {
                 // @ts-ignore
                 if (Number(e.target.value) >= 0) {
                   updatePoolSettings({
-                    power: parseFloat((e.target as HTMLInputElement).value)
+                    power: (e.target as HTMLInputElement).value
                   })
                 }
               }}
@@ -347,7 +346,7 @@ export const OracleConfigBox = () => {
                 if (Number(e.target.value) >= 0) {
                   const powerRounded =
                     Math.round(Number(e.target.value) * 2) / 2
-                  updatePoolSettings({ power: powerRounded })
+                  updatePoolSettings({ power: String(powerRounded) })
                 }
               }}
             />
@@ -358,31 +357,30 @@ export const OracleConfigBox = () => {
           <Text fontSize={14} fontWeight={600}>
             Interest Rate (%)
           </Text>
-          <Input
+          <NumberInput
             inputWrapProps={{
               className: 'config-input'
             }}
-            type='number'
             placeholder='0'
-            value={poolSettings.interestRate}
-            onChange={(e) => {
+            value={String(String(poolSettings.interestRate))}
+            onValueChange={(e) => {
               // @ts-ignore
-              if (Number(e.target.value) >= 0) {
-                updatePoolSettings({
-                  interestRate: parseFloat((e.target as HTMLInputElement).value)
-                })
-              }
+              // if (Number(e.target.value) >= 0) {
+              updatePoolSettings({
+                interestRate: (e.target as HTMLInputElement).value
+              })
+              // }
             }}
             suffix={
-              poolSettings.interestRate !== 0
+              poolSettings.interestRate !== '0'
                 ? (
-                    rateToHL(
-                      poolSettings.interestRate / 100,
-                      poolSettings.power
-                    ) / SECONDS_PER_DAY
-                  )
-                    .toFixed(2)
-                    .toString() + ' days'
+                  rateToHL(
+                    NUM(poolSettings.interestRate) / 100,
+                    NUM(poolSettings.power)
+                  ) / SECONDS_PER_DAY
+                )
+                  .toFixed(2)
+                  .toString() + ' days'
                 : ''
             }
           />
@@ -392,18 +390,17 @@ export const OracleConfigBox = () => {
           <Text fontSize={14} fontWeight={600}>
             Closing fee (%)
           </Text>
-          <Input
+          <NumberInput
             inputWrapProps={{
               className: 'config-input'
             }}
-            type='number'
-            placeholder='0'
-            value={poolSettings.closingFee}
-            onChange={(e) => {
+            placeholder='0.0'
+            value={String(poolSettings.closingFee)}
+            onValueChange={(e) => {
               // @ts-ignore
               if (Number(e.target.value) >= 0) {
                 updatePoolSettings({
-                  closingFee: parseFloat((e.target as HTMLInputElement).value)
+                  closingFee: (e.target as HTMLInputElement).value
                 })
               }
             }}
@@ -414,19 +411,18 @@ export const OracleConfigBox = () => {
           <Text fontSize={14} fontWeight={600}>
             Maturity (h)
           </Text>
-          <Input
+          <NumberInput
             inputWrapProps={{
               className: 'config-input'
             }}
-            type='number'
             placeholder='0'
-            value={poolSettings.closingFeeDuration}
-            onChange={(e) => {
+            value={String(poolSettings.closingFeeDuration)}
+            onValueChange={(e) => {
               // @ts-ignore
               if (Number(e.target.value) >= 0) {
                 updatePoolSettings({
-                  closingFeeDuration: parseFloat(
-                    (e.target as HTMLInputElement).value
+                  closingFeeDuration: String(
+                    parseFloat((e.target as HTMLInputElement).value)
                   )
                 })
               }
@@ -438,24 +434,24 @@ export const OracleConfigBox = () => {
           <Text fontSize={14} fontWeight={600}>
             Vesting Period (s)
           </Text>
-          <Input
+          <NumberInput
             inputWrapProps={{
               className: 'config-input'
             }}
-            type='number'
             placeholder='0'
-            value={poolSettings.vesting}
-            onChange={(e) => {
+            value={String(poolSettings.vesting)}
+            onValueChange={(e) => {
               // @ts-ignore
               if (Number(e.target.value) >= 0) {
                 updatePoolSettings({
-                  vesting: parseFloat((e.target as HTMLInputElement).value)
+                  vesting: (e.target as HTMLInputElement).value
                 })
               }
             }}
             suffix={
               poolSettings.vesting
-                ? (poolSettings.vesting / 60).toFixed(2).toString() + ' min(s)'
+                ? (NUM(poolSettings.vesting) / 60).toFixed(2).toString() +
+                  ' min(s)'
                 : ''
             }
           />
@@ -465,26 +461,27 @@ export const OracleConfigBox = () => {
           <Text fontSize={14} fontWeight={600}>
             Premium Rate (%)
           </Text>
-          <Input
+          <NumberInput
             inputWrapProps={{
               className: 'config-input'
             }}
-            type='number'
             placeholder='0'
-            value={poolSettings.premiumRate}
-            onChange={(e) => {
+            value={String(poolSettings.premiumRate)}
+            onValueChange={(e) => {
               // @ts-ignore
               if (Number(e.target.value) >= 0) {
                 updatePoolSettings({
-                  premiumRate: parseFloat((e.target as HTMLInputElement).value)
+                  premiumRate: (e.target as HTMLInputElement).value
                 })
               }
             }}
             suffix={
               (
                 rateToHL(
-                  poolSettings.premiumRate ? poolSettings.premiumRate / 100 : 0,
-                  poolSettings.power
+                  poolSettings.premiumRate
+                    ? NUM(poolSettings.premiumRate) / 100
+                    : 0,
+                  NUM(poolSettings.power)
                 ) / SECONDS_PER_DAY
               )
                 .toFixed(2)

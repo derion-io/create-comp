@@ -1,28 +1,27 @@
-import { useDispatch, useSelector } from 'react-redux'
-import { useEffect } from 'react'
-import { setPoolSettings } from './reducer'
-import { PoolSettingsType } from './type'
-import { ethers, utils } from 'ethers'
-import { NATIVE_ADDRESS, Q128, Q256M, ZERO_ADDRESS } from '../../utils/constant'
-import jsonUniswapV3Pool from '../../utils/abi/UniswapV3Pool.json'
-import jsonUniswapV2Pool from '@uniswap/v2-core/build/UniswapV2Pair.json'
 import jsonERC20 from '@uniswap/v2-core/build/ERC20.json'
-import { abi as PoolDeployerAbi } from '../../utils/abi/PoolDeployer.json'
-import { abi as poolBaseAbi } from '../../utils/abi/PoolBase.json'
-import { abi as univeralTokenRouterAbi } from '../../utils/abi/UniversalTokenRouter.json'
+import jsonUniswapV2Pool from '@uniswap/v2-core/build/UniswapV2Pair.json'
+import { ADDRESS_ZERO } from '@uniswap/v3-sdk'
+import { rateToHL } from 'derivable-tools/dist/utils/helper'
+import { ethers, utils } from 'ethers'
+import { useDispatch, useSelector } from 'react-redux'
+import { toast } from 'react-toastify'
+import { messageAndViewOnBsc } from '../../Components/MessageAndViewOnBsc'
 import { abi as helperAbi } from '../../utils/abi/Helper.json'
+import { abi as poolBaseAbi } from '../../utils/abi/PoolBase.json'
+import { abi as PoolDeployerAbi } from '../../utils/abi/PoolDeployer.json'
+import jsonUniswapV3Pool from '../../utils/abi/UniswapV3Pool.json'
+import { abi as univeralTokenRouterAbi } from '../../utils/abi/UniversalTokenRouter.json'
+import { NATIVE_ADDRESS, Q128, Q256M } from '../../utils/constant'
 import {
   calculateInitParamsFromPrice,
   feeToOpenRate,
   findFetcher,
   mulDivNum
 } from '../../utils/deployHelper'
-import { bn, numberToWei, parseCallStaticError } from '../../utils/helpers'
-import { rateToHL } from 'derivable-tools/dist/utils/helper'
+import { NUM, bn, numberToWei, parseCallStaticError } from '../../utils/helpers'
 import { State } from '../types'
-import { toast } from 'react-toastify'
-import { messageAndViewOnBsc } from '../../Components/MessageAndViewOnBsc'
-import { ADDRESS_ZERO } from '@uniswap/v3-sdk'
+import { setPoolSettings } from './reducer'
+import { PoolSettingsType } from './type'
 
 export const usePoolSettings = () => {
   const { poolSettings } = useSelector((state: State) => {
@@ -36,6 +35,9 @@ export const usePoolSettings = () => {
   const updatePoolSettings = (newPoolSettings: Partial<PoolSettingsType>) => {
     for (const key in newPoolSettings) {
       if (newPoolSettings[key] !== poolSettings[key]) {
+        if (Number.isNaN(Number(newPoolSettings[key]))) {
+          newPoolSettings[key] = ''
+        }
         dispatch(setPoolSettings(newPoolSettings))
         break
       }
@@ -50,9 +52,9 @@ export const usePoolSettings = () => {
     try {
       const settings = {
         ...poolSettings,
-        closingFee: poolSettings.closingFee / 100,
-        interestRate: poolSettings.interestRate / 100,
-        premiumRate: poolSettings.premiumRate / 100
+        closingFee: Number(poolSettings.closingFee) / 100,
+        interestRate: Number(poolSettings.interestRate) / 100,
+        premiumRate: Number(poolSettings.premiumRate) / 100
       }
       const gasPrice = await provider.getGasPrice()
       updatePoolSettings({
@@ -126,11 +128,11 @@ export const usePoolSettings = () => {
         // throw new Error('unable to detect QTI')
       }
 
-      const K = settings.power * exp
+      const K = Number(settings.power) * exp
       const prefix = exp == 2 ? '√' : ''
 
       updatePoolSettings({
-        x: K
+        x: String(K)
       })
       const SCAN_API_KEY = {
         42161: process.env.REACT_APP_ARBISCAN_API_KEY,
@@ -176,7 +178,7 @@ export const usePoolSettings = () => {
         } else {
           WINDOW = settings.window
         }
-        if (WINDOW) console.log('WINDOW', WINDOW / 60, 'min(s)')
+        if (WINDOW) console.log('WINDOW', NUM(WINDOW) / 60, 'min(s)')
         try {
           await uniswapPair.callStatic.observe([0, WINDOW])
         } catch (err) {
@@ -217,13 +219,13 @@ export const usePoolSettings = () => {
 
       if (slot0) {
         MARK = slot0.sqrtPriceX96.shl(32)
-        if (QTI == 0) {
+        if (QTI === 0) {
           MARK = Q256M.div(MARK)
         }
         price = MARK.mul(MARK)
       } else {
         const [r0, r1] = await uniswapPair.getReserves()
-        if (QTI == 0) {
+        if (QTI === 0) {
           MARK = r0.mul(Q128).div(r1)
         } else {
           MARK = r1.mul(Q128).div(r0)
@@ -231,7 +233,7 @@ export const usePoolSettings = () => {
         price = MARK
       }
 
-      const decShift = QTI == 0 ? decimals1 - decimals0 : decimals0 - decimals1
+      const decShift = QTI === 0 ? decimals1 - decimals0 : decimals0 - decimals1
       if (decShift > 0) {
         price = price.mul(numberToWei(1, decShift))
       } else if (decShift < 0) {
@@ -242,10 +244,10 @@ export const usePoolSettings = () => {
         markPrice: mulDivNum(price, Q128.pow(exp))
       })
 
-      const INTEREST_HL = rateToHL(settings.interestRate, settings.power)
+      const INTEREST_HL = rateToHL(settings.interestRate, NUM(settings.power))
       const PREMIUM_HL = rateToHL(
         settings.premiumRate ? settings.premiumRate : 0,
-        settings.power
+        NUM(settings.power)
       )
 
       const config = {
@@ -257,7 +259,7 @@ export const usePoolSettings = () => {
         INTEREST_HL,
         PREMIUM_HL,
         MATURITY: settings.closingFeeDuration,
-        MATURITY_VEST: settings.vesting,
+        MATURITY_VEST: Number(settings.vesting),
         MATURITY_RATE: feeToOpenRate(settings.closingFee ?? 0),
         OPEN_RATE: feeToOpenRate(settings.openingFee ?? 0)
       }
@@ -437,7 +439,7 @@ export const usePoolSettings = () => {
       //     ? await utr.estimateGas.exec(...params)
       //     : await helper.estimateGas.createPool(...params)
       updatePoolSettings({
-        gasUsed: gasUsed.toNumber()
+        gasUsed: gasUsed.toString()
       })
       console.log('#gasUsed', gasPrice, gasUsed)
       return params
