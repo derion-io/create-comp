@@ -3,7 +3,7 @@
 
 $element-gap: 2rem;
 
-.exposure-interface .ddl-pool-page {
+.ddl-pool-page .ddl-pool-page {
   //display: flex;
   //justify-content: center;
   // width: 100%;
@@ -58,23 +58,23 @@ $element-gap: 2rem;
     max-width: calc(100vw - 3rem);
     padding-bottom: 24px;
     display: flex;
-    @media only screen and (max-width: 768px) { 
+    @media only screen and (max-width: 768px) {
       display: block;
-     };  
+     };
     gap: 2rem;
     &--left {
       width: 50%;
       // margin-left: 25%;
-      @media only screen and (max-width: 768px) { 
+      @media only screen and (max-width: 768px) {
         width: 100%;
        };    // 0 - 768px
 
     }
     &--right {
       width: 50%;
-      @media only screen and (max-width: 768px) { 
+      @media only screen and (max-width: 768px) {
         width: 100%;
-       };   
+       };
 
     }
     //.oracle-radio {

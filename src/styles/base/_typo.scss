@@ -1,6 +1,6 @@
 @import "../abstracts/variables";
 
-.exposure-interface {
+.ddl-pool-page {
   input[type="color"],
   input[type="date"],
   input[type="datetime"],
@@ -49,10 +49,6 @@
       color: #58C27D
     }
 
-    &-grey {
-      color: $color-text-grey
-    }
-
     &-default {
       color: $color-text-default
     }
@@ -71,14 +67,6 @@
 
     &-danger {
       color: #ff7570;
-    }
-
-    &-buy {
-      color: $color-buy;
-    }
-
-    &-sell {
-      color: $color-sell;
     }
   }
 

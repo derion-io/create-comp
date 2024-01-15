@@ -54,7 +54,7 @@ export const App = () => {
   }
 
   return (
-    <div className='exposure-interface app'>
+    <div className='ddl-pool-page app'>
       <input type='hidden' value={chainId} ref={chainIdRef} />
       {UNDER_CONSTRUCTION && <UnderConstruction />}
       {renderAppContent()}
