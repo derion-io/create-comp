@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Text, TextBlue, TextGrey } from '../ui/Text'
 import { Input } from '../ui/Input'
-import { ButtonGrey } from '../ui/Button'
+import { Button, ButtonGrey } from '../ui/Button'
 import { SwapIcon } from '../ui/Icon'
 import { useConfigs } from '../../state/config/useConfigs'
 import { SECONDS_PER_DAY, ZERO_ADDRESS } from '../../utils/constant'
@@ -216,23 +216,20 @@ export const OracleConfigBox = () => {
           </div>
         </div>
         <div className='oracle-config__select-token-box'>
-          <ButtonGrey
-            style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
-            onClick={() => {
-              setSelectingToken('token0')
-              setVisibleSelectTokenModal(true)
-            }}
-          >
-            {quoteToken.logoURI && (
-              <CurrencyLogo currencyURI={quoteToken.logoURI} size={24} />
-            )}
-            {quoteToken.symbol || 'Select quote'}
-          </ButtonGrey>
+          <div className='oracle-config__token-wrap'>
+            <div className='oracle-config__token'>
+              {quoteToken.logoURI && (
+                <CurrencyLogo currencyURI={quoteToken.logoURI} size={24} />
+              )}
+
+              {quoteToken.symbol || 'Quote Token'}
+            </div>
+          </div>
           <div
             onClick={() => {
               setQuoteTokenIndex(quoteTokenIndex === '0' ? '1' : '0')
             }}
-            style={{ textAlign: 'center' }}
+            style={{ textAlign: 'center', cursor: 'pointer' }}
           >
             <SwapIcon />
             <br />
@@ -244,18 +241,20 @@ export const OracleConfigBox = () => {
                 : ''}
             </TextGrey>
           </div>
-          <ButtonGrey
-            style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
-            onClick={() => {
-              setSelectingToken('token1')
-              setVisibleSelectTokenModal(true)
-            }}
+          <div
+            className='oracle-config__token-wrap'
+            // onClick={() => {
+            //   setSelectingToken('token1')
+            //   setVisibleSelectTokenModal(true)
+            // }}
           >
-            {baseToken.logoURI && (
-              <CurrencyLogo currencyURI={baseToken.logoURI} size={24} />
-            )}
-            {baseToken.symbol || 'Select base'}
-          </ButtonGrey>
+            <div className='oracle-config__token'>
+              {baseToken.logoURI && (
+                <CurrencyLogo currencyURI={baseToken.logoURI} size={24} />
+              )}
+              {baseToken.symbol || 'Base Token'}
+            </div>
+          </div>
         </div>
         <div
           // className='oracle-config__select-fee-box'

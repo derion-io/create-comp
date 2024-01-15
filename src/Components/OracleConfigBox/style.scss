@@ -2,6 +2,23 @@
 
 
 .oracle-config {
+  &__token-wrap {
+    width: 150px;
+    border-radius: 32px;
+    padding: 1rem;
+    border: 1px solid rgb(54, 54, 54);
+    transition: 0.2s;
+    text-align: center;
+    gap: 8px;
+    align-items: center;
+  }
+  &__token {
+    display: inline-flex;
+    width: fit-content;
+    vertical-align: middle;
+    gap: 8px;
+    align-items: center;
+  }
   &-box {
     position: relative;
     width: 50%;
