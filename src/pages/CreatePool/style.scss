@@ -64,6 +64,7 @@ $element-gap: 2rem;
     gap: 2rem;
     &--left {
       width: 50%;
+      // margin-left: 25%;
       @media only screen and (max-width: 768px) { 
         width: 100%;
        };    // 0 - 768px

@@ -28,25 +28,36 @@ export const CreatePool = () => {
 
   return (
     <div className={`ddl-pool-page ${UNDER_CONSTRUCTION && 'blur-3'}`}>
-      <Card className='ddl-pool-page__config-card'>
-        <div className='ddl-pool-page__head'>
-          <ButtonGrey className='ddl-pool-page__head--back-btn'>
-            <IconArrowLeft />
-          </ButtonGrey>
-          <Text fontWeight={700} fontSize={18}>
-            Create pool
-          </Text>
-        </div>
-
-        <div className='ddl-pool-page__content'>
-          <div className='ddl-pool-page__content--left'>
-            <OracleConfigBox />
+      <div
+        style={{
+          display: 'flex',
+          width: '1400px',
+          gap: '2rem'
+        }}
+      >
+        <Card
+          style={{
+            width: '-webkit-fill-available'
+          }}
+        >
+          <div className='ddl-pool-page__head'>
+            <ButtonGrey className='ddl-pool-page__head--back-btn'>
+              <IconArrowLeft />
+            </ButtonGrey>
+            <Text fontWeight={700} fontSize={18}>
+              Create pool
+            </Text>
           </div>
-          <div className='ddl-pool-page__content--right'>
-            <PoolCreateInfo />
-          </div>
-        </div>
-      </Card>
+          <OracleConfigBox />
+        </Card>
+        <Card
+          style={{
+            width: '400px'
+          }}
+        >
+          <PoolCreateInfo />
+        </Card>
+      </div>
       {/* <PoolCreateInfo /> */}
     </div>
   )
