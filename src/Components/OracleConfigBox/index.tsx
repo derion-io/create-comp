@@ -198,8 +198,12 @@ export const OracleConfigBox = () => {
             {/* <TextBlue fontSize={14} fontWeight={600} /> */}
             <Input
               inputWrapProps={{
-                className: 'config-input'
+                className: 'config-input-oracle-config',
+                style: {
+                  width: '100%'
+                }
               }}
+              width='100%'
               value={poolSettings.pairAddress}
               placeholder='0x...'
               onChange={(e) => {
@@ -236,8 +240,8 @@ export const OracleConfigBox = () => {
               {fee
                 ? `Uniswap V3 (${fee / 10_000}% fee)`
                 : quoteToken?.symbol && baseToken.symbol
-                  ? 'Uniswap V2'
-                  : ''}
+                ? 'Uniswap V2'
+                : ''}
             </TextGrey>
           </div>
           <ButtonGrey
@@ -374,13 +378,13 @@ export const OracleConfigBox = () => {
             suffix={
               poolSettings.interestRate !== '0'
                 ? (
-                  rateToHL(
-                    NUM(poolSettings.interestRate) / 100,
-                    NUM(poolSettings.power)
-                  ) / SECONDS_PER_DAY
-                )
-                  .toFixed(2)
-                  .toString() + ' days'
+                    rateToHL(
+                      NUM(poolSettings.interestRate) / 100,
+                      NUM(poolSettings.power)
+                    ) / SECONDS_PER_DAY
+                  )
+                    .toFixed(2)
+                    .toString() + ' days'
                 : ''
             }
           />

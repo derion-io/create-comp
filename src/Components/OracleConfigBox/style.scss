@@ -36,7 +36,9 @@
     background: $color-card-bg;
   }
 }
-
+.config-input-oracle-config{
+  width: 100% !important;
+}
 .grid {
   &-container {
     display: grid;

@@ -313,8 +313,12 @@ export const PoolCreateInfo = () => {
         {visibleRecipient && (
           <Input
             inputWrapProps={{
-              className: 'config-input'
+              className: 'config-input-create-config',
+              style: {
+                width: '100%'
+              }
             }}
+            width='100%'
             value={recipient}
             placeholder='0x...'
             onChange={(e) => {

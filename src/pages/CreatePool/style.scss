@@ -54,10 +54,28 @@ $element-gap: 2rem;
   &__content {
     padding-left: 24px;
     padding-right: 24px;
+    width: 1400px;
+    max-width: calc(100vw - 3rem);
     padding-bottom: 24px;
     display: flex;
+    @media only screen and (max-width: 768px) { 
+      display: block;
+     };  
     gap: 2rem;
+    &--left {
+      width: 50%;
+      @media only screen and (max-width: 768px) { 
+        width: 100%;
+       };    // 0 - 768px
 
+    }
+    &--right {
+      width: 50%;
+      @media only screen and (max-width: 768px) { 
+        width: 100%;
+       };   
+
+    }
     //.oracle-radio {
     //  margin-left: 125px;
     //  margin-top: 8px;
