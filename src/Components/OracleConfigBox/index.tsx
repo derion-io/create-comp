@@ -216,31 +216,6 @@ export const OracleConfigBox = () => {
           </div>
         </div>
         <div className='oracle-config__select-token-box'>
-          <div className='oracle-config__token-wrap'>
-            <div className='oracle-config__token'>
-              {quoteToken.logoURI && (
-                <CurrencyLogo currencyURI={quoteToken.logoURI} size={24} />
-              )}
-
-              {quoteToken.symbol || 'Quote Token'}
-            </div>
-          </div>
-          <div
-            onClick={() => {
-              setQuoteTokenIndex(quoteTokenIndex === '0' ? '1' : '0')
-            }}
-            style={{ textAlign: 'center', cursor: 'pointer' }}
-          >
-            <SwapIcon />
-            <br />
-            <TextGrey className='config-fee'>
-              {fee
-                ? `Uniswap V3 (${fee / 10_000}% fee)`
-                : quoteToken?.symbol && baseToken.symbol
-                ? 'Uniswap V2'
-                : ''}
-            </TextGrey>
-          </div>
           <div
             className='oracle-config__token-wrap'
             // onClick={() => {
@@ -255,6 +230,36 @@ export const OracleConfigBox = () => {
               {baseToken.symbol || 'Base Token'}
             </div>
           </div>
+          <div className='oracle-config__token-wrap'>
+            <div className='oracle-config__token'>
+              {quoteToken.logoURI && (
+                <CurrencyLogo currencyURI={quoteToken.logoURI} size={24} />
+              )}
+
+              {quoteToken.symbol || 'Quote Token'}
+            </div>
+          </div>
+
+          {quoteToken.symbol && baseToken.symbol ? (
+            <div
+              onClick={() => {
+                setQuoteTokenIndex(quoteTokenIndex === '0' ? '1' : '0')
+              }}
+              style={{ textAlign: 'center', cursor: 'pointer' }}
+            >
+              <SwapIcon />
+              <br />
+              <TextGrey className='config-fee'>
+                {fee
+                  ? `Uniswap V3 (${fee / 10_000}% fee)`
+                  : quoteToken?.symbol && baseToken.symbol
+                  ? 'Uniswap V2'
+                  : ''}
+              </TextGrey>
+            </div>
+          ) : (
+            ''
+          )}
         </div>
         <div
           // className='oracle-config__select-fee-box'

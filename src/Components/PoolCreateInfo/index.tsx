@@ -200,7 +200,7 @@ export const PoolCreateInfo = () => {
           Liquidity {poolSettings.power}x
         </TextBlue>
         <InfoRow>
-          <TextGrey>Balance</TextGrey>
+          <TextGrey style={{ marginLeft: '2px' }}>Balance</TextGrey>
           <span className={`delta-box ${!poolSettings.amountIn && 'no-data'}`}>
             <div className='text-left' />
             {poolSettings.amountIn && (
@@ -328,7 +328,11 @@ export const PoolCreateInfo = () => {
           />
         )}
       </div>
-
+      {/* <TxFee
+        gasUsed={gasUsed}
+        payoffRate={payoffRate}
+        loading={loading && Number(amountIn) > 0}
+      /> */}
       <TxFee gasUsed={bn(poolSettings.gasUsed)} />
       <ButtonExecute
         className='create-pool-button w-100 mt-1'

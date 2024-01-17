@@ -1,4 +1,4 @@
-@import "src/styles/abstracts/variables";
+@import "../../styles/abstracts/variables";
 
 .pool-create-info {
   width: 400px;
@@ -38,13 +38,17 @@
     position: relative;
     padding: 1.5rem;
 
+
     &__title {
+ 
       position: absolute;
       display: block;
       transform: translateY(calc(-50% - 1.5rem));
       left: 2rem;
       padding: 0.5rem;
       background: $color-card-bg;
+      border: 1px solid $color-blue;
+      border-radius: 0.5rem;
     }
   }
 
