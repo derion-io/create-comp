@@ -200,7 +200,7 @@ export const PoolCreateInfo = () => {
           Liquidity {poolSettings.power}x
         </TextBlue>
         <InfoRow>
-          <TextGrey style={{ marginLeft: '2px' }}>Balance</TextGrey>
+          <TextGrey style={{ marginTop: '2px' }}>Balance</TextGrey>
           <span className={`delta-box ${!poolSettings.amountIn && 'no-data'}`}>
             <div className='text-left' />
             {poolSettings.amountIn && (

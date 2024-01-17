@@ -363,3 +363,94 @@ export const cutDecimal = (number: string, decimal?: number) => {
   }
   return arr.join('.')
 }
+export const precisionize = (
+  value: number,
+  opts?: {
+    maximumSignificantDigits?: number
+    minimumSignificantDigits?: number
+    maxExtraDigits?: number
+  }
+): string => {
+  const maxExtraDigits = opts?.maxExtraDigits ?? 0
+  const extraDigits = Math.min(
+    maxExtraDigits,
+    value >= 1 ? 2 : value >= 0.1 ? 1 : 0
+  )
+  const minimumSignificantDigits =
+    extraDigits + (opts?.minimumSignificantDigits ?? 1)
+  const maximumSignificantDigits =
+    extraDigits + (opts?.maximumSignificantDigits ?? 4)
+  const stringOpts = {
+    minimumSignificantDigits,
+    maximumSignificantDigits
+  }
+  return value.toLocaleString(['en-US', 'fullwide'], stringOpts)
+}
+export const zerofy = (
+  value: number | string,
+  opts?: {
+    maxZeros?: number
+    maximumSignificantDigits?: number
+    minimumSignificantDigits?: number
+    maxExtraDigits?: number
+  }
+): string => {
+  let zeros = 0
+  if (typeof value === 'number') {
+    if (value < 0) {
+      return '-' + zerofy(-value, opts)
+    }
+    zeros = -Math.floor(Math.log10(value) + 1)
+    if (!Number.isFinite(zeros)) {
+      zeros = 0
+    }
+    value = precisionize(value, opts)
+  } else {
+    value = STR(value)
+    if (IS_NEG(value)) {
+      return '-' + zerofy(NEG(value), opts)
+    }
+    let [int, dec] = value.split('.')
+    if (dec?.length > 0) {
+      const fake = int.substring(Math.max(0, int.length - 2)) + '.' + dec
+      dec = precisionize(NUM(fake), opts)
+      dec = dec.split('.')[1]
+      if (dec?.length > 0) {
+        value = int + '.' + dec
+        zeros = dec.match(/^0+/)?.[0]?.length ?? 0
+      }
+    }
+  }
+  const maxZeros = opts?.maxZeros ?? 3
+  if (zeros > maxZeros) {
+    const zs = zeros.toString()
+    let ucZeros = ''
+    for (let i = 0; i < zs.length; ++i) {
+      ucZeros += String.fromCharCode(parseInt(`+208${zs[i]}`, 16))
+    }
+    value = value.replace(/[.,]{1}0+/, `${whatDecimalSeparator()}0${ucZeros}`)
+  }
+  return value
+}
+export const whatDecimalSeparator = (): string => {
+  // const n = 1.1
+  // return n.toLocaleString().substring(1, 2)
+  return '.'
+}
+export const NEG = (num: string): string => {
+  if (num?.[0] == '-') {
+    return num.substring(1)
+  }
+  return '-' + num
+}
+
+export const IS_NEG = (num: string | number | BigNumber): boolean => {
+  switch (typeof num) {
+    case 'string':
+      return num?.[0] == '-'
+    case 'number':
+      return num < 0
+    default:
+      return num.isNegative()
+  }
+}

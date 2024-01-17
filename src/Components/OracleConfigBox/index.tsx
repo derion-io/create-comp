@@ -1,11 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { Fragment, useEffect, useMemo, useState } from 'react'
 import { Text, TextBlue, TextGrey } from '../ui/Text'
 import { Input } from '../ui/Input'
 import { Button, ButtonGrey } from '../ui/Button'
 import { SwapIcon } from '../ui/Icon'
 import { useConfigs } from '../../state/config/useConfigs'
 import { SECONDS_PER_DAY, ZERO_ADDRESS } from '../../utils/constant'
-import { NUM, bn } from '../../utils/helpers'
+import { NUM, bn, zerofy } from '../../utils/helpers'
 import { Box } from '../ui/Box'
 import './style.scss'
 import { SelectTokenModal } from '../SelectTokenModal'
@@ -18,6 +18,7 @@ import { useHelper } from '../../state/config/useHelper'
 import { CurrencyLogo } from '../ui/CurrencyLogo'
 import { isAddress } from 'ethers/lib/utils'
 import NumberInput from '../ui/Input/InputNumber'
+import { Z_DEFAULT_COMPRESSION } from 'zlib'
 export const feeOptions = [100, 300, 500, 1000]
 export const OracleConfigBox = () => {
   const { poolSettings, updatePoolSettings } = usePoolSettings()
@@ -216,7 +217,7 @@ export const OracleConfigBox = () => {
           </div>
         </div>
         <div className='oracle-config__select-token-box'>
-          <div
+          {/* <div
             className='oracle-config__token-wrap'
             // onClick={() => {
             //   setSelectingToken('token1')
@@ -229,36 +230,49 @@ export const OracleConfigBox = () => {
               )}
               {baseToken.symbol || 'Base Token'}
             </div>
-          </div>
-          <div className='oracle-config__token-wrap'>
-            <div className='oracle-config__token'>
-              {quoteToken.logoURI && (
-                <CurrencyLogo currencyURI={quoteToken.logoURI} size={24} />
-              )}
-
-              {quoteToken.symbol || 'Quote Token'}
-            </div>
-          </div>
+          </div> */}
 
           {quoteToken.symbol && baseToken.symbol ? (
-            <div
-              onClick={() => {
-                setQuoteTokenIndex(quoteTokenIndex === '0' ? '1' : '0')
-              }}
-              style={{ textAlign: 'center', cursor: 'pointer' }}
-            >
-              <SwapIcon />
-              <br />
-              <TextGrey className='config-fee'>
-                {fee
-                  ? `Uniswap V3 (${fee / 10_000}% fee)`
-                  : quoteToken?.symbol && baseToken.symbol
-                  ? 'Uniswap V2'
-                  : ''}
-              </TextGrey>
-            </div>
+            <Fragment>
+              <div className='oracle-config__token-wrap'>
+                <div className='oracle-config__token'>
+                  {baseToken.logoURI && (
+                    <CurrencyLogo currencyURI={baseToken.logoURI} size={24} />
+                  )}
+                  {quoteToken.logoURI && (
+                    <CurrencyLogo currencyURI={quoteToken.logoURI} size={24} />
+                  )}
+                  {baseToken.symbol} / {quoteToken.symbol}
+                </div>
+              </div>
+              {'=>'} {zerofy(poolSettings.markPrice)}
+              <div
+                onClick={() => {
+                  setQuoteTokenIndex(quoteTokenIndex === '0' ? '1' : '0')
+                }}
+                style={{ textAlign: 'center', cursor: 'pointer' }}
+              >
+                <SwapIcon />
+                <br />
+                <TextGrey className='config-fee'>
+                  {fee
+                    ? `Uniswap V3 (${fee / 10_000}% fee)`
+                    : quoteToken?.symbol && baseToken.symbol
+                      ? 'Uniswap V2'
+                      : ''}
+                </TextGrey>
+                <br />
+              </div>
+            </Fragment>
           ) : (
-            ''
+            <Fragment>
+              <div className='oracle-config__token-wrap'>
+                <div className='oracle-config__token'>Base Token</div>
+              </div>
+              <div className='oracle-config__token-wrap'>
+                <div className='oracle-config__token'>Quote Token</div>
+              </div>
+            </Fragment>
           )}
         </div>
         <div
@@ -307,6 +321,44 @@ export const OracleConfigBox = () => {
         borderColor='blue'
         className='oracle-config-box mt-1 mb-1 grid-container'
       >
+        <NumberInput
+          inputWrapProps={{
+            className: `config-input ${
+              windowTimeSuggest.includes(poolSettings.window.toString())
+                ? ''
+                : 'warning-input'
+            }`
+          }}
+          placeholder='0'
+          value={String(poolSettings.window)}
+          onValueChange={(e) => {
+            // @ts-ignore
+            if (Number(e.target.value) >= 0) {
+              updatePoolSettings({
+                window: (e.target as HTMLInputElement).value
+              })
+            }
+          }}
+        />
+        <NumberInput
+          inputWrapProps={{
+            className: `config-input ${
+              windowTimeSuggest.includes(poolSettings.window.toString())
+                ? ''
+                : 'warning-input'
+            }`
+          }}
+          placeholder='0'
+          value={String(poolSettings.window)}
+          onValueChange={(e) => {
+            // @ts-ignore
+            if (Number(e.target.value) >= 0) {
+              updatePoolSettings({
+                window: (e.target as HTMLInputElement).value
+              })
+            }
+          }}
+        />
         <div className='config-item'>
           <Text fontSize={14} fontWeight={600}>
             Window time (s)
@@ -382,13 +434,13 @@ export const OracleConfigBox = () => {
             suffix={
               poolSettings.interestRate !== '0'
                 ? (
-                    rateToHL(
-                      NUM(poolSettings.interestRate) / 100,
-                      NUM(poolSettings.power)
-                    ) / SECONDS_PER_DAY
-                  )
-                    .toFixed(2)
-                    .toString() + ' days'
+                  rateToHL(
+                    NUM(poolSettings.interestRate) / 100,
+                    NUM(poolSettings.power)
+                  ) / SECONDS_PER_DAY
+                )
+                  .toFixed(2)
+                  .toString() + ' days'
                 : ''
             }
           />
