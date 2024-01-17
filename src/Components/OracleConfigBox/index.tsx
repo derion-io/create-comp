@@ -19,6 +19,7 @@ import { CurrencyLogo } from '../ui/CurrencyLogo'
 import { isAddress } from 'ethers/lib/utils'
 import NumberInput from '../ui/Input/InputNumber'
 import { Z_DEFAULT_COMPRESSION } from 'zlib'
+import { SkeletonLoader } from '../ui/SkeletonLoader'
 export const feeOptions = [100, 300, 500, 1000]
 export const OracleConfigBox = () => {
   const { poolSettings, updatePoolSettings } = usePoolSettings()
@@ -116,7 +117,7 @@ export const OracleConfigBox = () => {
       logoURI: await getTokenIconUrl(utils.getAddress(token.adr))
     }
   }
-
+  const [fetchPairLoading, setFetchPairLoading] = useState(false)
   const fetchPairInfo = async () => {
     if (
       ddlEngine &&
@@ -125,6 +126,7 @@ export const OracleConfigBox = () => {
       isAddress(poolSettings.pairAddress)
     ) {
       try {
+        setFetchPairLoading(true)
         console.log('#pair-start-fetch')
         const res = await ddlEngine.UNIV3PAIR.getPairInfo({
           pairAddress: poolSettings.pairAddress
@@ -157,7 +159,14 @@ export const OracleConfigBox = () => {
         if (QTI == null && configs.wrappedTokenAddress === token1) {
           QTI = 1
         }
+        updatePoolSettings({
+          searchBySymbols: {
+            key1: baseToken.symbol?.slice(1),
+            key2: baseToken.symbol?.slice(-1)
+          }
+        })
         setQuoteTokenIndex(String(QTI) || '0')
+        setFetchPairLoading(false)
         // setPairInfo1({ pair: poolSettings.pairAddress, ...res })
         // console.log(res)
         // if (res.token0.symbol.toLowerCase().includes('us') || res.token0.symbol.toLowerCase().includes('dai')) {
@@ -176,6 +185,7 @@ export const OracleConfigBox = () => {
         //   suggestConfigs('1', res.token1.decimals)
         // }
       } catch (error) {
+        setFetchPairLoading(false)
         console.log('#pair-load-error', error)
         setPairInfo(['Can not get Pair Address Info'])
       }
@@ -245,7 +255,12 @@ export const OracleConfigBox = () => {
                   {baseToken.symbol} / {quoteToken.symbol}
                 </div>
               </div>
-              {'=>'} {zerofy(poolSettings.markPrice)}
+              {'=>'}{' '}
+              {zerofy(
+                quoteTokenIndex === '0'
+                  ? poolSettings.markPrice
+                  : 1 / Number(poolSettings.markPrice)
+              )}
               <div
                 onClick={() => {
                   setQuoteTokenIndex(quoteTokenIndex === '0' ? '1' : '0')
@@ -263,6 +278,13 @@ export const OracleConfigBox = () => {
                 </TextGrey>
                 <br />
               </div>
+            </Fragment>
+          ) : fetchPairLoading ? (
+            <Fragment>
+              <SkeletonLoader
+                style={{ width: '100%' }}
+                loading={fetchPairLoading}
+              />
             </Fragment>
           ) : (
             <Fragment>
@@ -321,44 +343,36 @@ export const OracleConfigBox = () => {
         borderColor='blue'
         className='oracle-config-box mt-1 mb-1 grid-container'
       >
-        <NumberInput
-          inputWrapProps={{
-            className: `config-input ${
-              windowTimeSuggest.includes(poolSettings.window.toString())
-                ? ''
-                : 'warning-input'
-            }`
-          }}
-          placeholder='0'
-          value={String(poolSettings.window)}
-          onValueChange={(e) => {
-            // @ts-ignore
-            if (Number(e.target.value) >= 0) {
-              updatePoolSettings({
-                window: (e.target as HTMLInputElement).value
-              })
-            }
-          }}
-        />
-        <NumberInput
-          inputWrapProps={{
-            className: `config-input ${
-              windowTimeSuggest.includes(poolSettings.window.toString())
-                ? ''
-                : 'warning-input'
-            }`
-          }}
-          placeholder='0'
-          value={String(poolSettings.window)}
-          onValueChange={(e) => {
-            // @ts-ignore
-            if (Number(e.target.value) >= 0) {
-              updatePoolSettings({
-                window: (e.target as HTMLInputElement).value
-              })
-            }
-          }}
-        />
+        {Object.keys(poolSettings.searchBySymbols).map((key, _) => {
+          return (
+            <div className='config-item' key={_}>
+              <Text fontSize={14} fontWeight={600}>
+                Key {_ + 1} to search
+              </Text>
+              <Input
+                inputWrapProps={{
+                  className: `config-input ${
+                    windowTimeSuggest.includes(poolSettings.window.toString())
+                      ? ''
+                      : 'warning-input'
+                  }`
+                }}
+                value={String(poolSettings.searchBySymbols[key])}
+                onChange={(e) => {
+                  // @ts-ignore
+                  if (Number(e.target.value) >= 0) {
+                    const _searchBySymbols = poolSettings.searchBySymbols
+                    _searchBySymbols[key] = e.target.value
+                    updatePoolSettings({
+                      searchBySymbols: _searchBySymbols
+                    })
+                  }
+                }}
+              />
+            </div>
+          )
+        })}
+
         <div className='config-item'>
           <Text fontSize={14} fontWeight={600}>
             Window time (s)
