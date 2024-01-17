@@ -41,9 +41,9 @@ export const CreatePool = () => {
           }}
         >
           <div className='ddl-pool-page__head'>
-            <ButtonGrey className='ddl-pool-page__head--back-btn'>
+            {/* <ButtonGrey className='ddl-pool-page__head--back-btn'>
               <IconArrowLeft />
-            </ButtonGrey>
+            </ButtonGrey> */}
             <Text fontWeight={700} fontSize={18}>
               Create pool
             </Text>
