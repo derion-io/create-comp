@@ -45,7 +45,7 @@ export const CreatePool = () => {
               <IconArrowLeft />
             </ButtonGrey> */}
             <Text fontWeight={700} fontSize={18}>
-              Create pool
+              NEW POOL
             </Text>
           </div>
           <OracleConfigBox />

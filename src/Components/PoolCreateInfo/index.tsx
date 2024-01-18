@@ -478,7 +478,7 @@ export const PoolCreateInfo = () => {
         className='create-pool-button w-100 mt-1'
         onClick={handleCreatePool}
       >
-        Create pool
+        Deploy New Pool
       </ButtonExecute>
       <TextPink>{poolSettings.errorMessage}</TextPink>
     </div>
