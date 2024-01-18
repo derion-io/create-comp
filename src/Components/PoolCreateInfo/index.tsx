@@ -210,7 +210,7 @@ export const PoolCreateInfo = () => {
       <Box borderColor='blue' className='estimate-box swap-info-box mt-2 mb-2'>
         <TextBlue className='estimate-box__title liquidity'>
           Liquidity {poolSettings.power}x{' '}
-          {poolSettings?.baseToken && poolSettings?.quoteToken
+          {poolSettings?.baseToken?.symbol && poolSettings?.quoteToken?.symbol
             ? poolSettings?.baseToken?.symbol +
               ' / ' +
               poolSettings?.quoteToken?.symbol
@@ -318,20 +318,15 @@ export const PoolCreateInfo = () => {
             setVisibleRecipient(!visibleRecipient)
           }}
         >
-          <TextBlue fontSize={14}>
-            Add Recipient
-          </TextBlue>
-          <TextBlue
-            className='btn-toggle'
-            fontSize={14}
-          >
+          <TextBlue fontSize={14}>Add Recipient</TextBlue>
+          <TextBlue className='btn-toggle' fontSize={14}>
             {visibleRecipient ? '-' : '+'}
           </TextBlue>
         </div>
         {visibleRecipient && (
           <Input
             inputWrapProps={{
-              className: 'config-input-create-config',
+              className: 'config-input-create-config'
             }}
             width='100%'
             value={recipient}

@@ -90,10 +90,12 @@ export const OracleConfigBox = () => {
   }, [poolSettings.pairAddress])
 
   useEffect(() => {
-    const [baseToken, quoteToken] = quoteTokenIndex ? [token0, token1] : [token1, token0]
+    const [baseToken, quoteToken] = quoteTokenIndex
+      ? [token0, token1]
+      : [token1, token0]
     updatePoolSettings({
       quoteToken,
-      baseToken,
+      baseToken
     })
   }, [poolSettings.pairAddress, quoteTokenIndex])
 
@@ -164,7 +166,7 @@ export const OracleConfigBox = () => {
         if (QTI == null && configs.wrappedTokenAddress === _token1.address) {
           QTI = 1
         }
-   
+
         setQuoteTokenIndex(QTI ?? 0)
         setFetchPairLoading(false)
         // setPairInfo1({ pair: poolSettings.pairAddress, ...res })
@@ -272,13 +274,13 @@ export const OracleConfigBox = () => {
                 )}
               </SkeletonLoader>
 
-                <TextGrey className='config-fee'>
-                  {fee
-                    ? `Uniswap V3 (${fee / 10_000}% fee)`
-                    : quoteToken?.symbol && baseToken.symbol
-                      ? 'Uniswap V2'
-                      : ''}
-                </TextGrey>
+              <TextGrey className='config-fee'>
+                {fee
+                  ? `Uniswap V3 (${fee / 10_000}% fee)`
+                  : quoteToken?.symbol && baseToken.symbol
+                    ? 'Uniswap V2'
+                    : ''}
+              </TextGrey>
             </Fragment>
           ) : fetchPairLoading ? (
             <Fragment>
@@ -339,40 +341,41 @@ export const OracleConfigBox = () => {
           </ButtonGrey> */}
         </div>
 
-        
         <div className='mt-2 mb-1'>
-        <Text fontSize={14} fontWeight={600}>
-          Search Keywords
-        </Text>
+          <Text fontSize={14} fontWeight={600}>
+            Search Keywords
+          </Text>
         </div>
         <div className='grid-container'>
-        {[0, 1].map((key, idx) => {
-          return (
-            <div className='config-item' key={idx}>
-              <Input
-                inputWrapProps={{
-                  className: `config-input ${
-                    windowTimeSuggest.includes(poolSettings.window.toString())
-                      ? ''
-                      : 'warning-input'
-                  }`
-                }}
-                value={poolSettings.searchBySymbols[key]}
-                onChange={(e) => {
-                  const _searchBySymbols = poolSettings.searchBySymbols
-                  _searchBySymbols[key] = e.target.value
-                  updatePoolSettings({
-                    searchBySymbols: _searchBySymbols
-                  })
-                }}
-                placeholder={
-                  (key ? baseToken.symbol?.slice(0, -1) : baseToken.symbol?.slice(1)) ||
-                  'keyword'
-                }
-              />
-            </div>
-          )
-        })}
+          {[0, 1].map((key, idx) => {
+            return (
+              <div className='config-item' key={idx}>
+                <Input
+                  inputWrapProps={{
+                    className: `config-input ${
+                      windowTimeSuggest.includes(poolSettings.window.toString())
+                        ? ''
+                        : 'warning-input'
+                    }`
+                  }}
+                  value={poolSettings.searchBySymbols[key]}
+                  onChange={(e) => {
+                    const _searchBySymbols = poolSettings.searchBySymbols.map(
+                      (p, _) => (_ === idx ? e.target.value.toUpperCase() : p)
+                    )
+                    updatePoolSettings({
+                      searchBySymbols: _searchBySymbols
+                    })
+                  }}
+                  placeholder={
+                    (key
+                      ? baseToken.symbol?.slice(0, -1)
+                      : baseToken.symbol?.slice(1)) || 'keyword'
+                  }
+                />
+              </div>
+            )
+          })}
         </div>
       </Box>
 

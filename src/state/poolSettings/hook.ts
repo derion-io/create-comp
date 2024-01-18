@@ -35,7 +35,9 @@ export const usePoolSettings = () => {
   const updatePoolSettings = (newPoolSettings: Partial<PoolSettingsType>) => {
     for (const key in newPoolSettings) {
       if (newPoolSettings[key] !== poolSettings[key]) {
-        if (Number.isNaN(Number(newPoolSettings[key]))) {
+        if (
+          Number.isNaN(Number(newPoolSettings[key]) || !newPoolSettings[key])
+        ) {
           newPoolSettings[key] = ''
         }
         dispatch(setPoolSettings(newPoolSettings))
@@ -69,8 +71,8 @@ export const usePoolSettings = () => {
         settings.reserveToken === 'PLD'
           ? configs.derivable.playToken
           : settings.reserveToken === NATIVE_ADDRESS
-            ? configs.wrappedTokenAddress
-            : settings.reserveToken
+          ? configs.wrappedTokenAddress
+          : settings.reserveToken
 
       let uniswapPair = new ethers.Contract(
         settings.pairAddress,
@@ -294,6 +296,14 @@ export const usePoolSettings = () => {
       updatePoolSettings({
         newPoolAddress: poolAddress
       })
+
+      updatePoolSettings({
+        searchBySymbols: [
+          (QTI === 1 ? symbol0 : symbol1)?.slice(1),
+          (QTI === 1 ? symbol0 : symbol1)?.slice(-1)
+        ]
+      })
+
       if (R.eq(0)) {
         return []
       }
@@ -362,8 +372,8 @@ export const usePoolSettings = () => {
       const deployerAddress = await deployer.getAddress()
       const [baseToken, baseSymbol] =
         QTI == 1 ? [token0, symbol0] : [token1, symbol1]
-      const topic2 = (settings as any).topics?.[0] ?? baseSymbol.slice(0, -1)
-      const topic3 = (settings as any).topics?.[1] ?? baseSymbol.substring(1)
+      const topic2 = poolSettings.searchBySymbols[0] ?? baseSymbol.slice(0, -1)
+      const topic3 = poolSettings.searchBySymbols[1] ?? baseSymbol.substring(1)
       const topics = [baseToken, baseSymbol, topic2, topic3]
       topics.forEach((_, i) => {
         if (i > 0) {
