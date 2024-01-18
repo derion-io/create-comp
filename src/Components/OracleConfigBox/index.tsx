@@ -276,13 +276,13 @@ export const OracleConfigBox = () => {
                 )}
               </SkeletonLoader>
 
-              <TextGrey className='config-fee'>
-                {fee
-                  ? `Uniswap V3 (${fee / 10_000}% fee)`
-                  : quoteToken?.symbol && baseToken.symbol
-                  ? 'Uniswap V2'
-                  : ''}
-              </TextGrey>
+                <TextGrey className='config-fee'>
+                  {fee
+                    ? `Uniswap V3 (${fee / 10_000}% fee)`
+                    : quoteToken?.symbol && baseToken.symbol
+                      ? 'Uniswap V2'
+                      : ''}
+                </TextGrey>
             </Fragment>
           ) : fetchPairLoading ? (
             <Fragment>
@@ -342,20 +342,17 @@ export const OracleConfigBox = () => {
             0.1%
           </ButtonGrey> */}
         </div>
-      </Box>
 
-      <Box
-        borderColor='blue'
-        className='oracle-config-box mt-1 mb-1 grid-container'
-      >
-        <TextBlue className='oracle-config__title'>Configurations</TextBlue>
-
+        
+        <div className='mt-2 mb-1'>
+        <Text fontSize={14} fontWeight={600}>
+          Search Keywords
+        </Text>
+        </div>
+        <div className='grid-container'>
         {Object.keys(poolSettings.searchBySymbols).map((key, idx) => {
           return (
             <div className='config-item' key={idx}>
-              <Text fontSize={14} fontWeight={600}>
-                Search Keyword {idx + 1}
-              </Text>
               <Input
                 inputWrapProps={{
                   className: `config-input ${
@@ -375,10 +372,19 @@ export const OracleConfigBox = () => {
                     })
                   }
                 }}
+                placeholder={baseToken?.symbol?.slice(1) ?? 'keyword'}
               />
             </div>
           )
         })}
+        </div>
+      </Box>
+
+      <Box
+        borderColor='blue'
+        className='oracle-config-box mt-1 mb-1 grid-container'
+      >
+        <TextBlue className='oracle-config__title'>Configurations</TextBlue>
 
         <div className='config-item'>
           <Text fontSize={14} fontWeight={600}>
