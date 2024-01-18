@@ -70,10 +70,11 @@ export const PoolCreateInfo = () => {
     // NATIVE_ADDRESS
   })
 
-  useMemo(() => {
-    console.log('#data', data)
-    console.log('#barData', barData)
-  }, [data, barData])
+  // useMemo(() => {
+  //   console.log('#data', data)
+  //   console.log('#barData', barData)
+  // }, [data, barData])
+
   useEffect(() => {
     if (Object.values(pools).length > 0) {
       for (let i = 0; i < data.length; i++) {
@@ -93,16 +94,11 @@ export const PoolCreateInfo = () => {
   }, [account])
 
   useEffect(() => {
-    const handlePoolChange = setTimeout(() => {
-      if (chainId && provider && poolSettings.pairAddress) {
-        const signer = provider.getSigner()
-        calculateParamsForPools(chainId, provider, signer)
-      }
-    }, 1000)
-    return () => {
-      clearTimeout(handlePoolChange)
+    if (chainId && provider && poolSettings.pairAddress) {
+      const signer = provider.getSigner()
+      calculateParamsForPools(chainId, provider, signer)
     }
-  }, [poolSettings])
+  }, [chainId, provider, poolSettings.pairAddress])
 
   const handleCreatePool = async () => {
     const pairAddress = poolSettings.pairAddress
