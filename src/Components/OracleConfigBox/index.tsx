@@ -22,7 +22,7 @@ export const OracleConfigBox = () => {
   const { poolSettings, updatePoolSettings } = usePoolSettings()
   const { ddlEngine } = useConfigs()
   const [pairInfo, setPairInfo] = useState<string[]>([])
-  const [quoteTokenIndex, setQuoteTokenIndex] = useState<string>('0')
+  const [quoteTokenIndex, setQuoteTokenIndex] = useState<0|1>(0)
   const [windowTimeSuggest, setWindowTimeSuggest] = useState<string[]>([])
   const [mark, setMark] = useState<string>('')
   const [markSuggest, setMarkSuggest] = useState<string[]>([])
@@ -89,6 +89,14 @@ export const OracleConfigBox = () => {
     fetchPairInfo()
   }, [poolSettings.pairAddress])
 
+  useEffect(() => {
+    const [baseToken, quoteToken] = quoteTokenIndex ? [token0, token1] : [token1, token0]
+    updatePoolSettings({
+      quoteToken,
+      baseToken,
+    })
+  }, [poolSettings.pairAddress, quoteTokenIndex])
+
   const getPairAddress = async () => {
     try {
       const contract = getUniV3FactoryContract()
@@ -137,40 +145,27 @@ export const OracleConfigBox = () => {
         setToken0(_token0)
         setToken1(_token1)
         setFee(fee)
-        let QTI
+        let QTI: undefined | 0 | 1
         if (QTI == null && _token0.symbol.includes('USD')) {
           QTI = 0
         }
         if (QTI == null && _token1.symbol.includes('USD')) {
           QTI = 1
         }
-        if (QTI == null && configs.stablecoins.includes(token0)) {
+        if (QTI == null && configs.stablecoins.includes(_token0.address)) {
           QTI = 0
         }
-        if (QTI == null && configs.stablecoins.includes(token1)) {
+        if (QTI == null && configs.stablecoins.includes(_token1.address)) {
           QTI = 1
         }
-        if (QTI == null && configs.wrappedTokenAddress === token0) {
+        if (QTI == null && configs.wrappedTokenAddress === _token0.address) {
           QTI = 0
         }
-        if (QTI == null && configs.wrappedTokenAddress === token1) {
+        if (QTI == null && configs.wrappedTokenAddress === _token1.address) {
           QTI = 1
         }
-        updatePoolSettings({
-          quoteToken: QTI === 1 ? _token1 : _token0
-        })
-        updatePoolSettings({
-          baseToken: QTI === 1 ? _token0 : _token1
-        })
-
-        updatePoolSettings({
-          searchBySymbols: {
-            key1: baseToken.symbol?.slice(1),
-            key2: baseToken.symbol?.slice(-1)
-          }
-        })
-
-        setQuoteTokenIndex(String(QTI) || '0')
+   
+        setQuoteTokenIndex(QTI ?? 0)
         setFetchPairLoading(false)
         // setPairInfo1({ pair: poolSettings.pairAddress, ...res })
         // console.log(res)
@@ -196,12 +191,13 @@ export const OracleConfigBox = () => {
       }
     }
   }
+
   const quoteToken = useMemo(
-    () => (quoteTokenIndex === '0' ? token0 : token1),
+    () => (quoteTokenIndex ? token1 : token0),
     [token0, token1, quoteTokenIndex]
   )
   const baseToken = useMemo(
-    () => (quoteTokenIndex === '0' ? token1 : token0),
+    () => (quoteTokenIndex ? token0 : token1),
     [token0, token1, quoteTokenIndex]
   )
 
@@ -262,7 +258,7 @@ export const OracleConfigBox = () => {
               </div>
               <div
                 onClick={() => {
-                  setQuoteTokenIndex(quoteTokenIndex === '0' ? '1' : '0')
+                  setQuoteTokenIndex(quoteTokenIndex ? 0 : 1)
                 }}
                 style={{ textAlign: 'center', cursor: 'pointer' }}
               >
@@ -270,9 +266,9 @@ export const OracleConfigBox = () => {
               </div>
               <SkeletonLoader loading={poolSettings.markPrice === '0'}>
                 {zerofy(
-                  quoteTokenIndex === '0'
-                    ? String(1 / Number(poolSettings.markPrice))
-                    : poolSettings.markPrice
+                  quoteTokenIndex
+                    ? poolSettings.markPrice
+                    : String(1 / Number(poolSettings.markPrice))
                 )}
               </SkeletonLoader>
 
@@ -350,7 +346,7 @@ export const OracleConfigBox = () => {
         </Text>
         </div>
         <div className='grid-container'>
-        {Object.keys(poolSettings.searchBySymbols).map((key, idx) => {
+        {[0, 1].map((key, idx) => {
           return (
             <div className='config-item' key={idx}>
               <Input
@@ -361,18 +357,18 @@ export const OracleConfigBox = () => {
                       : 'warning-input'
                   }`
                 }}
-                value={String(poolSettings.searchBySymbols[key])}
+                value={poolSettings.searchBySymbols[key]}
                 onChange={(e) => {
-                  // @ts-ignore
-                  if (Number(e.target.value) >= 0) {
-                    const _searchBySymbols = poolSettings.searchBySymbols
-                    _searchBySymbols[key] = e.target.value
-                    updatePoolSettings({
-                      searchBySymbols: _searchBySymbols
-                    })
-                  }
+                  const _searchBySymbols = poolSettings.searchBySymbols
+                  _searchBySymbols[key] = e.target.value
+                  updatePoolSettings({
+                    searchBySymbols: _searchBySymbols
+                  })
                 }}
-                placeholder={baseToken?.symbol?.slice(1) ?? 'keyword'}
+                placeholder={
+                  (key ? baseToken.symbol?.slice(0, -1) : baseToken.symbol?.slice(1)) ||
+                  'keyword'
+                }
               />
             </div>
           )

@@ -16,9 +16,7 @@ export type PoolSettingsType = {
   amountIn: string | string
   reserveToken: string
   errorMessage?: string
-  searchBySymbols: {
-    [key: string]: string
-  }
+  searchBySymbols: string[]
   gasUsed: string
   markPrice: string
   R?: string | string
@@ -30,14 +28,11 @@ export type PoolSettingsType = {
 }
 
 export const initialState: PoolSettingsType = {
-  pairAddress: '0xd02a4969DC12bB889754361F8BcF3385ac1B2077',
+  pairAddress: '',
   window: '120',
   power: '2',
   interestRate: '0.03',
-  searchBySymbols: {
-    key1: '',
-    key2: ''
-  },
+  searchBySymbols: ['', ''],
   premiumRate: '0.3',
   vesting: '60',
   openingFee: '0',
