@@ -203,7 +203,7 @@ export const OracleConfigBox = () => {
   return (
     <React.Fragment>
       <Box className='oracle-config-box mt-1 mb-2' borderColor='blue'>
-        <TextBlue className='oracle-config__title'>Pair Address</TextBlue>
+        <TextBlue className='oracle-config__title'>Oracle Index</TextBlue>
         <div className='ddl-pool-page__content--pool-config'>
           <div className='config-item'>
             {/* <TextBlue fontSize={14} fontWeight={600} /> */}
@@ -343,11 +343,13 @@ export const OracleConfigBox = () => {
         borderColor='blue'
         className='oracle-config-box mt-1 mb-1 grid-container'
       >
-        {Object.keys(poolSettings.searchBySymbols).map((key, _) => {
+        <TextBlue className='oracle-config__title'>Configurations</TextBlue>
+
+        {Object.keys(poolSettings.searchBySymbols).map((key, idx) => {
           return (
-            <div className='config-item' key={_}>
+            <div className='config-item' key={idx}>
               <Text fontSize={14} fontWeight={600}>
-                Key {_ + 1} to search
+                Search Keyword {idx + 1}
               </Text>
               <Input
                 inputWrapProps={{
@@ -375,7 +377,7 @@ export const OracleConfigBox = () => {
 
         <div className='config-item'>
           <Text fontSize={14} fontWeight={600}>
-            Window time (s)
+            TWAP Window
           </Text>
           <NumberInput
             inputWrapProps={{
@@ -395,12 +397,13 @@ export const OracleConfigBox = () => {
                 })
               }
             }}
+            suffix='seconds'
           />
         </div>
         <div className='config-item'>
           <div className='config-item'>
             <Text fontSize={14} fontWeight={600}>
-              Power
+              Leverage (compounding)
             </Text>
             <NumberInput
               inputWrapProps={{
@@ -423,13 +426,14 @@ export const OracleConfigBox = () => {
                   updatePoolSettings({ power: String(powerRounded) })
                 }
               }}
+              suffix='x'
             />
           </div>
         </div>
 
         <div className='config-item'>
           <Text fontSize={14} fontWeight={600}>
-            Interest Rate (%)
+            Interest Rate
           </Text>
           <NumberInput
             inputWrapProps={{
@@ -445,24 +449,109 @@ export const OracleConfigBox = () => {
               })
               // }
             }}
-            suffix={
-              poolSettings.interestRate !== '0'
-                ? (
-                  rateToHL(
-                    NUM(poolSettings.interestRate) / 100,
-                    NUM(poolSettings.power)
-                  ) / SECONDS_PER_DAY
-                )
-                  .toFixed(2)
-                  .toString() + ' days'
-                : ''
-            }
+            suffix='%/24h'
+            // suffix={
+            //   poolSettings.interestRate !== '0'
+            //     ? (
+            //       rateToHL(
+            //         NUM(poolSettings.interestRate) / 100,
+            //         NUM(poolSettings.power)
+            //       ) / SECONDS_PER_DAY
+            //     )
+            //       .toFixed(2)
+            //       .toString() + ' days'
+            //     : ''
+            // }
           />
         </div>
 
         <div className='config-item'>
           <Text fontSize={14} fontWeight={600}>
-            Closing fee (%)
+            Max Premium Rate
+          </Text>
+          <NumberInput
+            inputWrapProps={{
+              className: 'config-input'
+            }}
+            placeholder='0'
+            value={String(poolSettings.premiumRate)}
+            onValueChange={(e) => {
+              // @ts-ignore
+              if (Number(e.target.value) >= 0) {
+                updatePoolSettings({
+                  premiumRate: (e.target as HTMLInputElement).value
+                })
+              }
+            }}
+            suffix='%/24h'
+            // suffix={
+            //   (
+            //     rateToHL(
+            //       poolSettings.premiumRate
+            //         ? NUM(poolSettings.premiumRate) / 100
+            //         : 0,
+            //       NUM(poolSettings.power)
+            //     ) / SECONDS_PER_DAY
+            //   )
+            //     .toFixed(2)
+            //     .toString() + ' days'
+            // }
+          />
+        </div>
+
+        <div className='config-item'>
+          <Text fontSize={14} fontWeight={600}>
+            Opening Fee
+          </Text>
+          <NumberInput
+            inputWrapProps={{
+              className: 'config-input'
+            }}
+            placeholder='0.0'
+            value={String(poolSettings.openingFee)}
+            onValueChange={(e) => {
+              // @ts-ignore
+              if (Number(e.target.value) >= 0) {
+                updatePoolSettings({
+                  openingFee: (e.target as HTMLInputElement).value
+                })
+              }
+            }}
+            suffix='%'
+          />
+        </div>
+
+        <div className='config-item'>
+          <Text fontSize={14} fontWeight={600}>
+            Position Vesting Time
+          </Text>
+          <NumberInput
+            inputWrapProps={{
+              className: 'config-input'
+            }}
+            placeholder='0'
+            value={String(poolSettings.vesting)}
+            onValueChange={(e) => {
+              // @ts-ignore
+              if (Number(e.target.value) >= 0) {
+                updatePoolSettings({
+                  vesting: (e.target as HTMLInputElement).value
+                })
+              }
+            }}
+            suffix='seconds'
+            // suffix={
+            //   poolSettings.vesting
+            //     ? (NUM(poolSettings.vesting) / 60).toFixed(2).toString() +
+            //       ' min(s)'
+            //     : ''
+            // }
+          />
+        </div>
+
+        <div className='config-item'>
+          <Text fontSize={14} fontWeight={600}>
+            Closing Fee
           </Text>
           <NumberInput
             inputWrapProps={{
@@ -478,12 +567,13 @@ export const OracleConfigBox = () => {
                 })
               }
             }}
+            suffix='%'
           />
         </div>
 
         <div className='config-item'>
           <Text fontSize={14} fontWeight={600}>
-            Maturity (h)
+            No Closing Fee After
           </Text>
           <NumberInput
             inputWrapProps={{
@@ -501,66 +591,7 @@ export const OracleConfigBox = () => {
                 })
               }
             }}
-          />
-        </div>
-
-        <div className='config-item'>
-          <Text fontSize={14} fontWeight={600}>
-            Vesting Period (s)
-          </Text>
-          <NumberInput
-            inputWrapProps={{
-              className: 'config-input'
-            }}
-            placeholder='0'
-            value={String(poolSettings.vesting)}
-            onValueChange={(e) => {
-              // @ts-ignore
-              if (Number(e.target.value) >= 0) {
-                updatePoolSettings({
-                  vesting: (e.target as HTMLInputElement).value
-                })
-              }
-            }}
-            suffix={
-              poolSettings.vesting
-                ? (NUM(poolSettings.vesting) / 60).toFixed(2).toString() +
-                  ' min(s)'
-                : ''
-            }
-          />
-        </div>
-
-        <div className='config-item'>
-          <Text fontSize={14} fontWeight={600}>
-            Premium Rate (%)
-          </Text>
-          <NumberInput
-            inputWrapProps={{
-              className: 'config-input'
-            }}
-            placeholder='0'
-            value={String(poolSettings.premiumRate)}
-            onValueChange={(e) => {
-              // @ts-ignore
-              if (Number(e.target.value) >= 0) {
-                updatePoolSettings({
-                  premiumRate: (e.target as HTMLInputElement).value
-                })
-              }
-            }}
-            suffix={
-              (
-                rateToHL(
-                  poolSettings.premiumRate
-                    ? NUM(poolSettings.premiumRate) / 100
-                    : 0,
-                  NUM(poolSettings.power)
-                ) / SECONDS_PER_DAY
-              )
-                .toFixed(2)
-                .toString() + ' days'
-            }
+            suffix='hours'
           />
         </div>
       </Box>
