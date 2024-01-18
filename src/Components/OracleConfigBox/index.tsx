@@ -221,7 +221,7 @@ export const OracleConfigBox = () => {
               }}
               width='100%'
               value={poolSettings.pairAddress}
-              placeholder='0x...'
+              placeholder='Uniswap Pool Address (v2 or v3)'
               onChange={(e) => {
                 // @ts-ignore
                 updatePoolSettings({
@@ -254,10 +254,10 @@ export const OracleConfigBox = () => {
                   {baseToken.logoURI && (
                     <CurrencyLogo currencyURI={baseToken.logoURI} size={24} />
                   )}
+                  {baseToken.symbol} / {quoteToken.symbol}
                   {quoteToken.logoURI && (
                     <CurrencyLogo currencyURI={quoteToken.logoURI} size={24} />
                   )}
-                  {baseToken.symbol} / {quoteToken.symbol}
                 </div>
               </div>
               <div
