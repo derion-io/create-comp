@@ -1,25 +1,22 @@
-import React, { Fragment, useEffect, useMemo, useState } from 'react'
-import { Text, TextBlue, TextGrey } from '../ui/Text'
-import { Input } from '../ui/Input'
-import { Button, ButtonGrey } from '../ui/Button'
-import { SwapIcon } from '../ui/Icon'
-import { useConfigs } from '../../state/config/useConfigs'
-import { SECONDS_PER_DAY, ZERO_ADDRESS } from '../../utils/constant'
-import { NUM, bn, zerofy } from '../../utils/helpers'
-import { Box } from '../ui/Box'
-import './style.scss'
-import { SelectTokenModal } from '../SelectTokenModal'
-import { useListTokens } from '../../state/token/hook'
-import { useContract } from '../../hooks/useContract'
 import { utils } from 'ethers'
-import { usePoolSettings } from '../../state/poolSettings/hook'
-import { rateToHL } from 'derivable-tools/dist/utils/helper'
-import { useHelper } from '../../state/config/useHelper'
-import { CurrencyLogo } from '../ui/CurrencyLogo'
 import { isAddress } from 'ethers/lib/utils'
+import React, { Fragment, useEffect, useMemo, useState } from 'react'
+import { useContract } from '../../hooks/useContract'
+import { useConfigs } from '../../state/config/useConfigs'
+import { useHelper } from '../../state/config/useHelper'
+import { usePoolSettings } from '../../state/poolSettings/hook'
+import { useListTokens } from '../../state/token/hook'
+import { ZERO_ADDRESS } from '../../utils/constant'
+import { bn, zerofy } from '../../utils/helpers'
+import { SelectTokenModal } from '../SelectTokenModal'
+import { Box } from '../ui/Box'
+import { CurrencyLogo } from '../ui/CurrencyLogo'
+import { SwapIcon } from '../ui/Icon'
+import { Input } from '../ui/Input'
 import NumberInput from '../ui/Input/InputNumber'
-import { Z_DEFAULT_COMPRESSION } from 'zlib'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
+import { Text, TextBlue, TextGrey } from '../ui/Text'
+import './style.scss'
 export const feeOptions = [100, 300, 500, 1000]
 export const OracleConfigBox = () => {
   const { poolSettings, updatePoolSettings } = usePoolSettings()
@@ -160,11 +157,19 @@ export const OracleConfigBox = () => {
           QTI = 1
         }
         updatePoolSettings({
+          quoteToken: QTI === 1 ? _token1 : _token0
+        })
+        updatePoolSettings({
+          baseToken: QTI === 1 ? _token0 : _token1
+        })
+
+        updatePoolSettings({
           searchBySymbols: {
             key1: baseToken.symbol?.slice(1),
             key2: baseToken.symbol?.slice(-1)
           }
         })
+
         setQuoteTokenIndex(String(QTI) || '0')
         setFetchPairLoading(false)
         // setPairInfo1({ pair: poolSettings.pairAddress, ...res })
@@ -255,12 +260,13 @@ export const OracleConfigBox = () => {
                   {baseToken.symbol} / {quoteToken.symbol}
                 </div>
               </div>
-              {'=>'}{' '}
-              {zerofy(
-                quoteTokenIndex === '0'
-                  ? poolSettings.markPrice
-                  : 1 / Number(poolSettings.markPrice)
-              )}
+              <SkeletonLoader loading={poolSettings.markPrice === '0'}>
+                {/* {'=>'} {poolSettings.markPrice} */}
+                {zerofy(
+                  quoteTokenIndex === '0'
+                    ? String(1 / Number(poolSettings.markPrice)) : poolSettings.markPrice
+                )}
+              </SkeletonLoader>
               <div
                 onClick={() => {
                   setQuoteTokenIndex(quoteTokenIndex === '0' ? '1' : '0')
@@ -337,17 +343,20 @@ export const OracleConfigBox = () => {
             0.1%
           </ButtonGrey> */}
         </div>
+      </Box>
 
-        
-        <div className='mt-2 mb-1'>
-        <Text fontSize={14} fontWeight={600}>
-          Search Keywords
-        </Text>
-        </div>
-        <div className='grid-container'>
+      <Box
+        borderColor='blue'
+        className='oracle-config-box mt-1 mb-1 grid-container'
+      >
+        <TextBlue className='oracle-config__title'>Configurations</TextBlue>
+
         {Object.keys(poolSettings.searchBySymbols).map((key, idx) => {
           return (
             <div className='config-item' key={idx}>
+              <Text fontSize={14} fontWeight={600}>
+                Search Keyword {idx + 1}
+              </Text>
               <Input
                 inputWrapProps={{
                   className: `config-input ${
@@ -367,19 +376,10 @@ export const OracleConfigBox = () => {
                     })
                   }
                 }}
-                placeholder={baseToken?.symbol?.slice(1) ?? 'keyword'}
               />
             </div>
           )
         })}
-        </div>
-      </Box>
-
-      <Box
-        borderColor='blue'
-        className='oracle-config-box mt-1 mb-1 grid-container'
-      >
-        <TextBlue className='oracle-config__title'>Configurations</TextBlue>
 
         <div className='config-item'>
           <Text fontSize={14} fontWeight={600}>

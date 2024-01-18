@@ -1,5 +1,6 @@
 import { BigNumber } from 'ethers'
 import { type } from 'os'
+import { TokenType } from '../token/type'
 
 export type PoolSettingsType = {
   pairAddress: string
@@ -24,6 +25,8 @@ export type PoolSettingsType = {
   x?: string
   newPoolAddress?: string
   gasPrice: BigNumber
+  baseToken?: TokenType
+  quoteToken?: TokenType
 }
 
 export const initialState: PoolSettingsType = {

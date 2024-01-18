@@ -13,10 +13,13 @@ import formatLocalisedCompactNumber, {
   formatWeiToDisplayNumber
 } from '../../utils/formatBalance'
 import {
+  IEW,
+  WEI,
   bn,
   formatFloat,
   numDec,
   numInt,
+  numberToWei,
   weiToNumber
 } from '../../utils/helpers'
 import { TxFee } from '../TxFee'
@@ -29,6 +32,11 @@ import { Text, TextBlue, TextGrey, TextPink } from '../ui/Text'
 import { TokenIcon } from '../ui/TokenIcon'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import './style.scss'
+import { useNativePrice } from '../../hooks/useTokenPrice'
+import { useFeeData } from '../../state/pools/hooks/useFeeData'
+import { BigNumber } from 'ethers'
+import Tooltip from '../Tooltip/Tooltip'
+import { useSettings } from '../../state/setting/hooks/useSettings'
 function numSplit(v: string) {
   return (
     <div>
@@ -37,6 +45,7 @@ function numSplit(v: string) {
     </div>
   )
 }
+const slippageTolerance = 1
 export const PoolCreateInfo = () => {
   const {
     poolSettings,
@@ -47,6 +56,8 @@ export const PoolCreateInfo = () => {
   useEffect(() => {
     console.log('#poolSettings', poolSettings)
   }, [poolSettings])
+  const { data: nativePrice } = useNativePrice()
+
   const { chainId, provider } = useWeb3React()
   const [barData, setBarData] = useState<any>({})
   const { tokens } = useListTokens()
@@ -70,11 +81,10 @@ export const PoolCreateInfo = () => {
     // NATIVE_ADDRESS
   })
 
-  // useMemo(() => {
-  //   console.log('#data', data)
-  //   console.log('#barData', barData)
-  // }, [data, barData])
-
+  useMemo(() => {
+    console.log('#data', data)
+    console.log('#barData', barData)
+  }, [data, barData])
   useEffect(() => {
     if (Object.values(pools).length > 0) {
       for (let i = 0; i < data.length; i++) {
@@ -94,11 +104,17 @@ export const PoolCreateInfo = () => {
   }, [account])
 
   useEffect(() => {
-    if (chainId && provider && poolSettings.pairAddress) {
-      const signer = provider.getSigner()
-      calculateParamsForPools(chainId, provider, signer)
+    console.log('#poolSetting', poolSettings)
+    const handlePoolChange = setTimeout(() => {
+      if (chainId && provider && poolSettings.pairAddress) {
+        const signer = provider.getSigner()
+        calculateParamsForPools(chainId, provider, signer)
+      }
+    }, 1000)
+    return () => {
+      clearTimeout(handlePoolChange)
     }
-  }, [chainId, provider, poolSettings.pairAddress])
+  }, [poolSettings])
 
   const handleCreatePool = async () => {
     const pairAddress = poolSettings.pairAddress
@@ -123,7 +139,12 @@ export const PoolCreateInfo = () => {
       await deployPool(chainId, provider, signer)
     }
   }
-
+  const [gasPrice, setGasPrice] = useState<any>(BigNumber.from(10 ** 8))
+  const { feeData } = useFeeData()
+  useEffect(() => {
+    setGasPrice(feeData?.gasPrice ?? 1)
+  }, [feeData])
+  const { settings } = useSettings()
   return (
     <div className='pool-create-info'>
       <div className='amount-input-box'>
@@ -193,7 +214,12 @@ export const PoolCreateInfo = () => {
 
       <Box borderColor='blue' className='estimate-box swap-info-box mt-2 mb-2'>
         <TextBlue className='estimate-box__title liquidity'>
-          Liquidity {poolSettings.power}x
+          Liquidity {poolSettings.power}x{' '}
+          {poolSettings?.baseToken && poolSettings?.quoteToken
+            ? poolSettings?.baseToken?.symbol +
+              ' / ' +
+              poolSettings?.quoteToken?.symbol
+            : ''}
         </TextBlue>
         <InfoRow>
           <TextGrey style={{ marginTop: '2px' }}>Balance</TextGrey>
@@ -264,7 +290,7 @@ export const PoolCreateInfo = () => {
           </div>
         </InfoRow>
 
-        <InfoRow>
+        {/* <InfoRow>
           <TextGrey>Mark Price</TextGrey>
           <div className={`delta-box ${!poolSettings.amountIn && 'no-data'}`}>
             <div className='text-right'>
@@ -273,7 +299,7 @@ export const PoolCreateInfo = () => {
               </SkeletonLoader>
             </div>
           </div>
-        </InfoRow>
+        </InfoRow> */}
       </Box>
 
       {data && data.length > 0 && Object.keys(barData).length > 0 ? (
@@ -324,12 +350,135 @@ export const PoolCreateInfo = () => {
           />
         )}
       </div>
+      <Box borderColor='default' className='swap-info-box mt-1 mb-1 p-1'>
+        <InfoRow>
+          <TextGrey>Liquidity</TextGrey>
+          <span />
+        </InfoRow>
+        <InfoRow>
+          <TextGrey>Full Leverage Range</TextGrey>
+          <span />
+        </InfoRow>
+        <InfoRow>
+          <TextGrey>LP Funding Yield</TextGrey>
+          <span />
+        </InfoRow>
+        <div
+          style={{
+            background: '#3a3a3a',
+            height: '0.2px',
+            marginTop: '5px',
+            marginBottom: '5px'
+          }}
+        />
+        <InfoRow>
+          <TextGrey>Position Vesting</TextGrey>
+          <span>{poolSettings.vesting}</span>
+        </InfoRow>
+        <InfoRow>
+          <TextGrey>Closing Fee</TextGrey>
+          <span>{poolSettings.closingFee}</span>
+        </InfoRow>
+      </Box>
       {/* <TxFee
         gasUsed={gasUsed}
         payoffRate={payoffRate}
         loading={loading && Number(amountIn) > 0}
       /> */}
-      <TxFee gasUsed={bn(poolSettings.gasUsed)} />
+      <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
+        <InfoRow>
+          <TextGrey>Max Slippage</TextGrey>
+          <Text>{settings.slippageTolerance || 1}%</Text>
+        </InfoRow>
+        <InfoRow>
+          <TextGrey>Network Fee</TextGrey>
+
+          <Tooltip
+            position='right-bottom'
+            handle={
+              <div>
+                {!nativePrice || !gasPrice || !bn(poolSettings.gasUsed) ? (
+                  <Text>&nbsp;</Text>
+                ) : (
+                  <Text>
+                    {IEW(bn(poolSettings.gasUsed).mul(gasPrice), 18, 5)}
+                    <TextGrey> {configs.nativeSymbol ?? 'ETH'} </TextGrey>
+                    ($
+                    {IEW(
+                      bn(poolSettings.gasUsed)
+                        .mul(gasPrice)
+                        .mul(WEI(nativePrice)),
+                      36,
+                      2
+                    )}
+                    )
+                  </Text>
+                )}
+              </div>
+            }
+            renderContent={() => (
+              <div>
+                <div>
+                  <TextGrey>Estimated Gas:&nbsp;</TextGrey>
+                  <Text>
+                    {formatWeiToDisplayNumber(bn(poolSettings.gasUsed), 0, 0)}
+                  </Text>
+                </div>
+                <div>
+                  <TextGrey>Gas Price:&nbsp;</TextGrey>
+                  <Text>
+                    {bn(gasPrice || 0)?.gte?.(1e6)
+                      ? formatWeiToDisplayNumber(gasPrice.div(1e9), 0, 0) +
+                        ' gwei'
+                      : formatWeiToDisplayNumber(gasPrice, 0, 0) + ' wei'}
+                  </Text>
+                </div>
+                <div>
+                  <TextGrey>{configs.nativeSymbol} Price:&nbsp;</TextGrey>
+                  <Text>
+                    ${formatFloat(nativePrice || configs.nativePriceUSD, 4)}
+                  </Text>
+                </div>
+              </div>
+            )}
+          />
+        </InfoRow>
+      </Box>
+
+      {/* <Box borderColor='default' className='swap-info-box mt-1 mb-1 p-1'>
+        <InfoRow className='mb-1'>
+          <TextGrey>Gas Used</TextGrey>
+          <span>
+            <Text>
+              {formatWeiToDisplayNumber(bn(poolSettings.bn(poolSettings.gasUsed)), 0, 0)} Gas
+            </Text>
+          </span>
+        </InfoRow>
+        <InfoRow>
+          <TextGrey>Transaction Fee</TextGrey>
+          <span>
+            <Text>
+              {weiToNumber(
+                bn(poolSettings.gasUsed).mul(poolSettings.gasPrice),
+                18,
+                5
+              )}
+              <TextGrey> {chainId === 56 ? 'BNB' : 'ETH'} </TextGrey>
+              ($
+              {weiToNumber(
+                bn(poolSettings.gasUsed)
+                  .mul(poolSettings.gasPrice)
+                  .mul(numberToWei(nativePrice)),
+                36,
+                2
+              )}
+              )
+            </Text>
+          </span>
+        </InfoRow>
+      </Box> */}
+
+      {/* <TxFee gasUsed={bn(poolSettings.gasUsed)} /> */}
       <ButtonExecute
         className='create-pool-button w-100 mt-1'
         onClick={handleCreatePool}
