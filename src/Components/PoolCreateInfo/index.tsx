@@ -311,18 +311,19 @@ export const PoolCreateInfo = () => {
         </div>
       )}
 
-      <div className='config-item mt-2 mb-1'>
-        <div className='recipient-box'>
-          <TextBlue fontSize={14} fontWeight={600}>
-            Recipient
+      <div className='mt-2 mb-1'>
+        <div
+          className='recipient-box'
+          onClick={() => {
+            setVisibleRecipient(!visibleRecipient)
+          }}
+        >
+          <TextBlue fontSize={14}>
+            Add Recipient
           </TextBlue>
           <TextBlue
             className='btn-toggle'
             fontSize={14}
-            fontWeight={600}
-            onClick={() => {
-              setVisibleRecipient(!visibleRecipient)
-            }}
           >
             {visibleRecipient ? '-' : '+'}
           </TextBlue>
@@ -331,13 +332,10 @@ export const PoolCreateInfo = () => {
           <Input
             inputWrapProps={{
               className: 'config-input-create-config',
-              style: {
-                width: '100%'
-              }
             }}
             width='100%'
             value={recipient}
-            placeholder='0x...'
+            placeholder='Current Connected Address'
             onChange={(e) => {
               // @ts-ignore
               setRecipient((e.target as HTMLInputElement).value)
