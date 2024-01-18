@@ -260,13 +260,6 @@ export const OracleConfigBox = () => {
                   {baseToken.symbol} / {quoteToken.symbol}
                 </div>
               </div>
-              <SkeletonLoader loading={poolSettings.markPrice === '0'}>
-                {/* {'=>'} {poolSettings.markPrice} */}
-                {zerofy(
-                  quoteTokenIndex === '0'
-                    ? String(1 / Number(poolSettings.markPrice)) : poolSettings.markPrice
-                )}
-              </SkeletonLoader>
               <div
                 onClick={() => {
                   setQuoteTokenIndex(quoteTokenIndex === '0' ? '1' : '0')
@@ -274,16 +267,22 @@ export const OracleConfigBox = () => {
                 style={{ textAlign: 'center', cursor: 'pointer' }}
               >
                 <SwapIcon />
-                <br />
-                <TextGrey className='config-fee'>
-                  {fee
-                    ? `Uniswap V3 (${fee / 10_000}% fee)`
-                    : quoteToken?.symbol && baseToken.symbol
-                      ? 'Uniswap V2'
-                      : ''}
-                </TextGrey>
-                <br />
               </div>
+              <SkeletonLoader loading={poolSettings.markPrice === '0'}>
+                {zerofy(
+                  quoteTokenIndex === '0'
+                    ? String(1 / Number(poolSettings.markPrice))
+                    : poolSettings.markPrice
+                )}
+              </SkeletonLoader>
+
+              <TextGrey className='config-fee'>
+                {fee
+                  ? `Uniswap V3 (${fee / 10_000}% fee)`
+                  : quoteToken?.symbol && baseToken.symbol
+                  ? 'Uniswap V2'
+                  : ''}
+              </TextGrey>
             </Fragment>
           ) : fetchPairLoading ? (
             <Fragment>
