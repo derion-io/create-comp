@@ -37,6 +37,7 @@
     "web3-react-modal": "https://github.com/derivable-labs/web3-react-modal.git#main"
   },
   "devDependencies": {
+    "@babel/helper-explode-assignable-expression": "^7.18.6",
     "assert": "^2.0.0",
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.0",
