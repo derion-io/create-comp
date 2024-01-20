@@ -19,16 +19,16 @@ export const App = () => {
   const { account } = useWeb3React()
   const { ddlEngine, chainId, location, configs } = useConfigs()
   const chainIdRef = useRef(null)
-  const { initListPool } = useListPool()
+  // const { initListPool } = useListPool()
   useFetchTokenPrice()
 
-  useEffect(() => {
-    initListPool(account)
-    const intervalId = setInterval(() => {
-      initListPool(account)
-    }, TIME_TO_REFRESH_STATE)
-    return () => clearInterval(intervalId)
-  }, [ddlEngine, configs.name])
+  // useEffect(() => {
+  //   initListPool(account)
+  //   const intervalId = setInterval(() => {
+  //     initListPool(account)
+  //   }, TIME_TO_REFRESH_STATE)
+  //   return () => clearInterval(intervalId)
+  // }, [ddlEngine, configs.name])
 
   useEffect(() => {
     if (account && Object.keys(tokens).length > 0) {

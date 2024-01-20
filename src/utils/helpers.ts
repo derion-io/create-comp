@@ -454,3 +454,13 @@ export const IS_NEG = (num: string | number | BigNumber): boolean => {
       return num.isNegative()
   }
 }
+
+export function isEthereumAddress(input: string): boolean {
+  // Check if the input is a valid hexadecimal string
+  const isHex = /^(0x)?[0-9a-fA-F]{40}$/.test(input)
+
+  // Check if the input starts with "0x" and is exactly 42 characters long
+  const isAddress = input.length === 42 && input.startsWith('0x')
+
+  return isHex && isAddress
+}

@@ -74,6 +74,7 @@ export const PoolCreateInfo = () => {
     poolSettings.power.toString(),
     poolSettings.amountIn.toString()
   )
+  console.log('#data', data)
   const { value } = useTokenValue({
     amount: poolSettings.amountIn.toString(),
     tokenAddress:
@@ -92,11 +93,14 @@ export const PoolCreateInfo = () => {
         const leve: any = data[i]
         for (let k = 0; k < leve.bars.length; k++) {
           console.log('#leve-bar', leve.bars[k])
+          // if (leve.bars[k].token.includes(outputTokenAddress.slice(0, -3))) {
           setBarData(leve.bars[k])
+          //   break
+          // }
         }
       }
     }
-  }, [pools])
+  }, [pools, data])
 
   useMemo(() => {
     if (account) {
@@ -110,6 +114,12 @@ export const PoolCreateInfo = () => {
       calculateParamsForPools(chainId, provider, signer)
     }
   }, [chainId, provider, poolSettings.pairAddress])
+  const { initListPool } = useListPool()
+  const { ddlEngine } = useConfigs()
+
+  useEffect(() => {
+    initListPool(account, [poolSettings.pairAddress])
+  }, [poolSettings.pairAddress, configs, ddlEngine])
 
   const handleCreatePool = async () => {
     const pairAddress = poolSettings.pairAddress
@@ -173,10 +183,10 @@ export const PoolCreateInfo = () => {
               Balance:{' '}
               {balances && balances[poolSettings.reserveToken]
                 ? formatWeiToDisplayNumber(
-                    balances[poolSettings.reserveToken],
-                    4,
+                  balances[poolSettings.reserveToken],
+                  4,
                     tokens[poolSettings.reserveToken]?.decimals || 18
-                  )
+                )
                 : 0}
             </Text>
           </SkeletonLoader>

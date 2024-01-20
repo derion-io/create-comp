@@ -17,22 +17,21 @@ export const useGenerateLeverageData = (
   const { tokens } = useListTokens()
   const { getTokenValue } = useTokenValue({})
   const { poolGroups } = useListPool()
-  const pools: PoolType =
-    (pairAddr ? poolGroups[Object.keys(poolGroups)[0]]?.pools : {}) || {}
+  const pools: PoolType = useMemo(() => {
+    return (pairAddr ? poolGroups[Object.keys(poolGroups)[0]]?.pools : {}) || {}
+  }, [pairAddr, poolGroups])
 
   const oldLeverageData = useMemo(() => {
     const result = {}
     if (Object.values(pools || {})?.length > 0) {
       Object.values(pools).forEach((pool) => {
-        const size = bn(
-          numberToWei(
-            getTokenValue(
-              pool.TOKEN_R,
-              weiToNumber(pool.states.R, tokens[pool.TOKEN_R]?.decimals)
-            )
-          )
-        )
-
+        const size = bn(pool.states.R)
+        // console.log(
+        //   '#pools',
+        //   pool,
+        //   pool.TOKEN_R,
+        //   weiToNumber(pool.states.R, tokens[pool.TOKEN_R]?.decimals)
+        // )
         const power = Math.abs(pool.k.toNumber() / 2)
 
         if (!result[power]) {
@@ -66,7 +65,7 @@ export const useGenerateLeverageData = (
     }
 
     return result
-  }, [pools])
+  }, [pools, poolGroups])
 
   return useMemo(() => {
     const result = _.cloneDeep(oldLeverageData)
@@ -130,5 +129,5 @@ export const useGenerateLeverageData = (
     })
 
     return data
-  }, [amountIn, power, oldLeverageData])
+  }, [amountIn, power, oldLeverageData, poolGroups])
 }
