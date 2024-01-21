@@ -20,6 +20,7 @@ import {
   numDec,
   numInt,
   numberToWei,
+  unwrap,
   weiToNumber
 } from '../../utils/helpers'
 import { TxFee } from '../TxFee'
@@ -221,9 +222,9 @@ export const PoolCreateInfo = () => {
         <TextBlue className='estimate-box__title liquidity'>
           Liquidity {poolSettings.power}x{' '}
           {poolSettings?.baseToken?.symbol && poolSettings?.quoteToken?.symbol
-            ? poolSettings?.baseToken?.symbol +
-              ' / ' +
-              poolSettings?.quoteToken?.symbol
+            ? unwrap(poolSettings?.baseToken?.symbol) +
+              '/' +
+              unwrap(poolSettings?.quoteToken?.symbol)
             : ''}
         </TextBlue>
         <InfoRow>

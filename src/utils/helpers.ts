@@ -1,8 +1,13 @@
 import { BigNumber, ethers, utils } from 'ethers'
+import { UNWRAP } from './constant'
 
 export const bn = ethers.BigNumber.from
 
 const mdp = require('move-decimal-point')
+
+export const unwrap = (symbol: string) => {
+  return UNWRAP[symbol] ?? symbol
+}
 
 export const BIG = (num: number | string | BigNumber): BigNumber => {
   if (!num) {

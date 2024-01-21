@@ -7,7 +7,7 @@ import { useHelper } from '../../state/config/useHelper'
 import { usePoolSettings } from '../../state/poolSettings/hook'
 import { useListTokens } from '../../state/token/hook'
 import { ZERO_ADDRESS } from '../../utils/constant'
-import { bn, zerofy } from '../../utils/helpers'
+import { bn, unwrap, zerofy } from '../../utils/helpers'
 import { SelectTokenModal } from '../SelectTokenModal'
 import { Box } from '../ui/Box'
 import { CurrencyLogo } from '../ui/CurrencyLogo'
@@ -252,7 +252,7 @@ export const OracleConfigBox = () => {
                   {baseToken.logoURI && (
                     <CurrencyLogo currencyURI={baseToken.logoURI} size={24} />
                   )}
-                  {baseToken.symbol} / {quoteToken.symbol}
+                  {unwrap(baseToken.symbol)} / {unwrap(quoteToken.symbol)}
                   {quoteToken.logoURI && (
                     <CurrencyLogo currencyURI={quoteToken.logoURI} size={24} />
                   )}
