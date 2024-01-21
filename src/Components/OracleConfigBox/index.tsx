@@ -369,8 +369,8 @@ export const OracleConfigBox = () => {
                   }}
                   placeholder={
                     (key
-                      ? baseToken.symbol?.slice(0, -1)
-                      : baseToken.symbol?.slice(1)) || 'keyword'
+                      ? baseToken.symbol?.slice(1)
+                      : baseToken.symbol?.slice(0, -1)) || 'keyword'
                   }
                 />
               </div>

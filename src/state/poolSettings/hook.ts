@@ -297,12 +297,6 @@ export const usePoolSettings = () => {
         newPoolAddress: poolAddress
       })
 
-      updatePoolSettings({
-        searchBySymbols: [
-          (QTI === 1 ? symbol0 : symbol1)?.slice(1),
-          (QTI === 1 ? symbol0 : symbol1)?.slice(-1)
-        ]
-      })
 
       if (R.eq(0)) {
         return []
@@ -373,7 +367,7 @@ export const usePoolSettings = () => {
       const [baseToken, baseSymbol] =
         QTI == 1 ? [token0, symbol0] : [token1, symbol1]
       const topic2 = poolSettings.searchBySymbols[0] ?? baseSymbol.slice(0, -1)
-      const topic3 = poolSettings.searchBySymbols[1] ?? baseSymbol.substring(1)
+      const topic3 = poolSettings.searchBySymbols[1] ?? baseSymbol.slice(1)
       const topics = [baseToken, baseSymbol, topic2, topic3]
       topics.forEach((_, i) => {
         if (i > 0) {
