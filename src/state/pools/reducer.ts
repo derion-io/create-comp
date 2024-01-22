@@ -19,6 +19,19 @@ export const tokens = createSlice({
         ...action.payload.poolGroups
       }
     },
+    setPoolGroupsWithChain: (
+      state,
+      action: PayloadAction<{
+        poolGroups: { [key: string]: PoolType }
+        chainId: number
+      }>
+    ) => {
+      if (Object.keys(action.payload.poolGroups ?? {}).length === 0) return
+      state.poolGroups[action.payload.chainId] = {
+        // ...state[action.payload.chainId],
+        ...action.payload.poolGroups
+      }
+    },
     addPoolsWithChain: (
       state,
       action: PayloadAction<{
@@ -29,6 +42,19 @@ export const tokens = createSlice({
       if (Object.keys(action.payload.pools ?? {}).length === 0) return
       state.pools[action.payload.chainId] = {
         ...state[action.payload.chainId],
+        ...action.payload.pools
+      }
+    },
+    setPoolsWithChain: (
+      state,
+      action: PayloadAction<{
+        pools: { [key: string]: PoolType }
+        chainId: number
+      }>
+    ) => {
+      if (Object.keys(action.payload.pools ?? {}).length === 0) return
+      state.pools[action.payload.chainId] = {
+        // ...state[action.payload.chainId],
         ...action.payload.pools
       }
     },
@@ -64,7 +90,9 @@ export const tokens = createSlice({
 // Actions
 export const {
   addPoolsWithChain,
+  setPoolGroupsWithChain,
   addPoolGroupsWithChain,
+  setPoolsWithChain,
   addTokenPriceWithChain,
   addFeeDataWithChain
 } = tokens.actions

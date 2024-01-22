@@ -22,7 +22,7 @@ export const OracleConfigBox = () => {
   const { poolSettings, updatePoolSettings } = usePoolSettings()
   const { ddlEngine } = useConfigs()
   const [pairInfo, setPairInfo] = useState<string[]>([])
-  const [quoteTokenIndex, setQuoteTokenIndex] = useState<0|1>(0)
+  const [quoteTokenIndex, setQuoteTokenIndex] = useState<0 | 1>(0)
   const [windowTimeSuggest, setWindowTimeSuggest] = useState<string[]>([])
   const [mark, setMark] = useState<string>('')
   const [markSuggest, setMarkSuggest] = useState<string[]>([])
@@ -79,39 +79,39 @@ export const OracleConfigBox = () => {
     setInitTimeSuggest(iTimeArr)
   }
 
-  useEffect(() => {
-    if (token0 && token1 && fee) {
-      getPairAddress()
-    }
-  }, [token0, token1, fee])
+  // useEffect(() => {
+  //   if (token0 && token1 && fee) {
+  //     getPairAddress()
+  //   }
+  // }, [token0, token1, fee])
 
   useEffect(() => {
     fetchPairInfo()
   }, [poolSettings.pairAddress])
 
-  useEffect(() => {
-    const [baseToken, quoteToken] = quoteTokenIndex
-      ? [token0, token1]
-      : [token1, token0]
-    updatePoolSettings({
-      quoteToken,
-      baseToken
-    })
-  }, [poolSettings.pairAddress, quoteTokenIndex])
+  // useEffect(() => {
+  //   const [baseToken, quoteToken] = quoteTokenIndex
+  //     ? [token0, token1]
+  //     : [token1, token0]
+  //   updatePoolSettings({
+  //     quoteToken,
+  //     baseToken
+  //   })
+  // }, [poolSettings.pairAddress, quoteTokenIndex])
 
-  const getPairAddress = async () => {
-    try {
-      const contract = getUniV3FactoryContract()
-      const res = await contract.getPool(token0.address, token1.address, fee)
-      if (res !== poolSettings.pairAddress) {
-        updatePoolSettings({
-          pairAddress: utils.getAddress(res)
-        })
-      }
-    } catch (e) {
-      console.log(e)
-    }
-  }
+  // const getPairAddress = async () => {
+  //   try {
+  //     const contract = getUniV3FactoryContract()
+  //     const res = await contract.getPool(token0.address, token1.address, fee)
+  //     if (res !== poolSettings.pairAddress) {
+  //       updatePoolSettings({
+  //         pairAddress: utils.getAddress(res)
+  //       })
+  //     }
+  //   } catch (e) {
+  //     console.log(e)
+  //   }
+  // }
 
   const { getUniV3PairContract } = useContract()
 
@@ -166,7 +166,13 @@ export const OracleConfigBox = () => {
         if (QTI == null && configs.wrappedTokenAddress === _token1.address) {
           QTI = 1
         }
-
+        const [baseToken, quoteToken] = QTI
+          ? [_token0, _token1]
+          : [_token1, _token0]
+        updatePoolSettings({
+          quoteToken,
+          baseToken
+        })
         setQuoteTokenIndex(QTI ?? 0)
         setFetchPairLoading(false)
         // setPairInfo1({ pair: poolSettings.pairAddress, ...res })
@@ -244,8 +250,15 @@ export const OracleConfigBox = () => {
               {baseToken.symbol || 'Base Token'}
             </div>
           </div> */}
-
-          {quoteToken.symbol && baseToken.symbol ? (
+          {fetchPairLoading ? (
+            <SkeletonLoader
+              height='50px'
+              style={{ width: '100%' }}
+              loading={fetchPairLoading}
+            >
+              ..
+            </SkeletonLoader>
+          ) : quoteToken.symbol && baseToken.symbol ? (
             <Fragment>
               <div className='oracle-config__token-wrap'>
                 <div className='oracle-config__token'>
@@ -278,16 +291,9 @@ export const OracleConfigBox = () => {
                 {fee
                   ? `Uniswap V3 (${fee / 10_000}% fee)`
                   : quoteToken?.symbol && baseToken.symbol
-                    ? 'Uniswap V2'
-                    : ''}
+                  ? 'Uniswap V2'
+                  : ''}
               </TextGrey>
-            </Fragment>
-          ) : fetchPairLoading ? (
-            <Fragment>
-              <SkeletonLoader
-                style={{ width: '100%' }}
-                loading={fetchPairLoading}
-              />
             </Fragment>
           ) : (
             <Fragment>
@@ -299,46 +305,6 @@ export const OracleConfigBox = () => {
               </div>
             </Fragment>
           )}
-        </div>
-        <div
-          // className='oracle-config__select-fee-box'
-          style={{ textAlign: 'center' }}
-        >
-          {/* {feeOptions.map((_fee, _) => {
-            return (
-              <ButtonGrey
-                key={_}
-                className={`btn-select-fee ${_fee === fee && 'active'}`}
-                onClick={() => setFee(_fee)}
-              >
-                {_fee / 10000}%
-              </ButtonGrey>
-            )
-          })} */}
-          {/* <ButtonGrey
-            className={`btn-select-fee ${fee === 100 && 'active'}`}
-            onClick={() => setFee(100)}
-          >
-            0.01%
-          </ButtonGrey>
-          <ButtonGrey
-            className={`btn-select-fee ${fee === 300 && 'active'}`}
-            onClick={() => setFee(300)}
-          >
-            0.03%
-          </ButtonGrey>
-          <ButtonGrey
-            className={`btn-select-fee ${fee === 500 && 'active'}`}
-            onClick={() => setFee(500)}
-          >
-            0.05%
-          </ButtonGrey>
-          <ButtonGrey
-            className={`btn-select-fee ${fee === 1000 && 'active'}`}
-            onClick={() => setFee(1000)}
-          >
-            0.1%
-          </ButtonGrey> */}
         </div>
 
         <div className='mt-2 mb-1'>

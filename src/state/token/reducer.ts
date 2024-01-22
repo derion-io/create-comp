@@ -19,13 +19,26 @@ export const tokens = createSlice({
         ...state.tokens[action.payload.chainId],
         ...newToken
       }
+    },
+    setTokensReduce: (state, action: PayloadAction<{
+      tokens: TokenType[],
+      chainId: number
+    }>) => {
+      if (action.payload.tokens.length === 0) return
+      const newToken = {}
+      const tokens = action.payload.tokens
+      for (let i = 0; i < tokens.length; i++) {
+        newToken[tokens[i].address] = tokens[i]
+      }
+      state.tokens[action.payload.chainId] = {
+        // ...state.tokens[action.payload.chainId],
+        ...newToken
+      }
     }
   }
 })
 
 // Actions
-export const {
-  addTokensReduce
-} = tokens.actions
+export const { addTokensReduce, setTokensReduce } = tokens.actions
 
 export default tokens.reducer

@@ -38,6 +38,7 @@ import { useFeeData } from '../../state/pools/hooks/useFeeData'
 import { BigNumber } from 'ethers'
 import Tooltip from '../Tooltip/Tooltip'
 import { useSettings } from '../../state/setting/hooks/useSettings'
+import { OBJECT } from 'swr/_internal'
 function numSplit(v: string) {
   return (
     <div>
@@ -70,12 +71,12 @@ export const PoolCreateInfo = () => {
 
   const { configs } = useConfigs()
   const wrappedTokenAddress = configs.wrappedTokenAddress
-  const data = useGenerateLeverageData(
+  const leverageData = useGenerateLeverageData(
     poolSettings.pairAddress,
     poolSettings.power.toString(),
     poolSettings.amountIn.toString()
   )
-  console.log('#data', data)
+  console.log('#leverageData', leverageData)
   const { value } = useTokenValue({
     amount: poolSettings.amountIn.toString(),
     tokenAddress:
@@ -90,8 +91,8 @@ export const PoolCreateInfo = () => {
 
   useEffect(() => {
     if (Object.values(pools).length > 0) {
-      for (let i = 0; i < data.length; i++) {
-        const leve: any = data[i]
+      for (let i = 0; i < leverageData.length; i++) {
+        const leve: any = leverageData[i]
         for (let k = 0; k < leve.bars.length; k++) {
           console.log('#leve-bar', leve.bars[k])
           // if (leve.bars[k].token.includes(outputTokenAddress.slice(0, -3))) {
@@ -101,7 +102,7 @@ export const PoolCreateInfo = () => {
         }
       }
     }
-  }, [pools, data])
+  }, [pools, leverageData])
 
   useMemo(() => {
     if (account) {
@@ -117,10 +118,17 @@ export const PoolCreateInfo = () => {
   }, [chainId, provider, poolSettings.pairAddress])
   const { initListPool } = useListPool()
   const { ddlEngine } = useConfigs()
-
+  const [isBarLoading, setIsBarLoading] = useState(false)
   useEffect(() => {
-    initListPool(account, [poolSettings.pairAddress])
-  }, [poolSettings.pairAddress, configs, ddlEngine])
+    setIsBarLoading(true)
+    initListPool(account, poolSettings.baseToken)
+      .then((res) => {
+        setIsBarLoading(false)
+      })
+      .catch((e) => {
+        setIsBarLoading(false)
+      })
+  }, [poolSettings.baseToken, configs, ddlEngine])
 
   const handleCreatePool = async () => {
     const pairAddress = poolSettings.pairAddress
@@ -184,10 +192,10 @@ export const PoolCreateInfo = () => {
               Balance:{' '}
               {balances && balances[poolSettings.reserveToken]
                 ? formatWeiToDisplayNumber(
-                  balances[poolSettings.reserveToken],
-                  4,
+                    balances[poolSettings.reserveToken],
+                    4,
                     tokens[poolSettings.reserveToken]?.decimals || 18
-                )
+                  )
                 : 0}
             </Text>
           </SkeletonLoader>
@@ -307,20 +315,28 @@ export const PoolCreateInfo = () => {
           </div>
         </InfoRow> */}
       </Box>
-
-      {data && data.length > 0 && Object.keys(barData).length > 0 ? (
-        <LeverageSlider
-          setBarData={setBarData}
-          barData={barData}
-          leverageData={data}
-          height={100}
-        />
-      ) : (
-        <div className='no-leverage-chart-box'>
-          <NoDataIcon />
-          <Text> Leverage chart here </Text>
-        </div>
-      )}
+      <SkeletonLoader
+        loading={
+          isBarLoading ||
+          (Object.keys(pools).length > 0 && Object.keys(barData).length === 0)
+        }
+      >
+        {leverageData &&
+        leverageData.length > 0 &&
+        Object.keys(barData).length > 0 ? (
+          <LeverageSlider
+            setBarData={setBarData}
+            barData={barData}
+            leverageData={leverageData}
+            height={100}
+          />
+        ) : (
+          <div className='no-leverage-chart-box'>
+            <NoDataIcon />
+            <Text> Leverage chart here </Text>
+          </div>
+        )}
+      </SkeletonLoader>
 
       <div className='mt-2 mb-1'>
         <div

@@ -18,6 +18,7 @@ export const useGenerateLeverageData = (
   const { getTokenValue } = useTokenValue({})
   const { poolGroups } = useListPool()
   const pools: PoolType = useMemo(() => {
+    console.log('#poolGroups', poolGroups)
     return (pairAddr ? poolGroups[Object.keys(poolGroups)[0]]?.pools : {}) || {}
   }, [pairAddr, poolGroups])
 
@@ -129,5 +130,5 @@ export const useGenerateLeverageData = (
     })
 
     return data
-  }, [amountIn, power, oldLeverageData, poolGroups])
+  }, [amountIn, power, oldLeverageData, poolGroups, pools])
 }

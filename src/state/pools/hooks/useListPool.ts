@@ -1,10 +1,16 @@
 import { useConfigs } from '../../config/useConfigs'
-import { addPoolGroupsWithChain, addPoolsWithChain } from '../reducer'
+import {
+  addPoolGroupsWithChain,
+  addPoolsWithChain,
+  setPoolGroupsWithChain,
+  setPoolsWithChain
+} from '../reducer'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../types'
-import { addTokensReduce } from '../../token/reducer'
+import { addTokensReduce, setTokensReduce } from '../../token/reducer'
 import { useSwapHistory } from '../../wallet/hooks/useSwapHistory'
-import { isEthereumAddress } from '../../../utils/helpers'
+import { TokenType } from 'derivable-tools/dist/types'
+import { isAddress } from 'ethers/lib/utils'
 
 export const useListPool = () => {
   const { poolGroups, pools } = useSelector((state: State) => {
@@ -16,20 +22,67 @@ export const useListPool = () => {
   const { chainId, ddlEngine } = useConfigs()
   const dispatch = useDispatch()
   const { updateSwapTxsHandle } = useSwapHistory()
-
-  const initListPool = async (account: string, poolsAddress: string[] = []) => {
-    const _poolsAddress = poolsAddress.filter((ad) => isEthereumAddress(ad))
-    if (ddlEngine && _poolsAddress.length > 0) {
-      ddlEngine.RESOURCE.getWhiteListResource(_poolsAddress).then(
-        (data: any) => {
-          console.log('#getWhiteListResource', data)
-          dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
-          dispatch(
-            addPoolGroupsWithChain({ poolGroups: data.poolGroups, chainId })
-          )
-          dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
-        }
+  const setNewResource = (data: any, account: string) => {
+    dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
+    dispatch(setPoolGroupsWithChain({ poolGroups: data.poolGroups, chainId }))
+    dispatch(setPoolsWithChain({ pools: data.pools, chainId }))
+  }
+  const initListPool = async (account: string, baseToken?: TokenType) => {
+    if (
+      ddlEngine &&
+      baseToken &&
+      baseToken.address &&
+      isAddress(baseToken.address)
+    ) {
+      console.log('#search-input', baseToken.address)
+      const searchResults = await ddlEngine?.RESOURCE.searchIndex(
+        baseToken.address
       )
+      console.log('#searchResults', searchResults)
+      let poolAddresses: string[] = []
+      Object.keys(searchResults).map((key) => {
+        const poolSearch = searchResults[key]
+        if (poolGroups[key]?.pools) return
+        poolAddresses = [
+          ...poolAddresses,
+          ...poolSearch.pools.map((pool: any) => pool?.poolAddress)
+        ]
+      })
+      if (poolAddresses.length === 0) {
+        return
+      }
+      // eslint-disable-next-line no-unused-expressions
+      ddlEngine?.RESOURCE.generateData({ poolAddresses, transferLogs: [] })
+        .then((data) => {
+          console.log('data')
+          setNewResource(data, account)
+        })
+        .catch((e) => {
+          console.log(e)
+        })
+      // ddlEngine.RESOURCE.searchIndex(baseToken.address).then((_data: any) => {
+      //   const data = _data[Object.keys(_data)[0]]
+      //   console.log('#search', data, _data)
+      //   dispatch(
+      //     addTokensReduce({
+      //       tokens: [...data.pairInfo.token0, ...data.pairInfo.token1],
+      //       chainId
+      //     })
+      //   )
+      //   dispatch(addPoolGroupsWithChain({ poolGroups: data, chainId }))
+      //   dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
+      // })
+      // ddlEngine.RESOURCE.generateData({
+      //   poolAddresses: _poolsAddress,
+      //   transferLogs: []
+      // }).then((data: any) => {
+      //   console.log('#getWhiteListResource', data)
+      //   dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
+      //   dispatch(
+      //     addPoolGroupsWithChain({ poolGroups: data.poolGroups, chainId })
+      //   )
+      //   dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
+      // })
       // ddlEngine.RESOURCE.getResourceCached(account).then((data: any) => {
       //   dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
       //   dispatch(
