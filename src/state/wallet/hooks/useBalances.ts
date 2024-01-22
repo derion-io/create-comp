@@ -97,14 +97,9 @@ export const useWalletBalance = () => {
     }
   }
 
-  const fetchBalanceAndAllowance = async (tokensArr: string[]) => {
+  const fetchBalanceAndAllowance = async (tokens: string[]) => {
     if (!ddlEngine) return
-    const { balances, allowances } = await ddlEngine.BNA.getBalanceAndAllowance({
-      account,
-      tokens: tokensArr,
-      rpcUrl: configs.rpc,
-      chainId: chainId
-    })
+    const { balances, allowances } = await ddlEngine.BNA.getBalanceAndAllowance(tokens)
     updateBalanceAndAllowances({
       balances,
       routerAllowances: {
