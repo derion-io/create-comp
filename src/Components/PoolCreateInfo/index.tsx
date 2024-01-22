@@ -119,6 +119,7 @@ export const PoolCreateInfo = () => {
   const { initListPool } = useListPool()
   const { ddlEngine } = useConfigs()
   const [isBarLoading, setIsBarLoading] = useState(false)
+  const [isDeployPool, setIsDeployPool] = useState(false)
   useEffect(() => {
     setIsBarLoading(true)
     initListPool(account, poolSettings.baseToken)
@@ -131,6 +132,7 @@ export const PoolCreateInfo = () => {
   }, [poolSettings.baseToken, configs, ddlEngine])
 
   const handleCreatePool = async () => {
+    setIsDeployPool(true)
     const pairAddress = poolSettings.pairAddress
     // const settings = {
     //   // pairAddress: '0xC31E54c7a869B9FcBEcc14363CF510d1c41fa443',
@@ -151,7 +153,9 @@ export const PoolCreateInfo = () => {
     if (chainId && provider && pairAddress) {
       const signer = provider.getSigner()
       await deployPool(chainId, provider, signer)
+      setIsDeployPool(false)
     }
+    setIsDeployPool(false)
   }
   const [gasPrice, setGasPrice] = useState<any>(BigNumber.from(10 ** 8))
   const { feeData } = useFeeData()
@@ -497,6 +501,7 @@ export const PoolCreateInfo = () => {
       <ButtonExecute
         className='create-pool-button w-100 mt-1'
         onClick={handleCreatePool}
+        disabled={isDeployPool}
       >
         Deploy New Pool
       </ButtonExecute>
