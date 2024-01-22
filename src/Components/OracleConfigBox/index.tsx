@@ -15,7 +15,7 @@ import { SwapIcon } from '../ui/Icon'
 import { Input } from '../ui/Input'
 import NumberInput from '../ui/Input/InputNumber'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
-import { Text, TextBlue, TextGrey } from '../ui/Text'
+import { Text, TextBlue, TextGrey, TextPink, TextSell } from '../ui/Text'
 import './style.scss'
 export const feeOptions = [100, 300, 500, 1000]
 export const OracleConfigBox = () => {
@@ -309,7 +309,14 @@ export const OracleConfigBox = () => {
 
         <div className='mt-2 mb-1'>
           <Text fontSize={14} fontWeight={600}>
-            Search Keywords
+            Search Keywords{' '}
+            {poolSettings.searchBySymbols[0] !== '' &&
+            poolSettings.searchBySymbols[0] ===
+              poolSettings.searchBySymbols[1] ? (
+              <TextPink>(Duplicated keywords)</TextPink>
+            ) : (
+              ''
+            )}
           </Text>
         </div>
         <div className='grid-container'>

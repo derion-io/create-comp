@@ -297,7 +297,6 @@ export const usePoolSettings = () => {
         newPoolAddress: poolAddress
       })
 
-
       if (R.eq(0)) {
         return []
       }
@@ -455,7 +454,6 @@ export const usePoolSettings = () => {
       return []
     }
   }
-
   const deployPool = async (
     chainID: string,
     provider: ethers.providers.JsonRpcProvider,
