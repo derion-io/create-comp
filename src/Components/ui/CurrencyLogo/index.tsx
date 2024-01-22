@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import './style.scss'
 export const CurrencyLogo = (props: {
   src?: string
@@ -16,7 +16,6 @@ export const CurrencyLogo = (props: {
         width: props.size || 50,
         height: props.size || 50,
         borderRadius: '50%',
-        border: '2px solid gray',
         transition: 'opacity 250ms ease-in 0s'
       }}
       {...props}
