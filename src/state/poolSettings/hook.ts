@@ -22,6 +22,7 @@ import { NUM, bn, numberToWei, parseCallStaticError } from '../../utils/helpers'
 import { State } from '../types'
 import { setPoolSettings } from './reducer'
 import { PoolSettingsType } from './type'
+import { isAddress } from 'ethers/lib/utils'
 
 export const usePoolSettings = () => {
   const { poolSettings } = useSelector((state: State) => {
@@ -58,6 +59,19 @@ export const usePoolSettings = () => {
         interestRate: Number(poolSettings.interestRate) / 100,
         premiumRate: Number(poolSettings.premiumRate) / 100
       }
+      if (!isAddress(poolSettings.pairAddress)) {
+        // throw new Error('Invalid Pool Address')
+        updatePoolSettings({
+          errorMessage: 'Invalid Pool Address'
+        })
+        return []
+      } else if (settings.amountIn === '' || settings.amountIn === '0') {
+        // throw new Error('Invalid Input Amount')
+        updatePoolSettings({
+          errorMessage: 'Invalid Input Amount'
+        })
+        return []
+      }
       const gasPrice = await provider.getGasPrice()
       updatePoolSettings({
         gasPrice: gasPrice
@@ -71,8 +85,8 @@ export const usePoolSettings = () => {
         settings.reserveToken === 'PLD'
           ? configs.derivable.playToken
           : settings.reserveToken === NATIVE_ADDRESS
-          ? configs.wrappedTokenAddress
-          : settings.reserveToken
+            ? configs.wrappedTokenAddress
+            : settings.reserveToken
 
       let uniswapPair = new ethers.Contract(
         settings.pairAddress,
@@ -271,7 +285,7 @@ export const usePoolSettings = () => {
         PoolDeployerAbi,
         deployer
       )
-      const R = ethers.utils.parseEther(String(settings.amountIn))
+      const R = ethers.utils.parseEther(String(settings.amountIn || '0'))
       const initParams = calculateInitParamsFromPrice(config, MARK, R)
       console.log('#configs.helperContract.utr', configs.helperContract.utr)
       const utr = new ethers.Contract(
@@ -445,6 +459,10 @@ export const usePoolSettings = () => {
         gasUsed: gasUsed.toString()
       })
       console.log('#gasUsed', gasPrice, gasUsed)
+
+      updatePoolSettings({
+        errorMessage: ''
+      })
       return params
     } catch (err) {
       console.log('####', err)
@@ -462,7 +480,7 @@ export const usePoolSettings = () => {
   ) => {
     if (provider && deployer) {
       const params = await calculateParamsForPools(chainID, provider, deployer)
-      if (params.length == 0) {
+      if (params && params?.length === 0) {
         return
       }
       const settings = poolSettings
@@ -473,8 +491,8 @@ export const usePoolSettings = () => {
         settings.reserveToken === 'PLD'
           ? configs.derivable.playToken
           : settings.reserveToken === NATIVE_ADDRESS
-          ? configs.wrappedTokenAddress
-          : settings.reserveToken
+            ? configs.wrappedTokenAddress
+            : settings.reserveToken
 
       const utr = new ethers.Contract(
         configs.helperContract.utr,
@@ -487,7 +505,6 @@ export const usePoolSettings = () => {
       //   helperAbi,
       //   deployer
       // )
-
       try {
         const poolDeployer = new ethers.Contract(
           configs.derivable.poolDeployer,
@@ -497,8 +514,8 @@ export const usePoolSettings = () => {
         console.log('#param', params, TOKEN_R != configs.wrappedTokenAddress)
         const tx =
           TOKEN_R != configs.wrappedTokenAddress
-            ? await utr.exec(...params)
-            : await poolDeployer.deploy(...params)
+            ? await utr.exec(...(params || []))
+            : await poolDeployer.deploy(...(params || []))
 
         console.log('Waiting for tx receipt...', tx.hash)
 

@@ -17,9 +17,11 @@ import NumberInput from '../ui/Input/InputNumber'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { Text, TextBlue, TextGrey, TextPink, TextSell } from '../ui/Text'
 import './style.scss'
+import { useWeb3React } from '../../state/customWeb3React/hook'
 export const feeOptions = [100, 300, 500, 1000]
 export const OracleConfigBox = () => {
-  const { poolSettings, updatePoolSettings } = usePoolSettings()
+  const { poolSettings, updatePoolSettings, calculateParamsForPools } =
+    usePoolSettings()
   const { ddlEngine } = useConfigs()
   const [pairInfo, setPairInfo] = useState<string[]>([])
   const [quoteTokenIndex, setQuoteTokenIndex] = useState<0 | 1>(0)
@@ -125,6 +127,7 @@ export const OracleConfigBox = () => {
     }
   }
   const [fetchPairLoading, setFetchPairLoading] = useState(false)
+  const { chainId, provider } = useWeb3React()
   const fetchPairInfo = async () => {
     if (
       ddlEngine &&
@@ -172,7 +175,16 @@ export const OracleConfigBox = () => {
         updatePoolSettings({
           quoteToken,
           baseToken
+          // errorMessage: ''
         })
+        if (
+          token0?.symbol &&
+          token1?.symbol &&
+          isAddress(poolSettings.pairAddress)
+        ) {
+          const signer = provider.getSigner()
+          calculateParamsForPools(chainId, provider, signer)
+        }
         setQuoteTokenIndex(QTI ?? 0)
         setFetchPairLoading(false)
         // setPairInfo1({ pair: poolSettings.pairAddress, ...res })
@@ -194,6 +206,11 @@ export const OracleConfigBox = () => {
         // }
       } catch (error) {
         setFetchPairLoading(false)
+        updatePoolSettings({
+          quoteToken: undefined,
+          baseToken: undefined,
+          errorMessage: 'Invalid Pool Address'
+        })
         console.log('#pair-load-error', error)
         setPairInfo(['Can not get Pair Address Info'])
       }

@@ -1,5 +1,5 @@
 import LeverageSlider from 'leverage-slider/dist/component'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useGenerateLeverageData } from '../../hooks/useGenerateLeverageData'
 import { useTokenValue } from '../../hooks/useTokenValue'
 import { useConfigs } from '../../state/config/useConfigs'
@@ -111,15 +111,23 @@ export const PoolCreateInfo = () => {
   }, [account])
 
   useEffect(() => {
-    if (chainId && provider && poolSettings.pairAddress?.length == 42) {
+    if (chainId && provider) {
       const signer = provider.getSigner()
+      setIsLoadingStaticParam(true)
       calculateParamsForPools(chainId, provider, signer)
+        .then((res) => {
+          setIsLoadingStaticParam(false)
+        })
+        .catch((e) => {
+          setIsLoadingStaticParam(false)
+        })
     }
   }, [chainId, provider, poolSettings.pairAddress])
   const { initListPool } = useListPool()
   const { ddlEngine } = useConfigs()
   const [isBarLoading, setIsBarLoading] = useState(false)
   const [isDeployPool, setIsDeployPool] = useState(false)
+  const [isLoadingStaticParam, setIsLoadingStaticParam] = useState(false)
   useEffect(() => {
     setIsBarLoading(true)
     initListPool(account, poolSettings.baseToken)
@@ -162,6 +170,21 @@ export const PoolCreateInfo = () => {
   useEffect(() => {
     setGasPrice(feeData?.gasPrice ?? 1)
   }, [feeData])
+
+  const handleBlur = () => {
+    const signer = provider.getSigner()
+
+    setIsLoadingStaticParam(true)
+    calculateParamsForPools(chainId, provider, signer)
+      .then((res) => {
+        setIsLoadingStaticParam(false)
+      })
+      .catch((e) => {
+        setIsLoadingStaticParam(false)
+      })
+    // Additional logic you want to perform when input is blurred
+  }
+
   const { settings } = useSettings()
   return (
     <div className='pool-create-info'>
@@ -196,16 +219,17 @@ export const PoolCreateInfo = () => {
               Balance:{' '}
               {balances && balances[poolSettings.reserveToken]
                 ? formatWeiToDisplayNumber(
-                    balances[poolSettings.reserveToken],
-                    4,
+                  balances[poolSettings.reserveToken],
+                  4,
                     tokens[poolSettings.reserveToken]?.decimals || 18
-                  )
+                )
                 : 0}
             </Text>
           </SkeletonLoader>
         </div>
         <Input
           placeholder='0.0'
+          onBlur={handleBlur}
           // suffix={Number(valueIn) > 0 ? <TextGrey>${formatLocalisedCompactNumber(formatFloat(valueIn))}</TextGrey> : ''}
           className='fs-24'
           // @ts-ignore
@@ -218,6 +242,7 @@ export const PoolCreateInfo = () => {
               })
             }
           }}
+          onFo
           suffix={
             Number(value) > 0 ? (
               <TextGrey>
@@ -328,18 +353,18 @@ export const PoolCreateInfo = () => {
         {leverageData &&
         leverageData.length > 0 &&
         Object.keys(barData).length > 0 ? (
-          <LeverageSlider
-            setBarData={setBarData}
-            barData={barData}
-            leverageData={leverageData}
-            height={100}
-          />
-        ) : (
-          <div className='no-leverage-chart-box'>
-            <NoDataIcon />
-            <Text> Leverage chart here </Text>
-          </div>
-        )}
+            <LeverageSlider
+              setBarData={setBarData}
+              barData={barData}
+              leverageData={leverageData}
+              height={100}
+            />
+          ) : (
+            <div className='no-leverage-chart-box'>
+              <NoDataIcon />
+              <Text> Leverage chart here </Text>
+            </div>
+          )}
       </SkeletonLoader>
 
       <div className='mt-2 mb-1'>
@@ -501,11 +526,21 @@ export const PoolCreateInfo = () => {
       <ButtonExecute
         className='create-pool-button w-100 mt-1'
         onClick={handleCreatePool}
-        disabled={isDeployPool}
+        disabled={
+          isLoadingStaticParam ||
+          isDeployPool ||
+          poolSettings.errorMessage?.length !== 0
+        }
       >
-        Deploy New Pool
+        {isLoadingStaticParam
+          ? 'Calculating...'
+          : isDeployPool
+            ? 'Waiting for confirmation...'
+            : poolSettings.errorMessage
+              ? poolSettings.errorMessage
+              : 'Deploy New Pool'}
       </ButtonExecute>
-      <TextPink>{poolSettings.errorMessage}</TextPink>
+      {/* <TextPink>{poolSettings.errorMessage}</TextPink> */}
     </div>
   )
 }
