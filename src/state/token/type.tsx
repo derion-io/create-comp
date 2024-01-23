@@ -13,6 +13,7 @@ export interface TokenType {
   isCustomToken?: boolean
   value?: string
   hideInSearchModal?: boolean
+  logoURI?: string
 }
 
 export type ListTokensType = { [key: string]: TokenType }

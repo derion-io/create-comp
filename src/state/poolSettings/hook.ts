@@ -120,7 +120,7 @@ export const usePoolSettings = () => {
       ])
 
       // detect QTI (quote token index)
-      let QTI
+      let QTI = poolSettings.QTI
       if (QTI == null && symbol0.includes('USD')) {
         QTI = 0
       }
@@ -148,6 +148,7 @@ export const usePoolSettings = () => {
       const prefix = exp == 2 ? '√' : ''
 
       updatePoolSettings({
+        QTI,
         x: String(K)
       })
       const SCAN_API_KEY = {

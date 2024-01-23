@@ -241,11 +241,43 @@ export const sub = (a: any, b: any) => {
   return weiToNumber(BigNumber.from(numberToWei(a)).sub(numberToWei(b)))
 }
 
-export const div = (a: any, b: any) => {
-  if (!b || b.toString() === '0') {
-    return '0'
+export const remDec = (s: string): [string, number] => {
+  const d = countDecimals(s)
+  return [mdp(s, d), d]
+}
+
+export const countDecimals = (s: string): number => {
+  return countDigits(s)[1] ?? 0
+}
+
+export const countDigits = (s: string): number[] => {
+  return s.split('.').map(p => p.length)
+}
+
+export const div = (a: any, b: any, precision: number = 4) => {
+  if (Number?.(b) === 0) return 0
+  a = STR(a, 4)
+  b = STR(b, 4)
+  const [bb, db] = remDec(b)
+  const aa = truncate(mdp(a, db + precision))
+  return mdp(
+    DIV(BIG(aa), BIG(bb)),
+    -precision
+  )
+}
+
+export const DIV = (a: BigNumber, b: BigNumber, precision = 4): string => {
+  const al = a.toString().length
+  const bl = b.toString().length
+  const d = al - bl
+  if (d > 0) {
+    b = b.mul(WEI(1, d))
+  } else if (d < 0) {
+    a = a.mul(WEI(1, -d))
   }
-  return weiToNumber(BigNumber.from(numberToWei(a, 36)).div(numberToWei(b)))
+  a = a.mul(WEI(1, precision))
+  const c = truncate(a.div(b).toString(), 0, true)
+  return mdp(c, d - precision)
 }
 
 export const add = (a: any, b: any) => {
@@ -391,6 +423,13 @@ export const precisionize = (
   }
   return value.toLocaleString(['en-US', 'fullwide'], stringOpts)
 }
+export const thousandsInt = (int: string): string => {
+  const rgx = /(\d+)(\d{3})/;
+	while (rgx.test(int)) {
+		int = int.replace(rgx, '$1' + ',' + '$2');
+  }
+  return int
+}
 export const zerofy = (
   value: number | string,
   opts?: {
@@ -420,10 +459,15 @@ export const zerofy = (
       const fake = int.substring(Math.max(0, int.length - 2)) + '.' + dec
       dec = precisionize(NUM(fake), opts)
       dec = dec.split('.')[1]
+      int = thousandsInt(int)
       if (dec?.length > 0) {
         value = int + '.' + dec
         zeros = dec.match(/^0+/)?.[0]?.length ?? 0
+      } else {
+        value = int
       }
+    } else {
+      value = thousandsInt(value)
     }
   }
   const maxZeros = opts?.maxZeros ?? 3

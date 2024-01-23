@@ -7,7 +7,7 @@ import { useHelper } from '../../state/config/useHelper'
 import { usePoolSettings } from '../../state/poolSettings/hook'
 import { useListTokens } from '../../state/token/hook'
 import { ZERO_ADDRESS } from '../../utils/constant'
-import { bn, unwrap, zerofy } from '../../utils/helpers'
+import { bn, div, unwrap, zerofy } from '../../utils/helpers'
 import { SelectTokenModal } from '../SelectTokenModal'
 import { Box } from '../ui/Box'
 import { CurrencyLogo } from '../ui/CurrencyLogo'
@@ -24,7 +24,6 @@ export const OracleConfigBox = () => {
     usePoolSettings()
   const { ddlEngine } = useConfigs()
   const [pairInfo, setPairInfo] = useState<string[]>([])
-  const [quoteTokenIndex, setQuoteTokenIndex] = useState<0 | 1>(0)
   const [windowTimeSuggest, setWindowTimeSuggest] = useState<string[]>([])
   const [mark, setMark] = useState<string>('')
   const [markSuggest, setMarkSuggest] = useState<string[]>([])
@@ -92,14 +91,14 @@ export const OracleConfigBox = () => {
   }, [poolSettings.pairAddress])
 
   // useEffect(() => {
-  //   const [baseToken, quoteToken] = quoteTokenIndex
+  //   const [baseToken, quoteToken] = poolSettings.QTI
   //     ? [token0, token1]
   //     : [token1, token0]
   //   updatePoolSettings({
   //     quoteToken,
   //     baseToken
   //   })
-  // }, [poolSettings.pairAddress, quoteTokenIndex])
+  // }, [poolSettings.pairAddress, poolSettings.QTI])
 
   // const getPairAddress = async () => {
   //   try {
@@ -150,7 +149,7 @@ export const OracleConfigBox = () => {
         setToken0(_token0)
         setToken1(_token1)
         setFee(fee)
-        let QTI: undefined | 0 | 1
+        let QTI = poolSettings.QTI
         if (QTI == null && _token0.symbol.includes('USD')) {
           QTI = 0
         }
@@ -173,6 +172,7 @@ export const OracleConfigBox = () => {
           ? [_token0, _token1]
           : [_token1, _token0]
         updatePoolSettings({
+          QTI,
           quoteToken,
           baseToken
           // errorMessage: ''
@@ -185,7 +185,6 @@ export const OracleConfigBox = () => {
           const signer = provider.getSigner()
           calculateParamsForPools(chainId, provider, signer)
         }
-        setQuoteTokenIndex(QTI ?? 0)
         setFetchPairLoading(false)
         // setPairInfo1({ pair: poolSettings.pairAddress, ...res })
         // console.log(res)
@@ -217,14 +216,7 @@ export const OracleConfigBox = () => {
     }
   }
 
-  const quoteToken = useMemo(
-    () => (quoteTokenIndex ? token1 : token0),
-    [token0, token1, quoteTokenIndex]
-  )
-  const baseToken = useMemo(
-    () => (quoteTokenIndex ? token0 : token1),
-    [token0, token1, quoteTokenIndex]
-  )
+  const { baseToken, quoteToken } = poolSettings
 
   return (
     <React.Fragment>
@@ -267,7 +259,7 @@ export const OracleConfigBox = () => {
               {baseToken.symbol || 'Base Token'}
             </div>
           </div> */}
-          {fetchPairLoading ? (
+          {(fetchPairLoading || !quoteToken || !baseToken) ? (
             <SkeletonLoader
               height='50px'
               style={{ width: '100%' }}
@@ -275,7 +267,7 @@ export const OracleConfigBox = () => {
             >
               ..
             </SkeletonLoader>
-          ) : quoteToken.symbol && baseToken.symbol ? (
+          ) : quoteToken.symbol && baseToken.symbol && (
             <Fragment>
               <div className='oracle-config__token-wrap'>
                 <div className='oracle-config__token'>
@@ -290,18 +282,19 @@ export const OracleConfigBox = () => {
               </div>
               <div
                 onClick={() => {
-                  setQuoteTokenIndex(quoteTokenIndex ? 0 : 1)
+                  updatePoolSettings({
+                    QTI: poolSettings.QTI ? 0 : 1,
+                    baseToken: poolSettings.quoteToken,
+                    quoteToken: poolSettings.baseToken,
+                    markPrice: div(1, poolSettings.markPrice),
+                  })
                 }}
                 style={{ textAlign: 'center', cursor: 'pointer' }}
               >
                 <SwapIcon />
               </div>
               <SkeletonLoader loading={poolSettings.markPrice === '0'}>
-                {zerofy(
-                  quoteTokenIndex
-                    ? poolSettings.markPrice
-                    : String(1 / Number(poolSettings.markPrice))
-                )}
+                {zerofy(poolSettings.markPrice)}
               </SkeletonLoader>
 
               <TextGrey className='config-fee'>
@@ -311,15 +304,6 @@ export const OracleConfigBox = () => {
                   ? 'Uniswap V2'
                   : ''}
               </TextGrey>
-            </Fragment>
-          ) : (
-            <Fragment>
-              <div className='oracle-config__token-wrap'>
-                <div className='oracle-config__token'>Base Token</div>
-              </div>
-              <div className='oracle-config__token-wrap'>
-                <div className='oracle-config__token'>Quote Token</div>
-              </div>
             </Fragment>
           )}
         </div>
@@ -359,8 +343,8 @@ export const OracleConfigBox = () => {
                   }}
                   placeholder={
                     (key
-                      ? baseToken.symbol?.slice(1)
-                      : baseToken.symbol?.slice(0, -1)) || 'keyword'
+                      ? baseToken?.symbol?.slice(1)
+                      : baseToken?.symbol?.slice(0, -1)) || 'keyword'
                   }
                 />
               </div>

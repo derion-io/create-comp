@@ -25,6 +25,7 @@ export type PoolSettingsType = {
   gasPrice: BigNumber
   baseToken?: TokenType
   quoteToken?: TokenType
+  QTI?: 0 | 1
 }
 
 export const initialState: PoolSettingsType = {
