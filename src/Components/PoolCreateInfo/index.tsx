@@ -344,28 +344,14 @@ export const PoolCreateInfo = () => {
           </div>
         </InfoRow> */}
       </Box>
-      <SkeletonLoader
-        loading={
-          isBarLoading ||
-          (Object.keys(pools).length > 0 && Object.keys(barData).length === 0)
-        }
-      >
-        {leverageData &&
-        leverageData.length > 0 &&
-        Object.keys(barData).length > 0 ? (
-            <LeverageSlider
-              setBarData={setBarData}
-              barData={barData}
-              leverageData={leverageData}
-              height={100}
-            />
-          ) : (
-            <div className='no-leverage-chart-box'>
-              <NoDataIcon />
-              <Text> Leverage chart here </Text>
-            </div>
-          )}
-      </SkeletonLoader>
+      {(leverageData?.length > 1 || (leverageData as { bars: any[] }[])[0].bars.length > 1) && (
+        <LeverageSlider
+          setBarData={setBarData}
+          barData={barData}
+          leverageData={leverageData}
+          height={100}
+        />
+      )}
 
       <div className='mt-2 mb-1'>
         <div
