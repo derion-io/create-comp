@@ -259,52 +259,56 @@ export const OracleConfigBox = () => {
               {baseToken.symbol || 'Base Token'}
             </div>
           </div> */}
-          {(fetchPairLoading || !quoteToken || !baseToken) ? (
+          {fetchPairLoading || !quoteToken || !baseToken ? (
             <SkeletonLoader
               height='50px'
               style={{ width: '100%' }}
               loading={fetchPairLoading}
-            >
-              ..
-            </SkeletonLoader>
-          ) : quoteToken.symbol && baseToken.symbol && (
-            <Fragment>
-              <div className='oracle-config__token-wrap'>
-                <div className='oracle-config__token'>
-                  {baseToken.logoURI && (
-                    <CurrencyLogo currencyURI={baseToken.logoURI} size={24} />
-                  )}
-                  {unwrap(baseToken.symbol)} / {unwrap(quoteToken.symbol)}
-                  {quoteToken.logoURI && (
-                    <CurrencyLogo currencyURI={quoteToken.logoURI} size={24} />
-                  )}
+            />
+          ) : (
+            quoteToken.symbol &&
+            baseToken.symbol && (
+              <Fragment>
+                <div className='oracle-config__token-wrap'>
+                  <div className='oracle-config__token'>
+                    {baseToken.logoURI && (
+                      <CurrencyLogo currencyURI={baseToken.logoURI} size={24} />
+                    )}
+                    {unwrap(baseToken.symbol)} / {unwrap(quoteToken.symbol)}
+                    {quoteToken.logoURI && (
+                      <CurrencyLogo
+                        currencyURI={quoteToken.logoURI}
+                        size={24}
+                      />
+                    )}
+                  </div>
                 </div>
-              </div>
-              <div
-                onClick={() => {
-                  updatePoolSettings({
-                    QTI: poolSettings.QTI ? 0 : 1,
-                    baseToken: poolSettings.quoteToken,
-                    quoteToken: poolSettings.baseToken,
-                    markPrice: div(1, poolSettings.markPrice),
-                  })
-                }}
-                style={{ textAlign: 'center', cursor: 'pointer' }}
-              >
-                <SwapIcon />
-              </div>
-              <SkeletonLoader loading={poolSettings.markPrice === '0'}>
-                {zerofy(poolSettings.markPrice)}
-              </SkeletonLoader>
+                <div
+                  onClick={() => {
+                    updatePoolSettings({
+                      QTI: poolSettings.QTI ? 0 : 1,
+                      baseToken: poolSettings.quoteToken,
+                      quoteToken: poolSettings.baseToken,
+                      markPrice: div(1, poolSettings.markPrice)
+                    })
+                  }}
+                  style={{ textAlign: 'center', cursor: 'pointer' }}
+                >
+                  <SwapIcon />
+                </div>
+                <SkeletonLoader loading={poolSettings.markPrice === '0'}>
+                  {zerofy(poolSettings.markPrice)}
+                </SkeletonLoader>
 
-              <TextGrey className='config-fee'>
-                {fee
-                  ? `Uniswap V3 (${fee / 10_000}% fee)`
-                  : quoteToken?.symbol && baseToken.symbol
-                  ? 'Uniswap V2'
-                  : ''}
-              </TextGrey>
-            </Fragment>
+                <TextGrey className='config-fee'>
+                  {fee
+                    ? `Uniswap V3 (${fee / 10_000}% fee)`
+                    : quoteToken?.symbol && baseToken.symbol
+                    ? 'Uniswap V2'
+                    : ''}
+                </TextGrey>
+              </Fragment>
+            )
           )}
         </div>
 

@@ -65,12 +65,6 @@ export const usePoolSettings = () => {
           errorMessage: 'Invalid Pool Address'
         })
         return []
-      } else if (settings.amountIn === '' || settings.amountIn === '0') {
-        // throw new Error('Invalid Input Amount')
-        updatePoolSettings({
-          errorMessage: 'Invalid Input Amount'
-        })
-        return []
       }
       const gasPrice = await provider.getGasPrice()
       updatePoolSettings({
@@ -85,8 +79,8 @@ export const usePoolSettings = () => {
         settings.reserveToken === 'PLD'
           ? configs.derivable.playToken
           : settings.reserveToken === NATIVE_ADDRESS
-            ? configs.wrappedTokenAddress
-            : settings.reserveToken
+          ? configs.wrappedTokenAddress
+          : settings.reserveToken
 
       let uniswapPair = new ethers.Contract(
         settings.pairAddress,
@@ -118,7 +112,13 @@ export const usePoolSettings = () => {
         ct0.callStatic.symbol(),
         ct1.callStatic.symbol()
       ])
-
+      if (!symbol0 && !symbol1 && !decimals0 && !decimals1) {
+        // throw new Error('Invalid Pool Address')
+        updatePoolSettings({
+          errorMessage: 'Invalid Pool Address'
+        })
+        return []
+      }
       // detect QTI (quote token index)
       let QTI = poolSettings.QTI
       if (QTI == null && symbol0.includes('USD')) {
@@ -260,7 +260,13 @@ export const usePoolSettings = () => {
       updatePoolSettings({
         markPrice: mulDivNum(price, Q128.pow(exp))
       })
-
+      if (settings.amountIn === '' || settings.amountIn === '0') {
+        // throw new Error('Invalid Input Amount')
+        updatePoolSettings({
+          errorMessage: 'Invalid Input Amount'
+        })
+        return []
+      }
       const INTEREST_HL = rateToHL(settings.interestRate, NUM(settings.power))
       const PREMIUM_HL = rateToHL(
         settings.premiumRate ? settings.premiumRate : 0,
