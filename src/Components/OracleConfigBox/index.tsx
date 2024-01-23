@@ -296,17 +296,19 @@ export const OracleConfigBox = () => {
                 >
                   <SwapIcon />
                 </div>
-                <SkeletonLoader loading={poolSettings.markPrice === '0'}>
-                  {zerofy(poolSettings.markPrice)}
-                </SkeletonLoader>
+                <div className='oracle-config__price-type'>
+                  <SkeletonLoader loading={poolSettings.markPrice === '0'}>
+                    {zerofy(poolSettings.markPrice)}
+                  </SkeletonLoader>
 
-                <TextGrey className='config-fee'>
-                  {fee
-                    ? `Uniswap V3 (${fee / 10_000}% fee)`
-                    : quoteToken?.symbol && baseToken.symbol
-                    ? 'Uniswap V2'
-                    : ''}
-                </TextGrey>
+                  <TextGrey className='config-fee'>
+                    {fee
+                      ? `Uniswap V3 (${fee / 10_000}% fee)`
+                      : quoteToken?.symbol && baseToken.symbol
+                      ? 'Uniswap V2'
+                      : ''}
+                  </TextGrey>
+                </div>
               </Fragment>
             )
           )}

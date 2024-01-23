@@ -27,9 +27,14 @@
 
   &__select-token-box {
     display: flex;
-    justify-content: space-between;
     margin-top: 1rem;
     align-items: center;
+  }
+
+  &__price-type {
+    display: flex;
+    justify-content: space-evenly;
+    flex-grow: 1;
   }
 
   &__select-fee-box {
