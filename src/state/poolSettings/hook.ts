@@ -449,7 +449,8 @@ export const usePoolSettings = () => {
     } catch (err) {
       console.log('####', err)
       updatePoolSettings({
-        errorMessage: err?.reason ?? err?.error ?? 'unknown'
+        errorMessage:
+          err?.reason ?? err?.error ?? err?.data?.message ?? 'unknown'
       })
       return []
     }
@@ -472,8 +473,8 @@ export const usePoolSettings = () => {
         settings.reserveToken === 'PLD'
           ? configs.derivable.playToken
           : settings.reserveToken === NATIVE_ADDRESS
-            ? configs.wrappedTokenAddress
-            : settings.reserveToken
+          ? configs.wrappedTokenAddress
+          : settings.reserveToken
 
       const utr = new ethers.Contract(
         configs.helperContract.utr,
@@ -512,7 +513,7 @@ export const usePoolSettings = () => {
         console.log('Gas Used:', rec.gasUsed.toNumber())
         console.log('Logs:', rec.logs)
       } catch (err) {
-        console.error(err.reason ?? err.error ?? err)
+        console.error(parseCallStaticError(err), err.reason ?? err.error ?? err)
         toast.error(parseCallStaticError(err))
       }
     } else {
