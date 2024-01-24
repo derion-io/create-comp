@@ -172,6 +172,7 @@ export const PoolCreateInfo = () => {
   }, [feeData])
 
   const handleBlur = () => {
+    if (!provider) return
     const signer = provider.getSigner()
 
     setIsLoadingStaticParam(true)
@@ -219,10 +220,10 @@ export const PoolCreateInfo = () => {
               Balance:{' '}
               {balances && balances[poolSettings.reserveToken]
                 ? formatWeiToDisplayNumber(
-                  balances[poolSettings.reserveToken],
-                  4,
+                    balances[poolSettings.reserveToken],
+                    4,
                     tokens[poolSettings.reserveToken]?.decimals || 18
-                )
+                  )
                 : 0}
             </Text>
           </SkeletonLoader>
@@ -344,7 +345,8 @@ export const PoolCreateInfo = () => {
           </div>
         </InfoRow> */}
       </Box>
-      {(leverageData?.length > 1 || (leverageData as { bars: any[] }[])[0].bars.length > 1) && (
+      {(leverageData?.length > 1 ||
+        (leverageData as { bars: any[] }[])[0].bars.length > 1) && (
         <LeverageSlider
           setBarData={setBarData}
           barData={barData}
@@ -458,7 +460,9 @@ export const PoolCreateInfo = () => {
                   <TextGrey>Gas Price:&nbsp;</TextGrey>
                   <Text>
                     {bn(gasPrice || 0)?.gte?.(1e6)
-                      ? formatWeiToDisplayNumber(gasPrice.div(1e9), 0, 0) +
+                      ? (Number(chainId) === 42161
+                          ? Number(gasPrice) / 1e9
+                          : formatWeiToDisplayNumber(gasPrice.div(1e9), 0, 0)) +
                         ' gwei'
                       : formatWeiToDisplayNumber(gasPrice, 0, 0) + ' wei'}
                   </Text>
@@ -521,10 +525,10 @@ export const PoolCreateInfo = () => {
         {isLoadingStaticParam
           ? 'Calculating...'
           : isDeployPool
-            ? 'Waiting for confirmation...'
-            : poolSettings.errorMessage
-              ? poolSettings.errorMessage
-              : 'Deploy New Pool'}
+          ? 'Waiting for confirmation...'
+          : poolSettings.errorMessage
+          ? poolSettings.errorMessage
+          : 'Deploy New Pool'}
       </ButtonExecute>
       {/* <TextPink>{poolSettings.errorMessage}</TextPink> */}
     </div>

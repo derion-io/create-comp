@@ -12,6 +12,7 @@ import { TIME_TO_REFRESH_STATE, UNDER_CONSTRUCTION } from '../../utils/constant'
 import { CreatePool } from '../../pages/CreatePool'
 import { useFetchTokenPrice } from '../../state/pools/hooks/useTokenPrice'
 import { UnderConstruction } from '../UnderConstruction'
+import { useFetchFeeData } from '../../state/pools/hooks/useFeeData'
 
 export const App = () => {
   const { tokens } = useListTokens()
@@ -21,7 +22,7 @@ export const App = () => {
   const chainIdRef = useRef(null)
   // const { initListPool } = useListPool()
   useFetchTokenPrice()
-
+  useFetchFeeData()
   // useEffect(() => {
   //   initListPool(account)
   //   const intervalId = setInterval(() => {
