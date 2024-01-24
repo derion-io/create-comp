@@ -424,58 +424,62 @@ export const PoolCreateInfo = () => {
         </InfoRow>
         <InfoRow>
           <TextGrey>Network Fee</TextGrey>
-
-          <Tooltip
-            position='right-bottom'
-            handle={
-              <div>
-                {!nativePrice || !gasPrice || !bn(poolSettings.gasUsed) ? (
-                  <Text>&nbsp;</Text>
-                ) : (
-                  <Text>
-                    {IEW(bn(poolSettings.gasUsed).mul(gasPrice), 18, 5)}
-                    <TextGrey> {configs.nativeSymbol ?? 'ETH'} </TextGrey>
-                    ($
-                    {IEW(
-                      bn(poolSettings.gasUsed)
-                        .mul(gasPrice)
-                        .mul(WEI(nativePrice)),
-                      36,
-                      2
-                    )}
-                    )
-                  </Text>
-                )}
-              </div>
-            }
-            renderContent={() => (
-              <div>
+          <SkeletonLoader loading={isLoadingStaticParam}>
+            <Tooltip
+              position='right-bottom'
+              handle={
                 <div>
-                  <TextGrey>Estimated Gas:&nbsp;</TextGrey>
-                  <Text>
-                    {formatWeiToDisplayNumber(bn(poolSettings.gasUsed), 0, 0)}
-                  </Text>
+                  {!nativePrice || !gasPrice || !bn(poolSettings.gasUsed) ? (
+                    <Text>&nbsp;</Text>
+                  ) : (
+                    <Text>
+                      {IEW(bn(poolSettings.gasUsed).mul(gasPrice), 18, 5)}
+                      <TextGrey> {configs.nativeSymbol ?? 'ETH'} </TextGrey>
+                      ($
+                      {IEW(
+                        bn(poolSettings.gasUsed)
+                          .mul(gasPrice)
+                          .mul(WEI(nativePrice)),
+                        36,
+                        2
+                      )}
+                      )
+                    </Text>
+                  )}
                 </div>
+              }
+              renderContent={() => (
                 <div>
-                  <TextGrey>Gas Price:&nbsp;</TextGrey>
-                  <Text>
-                    {bn(gasPrice || 0)?.gte?.(1e6)
-                      ? (Number(chainId) === 42161
-                          ? Number(gasPrice) / 1e9
-                          : formatWeiToDisplayNumber(gasPrice.div(1e9), 0, 0)) +
-                        ' gwei'
-                      : formatWeiToDisplayNumber(gasPrice, 0, 0) + ' wei'}
-                  </Text>
+                  <div>
+                    <TextGrey>Estimated Gas:&nbsp;</TextGrey>
+                    <Text>
+                      {formatWeiToDisplayNumber(bn(poolSettings.gasUsed), 0, 0)}
+                    </Text>
+                  </div>
+                  <div>
+                    <TextGrey>Gas Price:&nbsp;</TextGrey>
+                    <Text>
+                      {bn(gasPrice || 0)?.gte?.(1e6)
+                        ? (Number(chainId) === 42161
+                            ? Number(gasPrice) / 1e9
+                            : formatWeiToDisplayNumber(
+                                gasPrice.div(1e9),
+                                0,
+                                0
+                              )) + ' gwei'
+                        : formatWeiToDisplayNumber(gasPrice, 0, 0) + ' wei'}
+                    </Text>
+                  </div>
+                  <div>
+                    <TextGrey>{configs.nativeSymbol} Price:&nbsp;</TextGrey>
+                    <Text>
+                      ${formatFloat(nativePrice || configs.nativePriceUSD, 4)}
+                    </Text>
+                  </div>
                 </div>
-                <div>
-                  <TextGrey>{configs.nativeSymbol} Price:&nbsp;</TextGrey>
-                  <Text>
-                    ${formatFloat(nativePrice || configs.nativePriceUSD, 4)}
-                  </Text>
-                </div>
-              </div>
-            )}
-          />
+              )}
+            />
+          </SkeletonLoader>
         </InfoRow>
       </Box>
 
