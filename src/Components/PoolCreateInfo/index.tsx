@@ -67,7 +67,7 @@ export const PoolCreateInfo = () => {
   const [recipient, setRecipient] = useState<string>(ZERO_ADDRESS)
   const [visibleRecipient, setVisibleRecipient] = useState<boolean>(false)
   const { account } = useWeb3React()
-  const { pools } = useListPool()
+  const { pools, poolGroups } = useListPool()
 
   const { configs } = useConfigs()
   const wrappedTokenAddress = configs.wrappedTokenAddress
@@ -95,12 +95,19 @@ export const PoolCreateInfo = () => {
         const leve: any = leverageData[i]
         for (let k = 0; k < leve.bars.length; k++) {
           console.log('#leve-bar', leve.bars[k])
-          // if (leve.bars[k].token.includes(outputTokenAddress.slice(0, -3))) {
-          setBarData(leve.bars[k])
-          //   break
-          // }
+          if (
+            (
+              (poolGroups[Object.keys(poolGroups)[0]]?.allTokens as String[]) ||
+              []
+            ).includes(leve.bars[k].token)
+          ) {
+            setBarData(leve.bars[k])
+            break
+          }
         }
       }
+    } else {
+      setBarData([])
     }
   }, [pools, leverageData])
 
@@ -185,7 +192,14 @@ export const PoolCreateInfo = () => {
       })
     // Additional logic you want to perform when input is blurred
   }
-
+  const leverageCondition = useMemo(() => {
+    const isHavePool =
+      Object.keys(poolGroups).length > 0 || Object.keys(pools).length > 0
+    const isHaveLeverage =
+      leverageData?.length > 1 ||
+      (leverageData as { bars: any[] }[])[0].bars.length > 1
+    return isHaveLeverage && isHavePool
+  }, [poolGroups, pools, leverageData])
   const { settings } = useSettings()
   return (
     <div className='pool-create-info'>
@@ -220,10 +234,10 @@ export const PoolCreateInfo = () => {
               Balance:{' '}
               {balances && balances[poolSettings.reserveToken]
                 ? formatWeiToDisplayNumber(
-                    balances[poolSettings.reserveToken],
-                    4,
+                  balances[poolSettings.reserveToken],
+                  4,
                     tokens[poolSettings.reserveToken]?.decimals || 18
-                  )
+                )
                 : 0}
             </Text>
           </SkeletonLoader>
@@ -345,8 +359,7 @@ export const PoolCreateInfo = () => {
           </div>
         </InfoRow> */}
       </Box>
-      {(leverageData?.length > 1 ||
-        (leverageData as { bars: any[] }[])[0].bars.length > 1) && (
+      {leverageCondition && !isBarLoading && (
         <LeverageSlider
           setBarData={setBarData}
           barData={barData}
@@ -461,12 +474,12 @@ export const PoolCreateInfo = () => {
                     <Text>
                       {bn(gasPrice || 0)?.gte?.(1e6)
                         ? (Number(chainId) === 42161
-                            ? Number(gasPrice) / 1e9
-                            : formatWeiToDisplayNumber(
-                                gasPrice.div(1e9),
-                                0,
-                                0
-                              )) + ' gwei'
+                          ? Number(gasPrice) / 1e9
+                          : formatWeiToDisplayNumber(
+                            gasPrice.div(1e9),
+                            0,
+                            0
+                          )) + ' gwei'
                         : formatWeiToDisplayNumber(gasPrice, 0, 0) + ' wei'}
                     </Text>
                   </div>
@@ -529,10 +542,10 @@ export const PoolCreateInfo = () => {
         {isLoadingStaticParam
           ? 'Calculating...'
           : isDeployPool
-          ? 'Waiting for confirmation...'
-          : poolSettings.errorMessage
-          ? poolSettings.errorMessage
-          : 'Deploy New Pool'}
+            ? 'Waiting for confirmation...'
+            : poolSettings.errorMessage
+              ? poolSettings.errorMessage
+              : 'Deploy New Pool'}
       </ButtonExecute>
       {/* <TextPink>{poolSettings.errorMessage}</TextPink> */}
     </div>

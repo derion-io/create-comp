@@ -23,6 +23,7 @@ export const useListPool = () => {
   const dispatch = useDispatch()
   const { updateSwapTxsHandle } = useSwapHistory()
   const setNewResource = (data: any, account: string) => {
+    console.log('#setNewResource', data)
     dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
     dispatch(setPoolGroupsWithChain({ poolGroups: data.poolGroups, chainId }))
     dispatch(setPoolsWithChain({ pools: data.pools, chainId }))
@@ -49,6 +50,8 @@ export const useListPool = () => {
         ]
       })
       if (poolAddresses.length === 0) {
+        dispatch(setPoolGroupsWithChain({ poolGroups: {}, chainId }))
+        dispatch(setPoolsWithChain({ pools: {}, chainId }))
         return
       }
       // eslint-disable-next-line no-unused-expressions

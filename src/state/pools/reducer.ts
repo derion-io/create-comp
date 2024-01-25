@@ -26,11 +26,7 @@ export const tokens = createSlice({
         chainId: number
       }>
     ) => {
-      if (Object.keys(action.payload.poolGroups ?? {}).length === 0) return
-      state.poolGroups[action.payload.chainId] = {
-        // ...state[action.payload.chainId],
-        ...action.payload.poolGroups
-      }
+      state.poolGroups[action.payload.chainId] = action.payload.poolGroups
     },
     addPoolsWithChain: (
       state,
@@ -52,11 +48,8 @@ export const tokens = createSlice({
         chainId: number
       }>
     ) => {
-      if (Object.keys(action.payload.pools ?? {}).length === 0) return
-      state.pools[action.payload.chainId] = {
-        // ...state[action.payload.chainId],
-        ...action.payload.pools
-      }
+      // if (Object.keys(action.payload.pools ?? {}).length === 0) return
+      state.pools[action.payload.chainId] = action.payload.pools
     },
     addTokenPriceWithChain: (
       state,
