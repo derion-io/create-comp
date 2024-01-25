@@ -142,8 +142,6 @@ export const OracleConfigBox = () => {
         })
         const pairContract = getUniV3PairContract(poolSettings.pairAddress)
         const fee = await pairContract.fee()
-        console.log('#pair-fetch', res, fee)
-        console.log('#q', await formatTokenType(res.token0))
         const _token0 = await formatTokenType(res.token0)
         const _token1 = await formatTokenType(res.token1)
         setToken0(_token0)
@@ -217,7 +215,19 @@ export const OracleConfigBox = () => {
   }
 
   const { baseToken, quoteToken } = poolSettings
-
+  const searchKeyError = useMemo(() => {
+    const isDuplicate =
+      poolSettings.searchBySymbols[0] !== '' &&
+      poolSettings.searchBySymbols[0] === poolSettings.searchBySymbols[1]
+    const isDuplicateBaseSymbol =
+      poolSettings.searchBySymbols[0] === baseToken?.symbol ||
+      poolSettings.searchBySymbols[1] === baseToken?.symbol
+    if (isDuplicate) return 'Duplicated keywords'
+    if (isDuplicateBaseSymbol) {
+      return "Keywords must different from base token's symbol"
+    }
+    return ''
+  }, [baseToken?.symbol, poolSettings.searchBySymbols])
   return (
     <React.Fragment>
       <Box className='oracle-config-box mt-1 mb-2' borderColor='blue'>
@@ -305,8 +315,8 @@ export const OracleConfigBox = () => {
                     {fee
                       ? `Uniswap V3 (${fee / 10_000}% fee)`
                       : quoteToken?.symbol && baseToken.symbol
-                      ? 'Uniswap V2'
-                      : ''}
+                        ? 'Uniswap V2'
+                        : ''}
                   </TextGrey>
                 </div>
               </Fragment>
@@ -317,10 +327,8 @@ export const OracleConfigBox = () => {
         <div className='mt-2 mb-1'>
           <Text fontSize={14} fontWeight={600}>
             Search Keywords{' '}
-            {poolSettings.searchBySymbols[0] !== '' &&
-            poolSettings.searchBySymbols[0] ===
-              poolSettings.searchBySymbols[1] ? (
-              <TextPink>(Duplicated keywords)</TextPink>
+            {searchKeyError.length > 0 ? (
+              <TextPink>({searchKeyError})</TextPink>
             ) : (
               ''
             )}
