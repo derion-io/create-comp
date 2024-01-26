@@ -536,9 +536,10 @@ export const usePoolSettings = () => {
         )
         console.log('Gas Used:', rec.gasUsed.toNumber())
         console.log('Logs:', rec.logs)
-      } catch (err) {
-        console.error(parseCallStaticError(err), err.reason ?? err.error ?? err)
-        toast.error(parseCallStaticError(err))
+      } catch (e) {
+        toast.error(e?.reason ?? e?.message ?? 'Transaction Failed')
+        // console.error(parseCallStaticError(err), err.reason ?? err.error ?? err)
+        // toast.error(parseCallStaticError(err))
       }
     } else {
       toast.error('Please connect the wallet')
