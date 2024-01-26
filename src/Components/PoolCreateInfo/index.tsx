@@ -334,9 +334,8 @@ export const PoolCreateInfo = () => {
             }}
             width='100%'
             value={recipient}
-            placeholder={!account ? 'Logged In Wallet' : truncateAddress(account, { nPrefix: 8, nSuffix: 8 })}
+            placeholder={account ?? 'Logged In Wallet'}
             onChange={(e) => {
-              // @ts-ignore
               setRecipient((e.target as HTMLInputElement).value)
             }}
           />
