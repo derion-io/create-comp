@@ -14,6 +14,7 @@ import formatLocalisedCompactNumber, {
 } from '../../utils/formatBalance'
 import {
   IEW,
+  STR,
   WEI,
   bn,
   formatFloat,
@@ -74,12 +75,12 @@ export const PoolCreateInfo = () => {
   const wrappedTokenAddress = configs.wrappedTokenAddress
   const leverageData = useGenerateLeverageData(
     poolSettings.pairAddress,
-    poolSettings.power.toString(),
-    poolSettings.amountIn.toString()
+    STR(poolSettings.power),
+    STR(poolSettings.amountIn ?? 0),
   )
   console.log('#leverageData', leverageData)
   const { value } = useTokenValue({
-    amount: poolSettings.amountIn.toString(),
+    amount: STR(poolSettings.amountIn ?? 0),
     tokenAddress:
       poolSettings.reserveToken || NATIVE_ADDRESS || wrappedTokenAddress
     // NATIVE_ADDRESS
@@ -244,21 +245,18 @@ export const PoolCreateInfo = () => {
           </SkeletonLoader>
         </div>
         <Input
-          placeholder='0.0'
+          placeholder='Initial Liquidity'
           onBlur={handleBlur}
           // suffix={Number(valueIn) > 0 ? <TextGrey>${formatLocalisedCompactNumber(formatFloat(valueIn))}</TextGrey> : ''}
           className='fs-24'
-          // @ts-ignore
           value={poolSettings.amountIn}
           onChange={(e) => {
-            // @ts-ignore
             if (Number(e.target.value) >= 0) {
               updatePoolSettings({
                 amountIn: (e.target as HTMLInputElement).value
               })
             }
           }}
-          onFo
           suffix={
             Number(value) > 0 ? (
               <TextGrey>

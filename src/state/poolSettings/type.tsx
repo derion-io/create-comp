@@ -13,7 +13,7 @@ export type PoolSettingsType = {
   closingFeeDuration: string
   closingFee: string
   openingFee: string
-  amountIn: string | string
+  amountIn?: string
   reserveToken: string
   errorMessage?: string
   searchBySymbols: string[]
@@ -39,7 +39,6 @@ export const initialState: PoolSettingsType = {
   openingFee: '0',
   closingFee: '0.3',
   closingFeeDuration: '24',
-  amountIn: '0',
   reserveToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
   // reserveToken: ''0xBa95100a0c3abaD1e10414Be77347D3D0900D8c2'', // PlayDerivable
   errorMessage: '',
