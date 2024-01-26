@@ -60,7 +60,8 @@
     "redux": "^4.1.1",
     "redux-localstorage-simple": "^2.4.1",
     "redux-thunk": "^2.3.0",
-    "swr": "^2.0.0"
+    "swr": "^2.0.0",
+    "truncate-ethereum-address": "^0.3.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^4.2.4",

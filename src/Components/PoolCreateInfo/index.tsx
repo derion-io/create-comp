@@ -38,7 +38,8 @@ import { useFeeData } from '../../state/pools/hooks/useFeeData'
 import { BigNumber } from 'ethers'
 import Tooltip from '../Tooltip/Tooltip'
 import { useSettings } from '../../state/setting/hooks/useSettings'
-import { OBJECT } from 'swr/_internal'
+import { truncate as truncateAddress } from 'truncate-ethereum-address';
+
 function numSplit(v: string) {
   return (
     <div>
@@ -64,7 +65,7 @@ export const PoolCreateInfo = () => {
   const [barData, setBarData] = useState<any>({})
   const { tokens } = useListTokens()
   const { balances } = useWalletBalance()
-  const [recipient, setRecipient] = useState<string>(ZERO_ADDRESS)
+  const [recipient, setRecipient] = useState<string>("")
   const [visibleRecipient, setVisibleRecipient] = useState<boolean>(false)
   const { account } = useWeb3React()
   const { pools, poolGroups } = useListPool()
@@ -111,11 +112,11 @@ export const PoolCreateInfo = () => {
     }
   }, [pools, leverageData])
 
-  useMemo(() => {
-    if (account) {
-      setRecipient(account)
-    }
-  }, [account])
+  // useMemo(() => {
+  //   if (account) {
+  //     setRecipient(account)
+  //   }
+  // }, [account])
 
   useEffect(() => {
     if (chainId && provider) {
@@ -280,33 +281,7 @@ export const PoolCreateInfo = () => {
             : ''}
         </TextBlue>
         <InfoRow>
-          <TextGrey style={{ marginTop: '2px' }}>Balance</TextGrey>
-          <span className={`delta-box ${!poolSettings.amountIn && 'no-data'}`}>
-            <div className='text-left' />
-            {poolSettings.amountIn && (
-              <div className='text-right'>
-                {value && parseFloat(poolSettings.amountIn.toString()) > 0 ? (
-                  <Text>
-                    {numSplit(
-                      formatLocalisedCompactNumber(
-                        formatFloat(poolSettings.amountIn)
-                      )
-                    )}
-                    {/* <Text>
-                      <TokenSymbol token={tokens[poolSettings.reserveToken]} />
-                    </Text> */}
-                    {/* {' ($'} */}
-                    {/* {formatLocalisedCompactNumber(formatFloat(value)) + ')'} */}
-                  </Text>
-                ) : (
-                  ''
-                )}
-              </div>
-            )}
-          </span>
-        </InfoRow>
-        <InfoRow>
-          <TextGrey>Value</TextGrey>
+          <TextGrey>Initial Liquidity</TextGrey>
           <span className={`delta-box ${!poolSettings.amountIn && 'no-data'}`}>
             <div className='text-left' />
             {poolSettings.amountIn && (
@@ -332,32 +307,16 @@ export const PoolCreateInfo = () => {
             )}
           </span>
         </InfoRow>
-
         <InfoRow>
-          <TextGrey>Expiration</TextGrey>
-          <div className={`delta-box ${!poolSettings.amountIn && 'no-data'}`}>
-            <div className='text-left' />
-            {poolSettings.amountIn && (
-              <div className='text-right'>
-                <Text>
-                  {poolSettings.closingFeeDuration}{' '}
-                  <span className='position-delta--left'>hr(s)</span>
-                </Text>
-              </div>
-            )}
-          </div>
+          <TextGrey>New Pool Address</TextGrey>
+          <SkeletonLoader loading={isLoadingStaticParam}>
+            <Tooltip
+                position='right-top'
+                handle={<Text>{truncateAddress(poolSettings.newPoolAddress ?? '', { nPrefix: 8, nSuffix: 8 })}</Text>}
+                renderContent={() => (<Text>{poolSettings.newPoolAddress}</Text>)}
+              />
+          </SkeletonLoader>
         </InfoRow>
-
-        {/* <InfoRow>
-          <TextGrey>Mark Price</TextGrey>
-          <div className={`delta-box ${!poolSettings.amountIn && 'no-data'}`}>
-            <div className='text-right'>
-              <SkeletonLoader loading={poolSettings.markPrice === '0'}>
-                <Text>{numSplit('$' + String(poolSettings.markPrice))}</Text>
-              </SkeletonLoader>
-            </div>
-          </div>
-        </InfoRow> */}
       </Box>
       {leverageCondition && !isBarLoading && (
         <LeverageSlider
@@ -387,7 +346,7 @@ export const PoolCreateInfo = () => {
             }}
             width='100%'
             value={recipient}
-            placeholder='Current Connected Address'
+            placeholder={account}
             onChange={(e) => {
               // @ts-ignore
               setRecipient((e.target as HTMLInputElement).value)
@@ -395,104 +354,63 @@ export const PoolCreateInfo = () => {
           />
         )}
       </div>
-      <Box borderColor='default' className='swap-info-box mt-1 mb-1 p-1'>
-        <InfoRow>
-          <TextGrey>Liquidity</TextGrey>
-          <span />
-        </InfoRow>
-        <InfoRow>
-          <TextGrey>Full Leverage Range</TextGrey>
-          <span />
-        </InfoRow>
-        <InfoRow>
-          <TextGrey>LP Funding Yield</TextGrey>
-          <span />
-        </InfoRow>
-        <div
-          style={{
-            background: '#3a3a3a',
-            height: '0.2px',
-            marginTop: '5px',
-            marginBottom: '5px'
-          }}
-        />
-        <InfoRow>
-          <TextGrey>Position Vesting</TextGrey>
-          <span>{poolSettings.vesting}</span>
-        </InfoRow>
-        <InfoRow>
-          <TextGrey>Closing Fee</TextGrey>
-          <span>{poolSettings.closingFee}</span>
-        </InfoRow>
-      </Box>
-      {/* <TxFee
-        gasUsed={gasUsed}
-        payoffRate={payoffRate}
-        loading={loading && Number(amountIn) > 0}
-      /> */}
       <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
         <InfoRow>
-          <TextGrey>Max Slippage</TextGrey>
-          <Text>{settings.slippageTolerance || 1}%</Text>
-        </InfoRow>
-        <InfoRow>
           <TextGrey>Network Fee</TextGrey>
-          <SkeletonLoader loading={isLoadingStaticParam}>
-            <Tooltip
-              position='right-bottom'
-              handle={
-                <div>
-                  {!nativePrice || !gasPrice || !bn(poolSettings.gasUsed) ? (
-                    <Text>&nbsp;</Text>
-                  ) : (
-                    <Text>
-                      {IEW(bn(poolSettings.gasUsed).mul(gasPrice), 18, 5)}
-                      <TextGrey> {configs.nativeSymbol ?? 'ETH'} </TextGrey>
-                      ($
-                      {IEW(
-                        bn(poolSettings.gasUsed)
-                          .mul(gasPrice)
-                          .mul(WEI(nativePrice)),
-                        36,
-                        2
-                      )}
-                      )
-                    </Text>
-                  )}
-                </div>
-              }
-              renderContent={() => (
-                <div>
+          {!nativePrice || !gasPrice || bn(poolSettings.gasUsed).isZero() ? (
+            <Text>&nbsp;</Text>
+          ) : (
+            <SkeletonLoader loading={isLoadingStaticParam}>
+              <Tooltip
+                position='right-bottom'
+                handle={
+                  <Text>
+                    {IEW(bn(poolSettings.gasUsed).mul(gasPrice), 18, 5)}
+                    <TextGrey> {configs.nativeSymbol ?? 'ETH'} </TextGrey>
+                    ($
+                    {IEW(
+                      bn(poolSettings.gasUsed)
+                        .mul(gasPrice)
+                        .mul(WEI(nativePrice)),
+                      36,
+                      2
+                    )}
+                    )
+                  </Text>
+                }
+                renderContent={() => (
                   <div>
-                    <TextGrey>Estimated Gas:&nbsp;</TextGrey>
-                    <Text>
-                      {formatWeiToDisplayNumber(bn(poolSettings.gasUsed), 0, 0)}
-                    </Text>
+                    <div>
+                      <TextGrey>Estimated Gas:&nbsp;</TextGrey>
+                      <Text>
+                        {formatWeiToDisplayNumber(bn(poolSettings.gasUsed), 0, 0)}
+                      </Text>
+                    </div>
+                    <div>
+                      <TextGrey>Gas Price:&nbsp;</TextGrey>
+                      <Text>
+                        {bn(gasPrice || 0)?.gte?.(1e6)
+                          ? (Number(chainId) === 42161
+                              ? Number(gasPrice) / 1e9
+                              : formatWeiToDisplayNumber(
+                                  gasPrice.div(1e9),
+                                  0,
+                                  0
+                                )) + ' gwei'
+                          : formatWeiToDisplayNumber(gasPrice, 0, 0) + ' wei'}
+                      </Text>
+                    </div>
+                    <div>
+                      <TextGrey>{configs.nativeSymbol} Price:&nbsp;</TextGrey>
+                      <Text>
+                        ${formatFloat(nativePrice || configs.nativePriceUSD, 4)}
+                      </Text>
+                    </div>
                   </div>
-                  <div>
-                    <TextGrey>Gas Price:&nbsp;</TextGrey>
-                    <Text>
-                      {bn(gasPrice || 0)?.gte?.(1e6)
-                        ? (Number(chainId) === 42161
-                            ? Number(gasPrice) / 1e9
-                            : formatWeiToDisplayNumber(
-                                gasPrice.div(1e9),
-                                0,
-                                0
-                              )) + ' gwei'
-                        : formatWeiToDisplayNumber(gasPrice, 0, 0) + ' wei'}
-                    </Text>
-                  </div>
-                  <div>
-                    <TextGrey>{configs.nativeSymbol} Price:&nbsp;</TextGrey>
-                    <Text>
-                      ${formatFloat(nativePrice || configs.nativePriceUSD, 4)}
-                    </Text>
-                  </div>
-                </div>
-              )}
-            />
-          </SkeletonLoader>
+                )}
+              />
+            </SkeletonLoader>
+          )}
         </InfoRow>
       </Box>
 
@@ -547,9 +465,6 @@ export const PoolCreateInfo = () => {
           ? poolSettings.errorMessage
           : 'Deploy New Pool'}
       </ButtonExecute>
-      <Box style={{ width: '100%', marginTop: '1rem', textAlign: 'center' }}>
-        <TextGrey>{!isDeployPool ? poolSettings.newPoolAddress : ''}</TextGrey>
-      </Box>
     </div>
   )
 }

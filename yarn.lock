@@ -1602,9 +1602,9 @@
     bech32 "1.1.4"
     ws "7.4.6"
 
-"@ethersproject/providers@https://gitpkg.now.sh/derivable-labs/ethers.js/packages/providers?master":
+"@ethersproject/providers@https://gitpkg.now.sh/derivable-labs/ethers.js/packages/providers?v5.3.5.0":
   version "5.5.2"
-  resolved "https://gitpkg.now.sh/derivable-labs/ethers.js/packages/providers?master#b08c9914f8e5464b759cab60589883692242cd71"
+  resolved "https://gitpkg.now.sh/derivable-labs/ethers.js/packages/providers?v5.3.5.0#9c83e26a9160d0308c105ceda3c4e4d48b372555"
   dependencies:
     "@ethersproject/abstract-provider" "^5.5.0"
     "@ethersproject/abstract-signer" "^5.5.0"
@@ -5197,7 +5197,7 @@ depd@~1.1.2:
   version "1.0.0"
   resolved "git+ssh://git@github.com:derivable-labs/derivable-tools.git#97e91ef7eb11a3ca22a9093782359ce43ad373a8"
   dependencies:
-    "@ethersproject/providers" "https://gitpkg.now.sh/derivable-labs/ethers.js/packages/providers?master"
+    "@ethersproject/providers" "https://gitpkg.now.sh/derivable-labs/ethers.js/packages/providers?v5.3.5.0"
     "@zoltu/ethereum-crypto" "^2.3.0"
     "@zoltu/ethereum-fetch-json-rpc" "^13.1.4"
     "@zoltu/ethereum-types" "^9.0.4"
@@ -13177,6 +13177,11 @@ trim-repeated@^1.0.0:
   integrity sha512-pkonvlKk8/ZuR0D5tLW8ljt5I8kmxp2XKymhepUeOdCEfKpZaktSArkLHZt76OB1ZvO9bssUsDty4SWhLvZpLg==
   dependencies:
     escape-string-regexp "^1.0.2"
+
+truncate-ethereum-address@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/truncate-ethereum-address/-/truncate-ethereum-address-0.3.0.tgz#0b006841f7fc03208858e0c5f9fe760469d7f0d3"
+  integrity sha512-PVuWuCS2iL4U8X8G+uweD5aILFVjV03U6zIBXteahEhDKRrql35kwXsW6aDLPz4lOQdTe5CMIqdodoY5AEeedA==
 
 ts-pnp@1.1.6:
   version "1.1.6"

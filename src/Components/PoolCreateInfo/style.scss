@@ -85,21 +85,24 @@
       padding: 0.2rem;
     }
   }
-}
 
-.position-delta--right {
-  text-align: right;
-  &>div {
-    display: flex;
-    align-items: center;
-    justify-content: end;
+  .position-delta--right {
+    text-align: right;
+    &>div {
+      display: flex;
+      align-items: center;
+      justify-content: end;
+    }
   }
-}
-.config-input-create-config{
-  width: 100% !important;
-  padding: 0.5rem 0.75rem !important;
-}
-.position-delta--left {
-  text-align: left;
-  color: #9CA3AF;
+  .config-input-create-config{
+    width: 100% !important;
+    padding: 0.5rem 0.75rem !important;
+  }
+  .position-delta--left {
+    text-align: left;
+    color: #9CA3AF;
+  }
+  .swap-info-box {
+    padding: 1rem;
+  }
 }
