@@ -27,7 +27,7 @@ import {
 import { TxFee } from '../TxFee'
 import { Box } from '../ui/Box'
 import { ButtonExecute } from '../ui/Button'
-import { NoDataIcon } from '../ui/Icon'
+import { IconArrowDown, NoDataIcon } from '../ui/Icon'
 import { Input } from '../ui/Input'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { Text, TextBlue, TextGrey, TextPink } from '../ui/Text'
@@ -39,7 +39,7 @@ import { useFeeData } from '../../state/pools/hooks/useFeeData'
 import { BigNumber } from 'ethers'
 import Tooltip from '../Tooltip/Tooltip'
 import { useSettings } from '../../state/setting/hooks/useSettings'
-import { truncate as truncateAddress } from 'truncate-ethereum-address';
+import { truncate as truncateAddress } from 'truncate-ethereum-address'
 
 function numSplit(v: string) {
   return (
@@ -66,7 +66,7 @@ export const PoolCreateInfo = () => {
   const [barData, setBarData] = useState<any>({})
   const { tokens } = useListTokens()
   const { balances } = useWalletBalance()
-  const [recipient, setRecipient] = useState<string>("")
+  const [recipient, setRecipient] = useState<string>('')
   const [visibleRecipient, setVisibleRecipient] = useState<boolean>(false)
   const { account } = useWeb3React()
   const { pools, poolGroups } = useListPool()
@@ -76,7 +76,7 @@ export const PoolCreateInfo = () => {
   const leverageData = useGenerateLeverageData(
     poolSettings.pairAddress,
     STR(poolSettings.power),
-    STR(poolSettings.amountIn ?? 0),
+    STR(poolSettings.amountIn ?? 0)
   )
   console.log('#leverageData', leverageData)
   const { value } = useTokenValue({
@@ -268,7 +268,11 @@ export const PoolCreateInfo = () => {
           }
         />
       </div>
-
+      {poolSettings?.baseToken?.symbol && poolSettings?.quoteToken?.symbol && (
+        <div className='pl-5 mt-1 mb-2'>
+          <IconArrowDown fill='#01A7FA' />
+        </div>
+      )}
       <Box borderColor='blue' className='estimate-box swap-info-box mt-2 mb-2'>
         <TextBlue className='estimate-box__title liquidity'>
           Liquidity {poolSettings.power}x{' '}
@@ -309,10 +313,17 @@ export const PoolCreateInfo = () => {
           <TextGrey>New Pool Address</TextGrey>
           <SkeletonLoader loading={isLoadingStaticParam}>
             <Tooltip
-                position='right-top'
-                handle={<Text>{truncateAddress(poolSettings.newPoolAddress ?? '', { nPrefix: 8, nSuffix: 8 })}</Text>}
-                renderContent={() => (<Text>{poolSettings.newPoolAddress}</Text>)}
-              />
+              position='right-top'
+              handle={
+                <Text>
+                  {truncateAddress(poolSettings.newPoolAddress ?? '', {
+                    nPrefix: 8,
+                    nSuffix: 8
+                  })}
+                </Text>
+              }
+              renderContent={() => <Text>{poolSettings.newPoolAddress}</Text>}
+            />
           </SkeletonLoader>
         </InfoRow>
       </Box>
@@ -368,7 +379,11 @@ export const PoolCreateInfo = () => {
                     <div>
                       <TextGrey>Estimated Gas:&nbsp;</TextGrey>
                       <Text>
-                        {formatWeiToDisplayNumber(bn(poolSettings.gasUsed), 0, 0)}
+                        {formatWeiToDisplayNumber(
+                          bn(poolSettings.gasUsed),
+                          0,
+                          0
+                        )}
                       </Text>
                     </div>
                     <div>
