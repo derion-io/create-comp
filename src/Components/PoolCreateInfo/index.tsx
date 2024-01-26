@@ -327,34 +327,22 @@ export const PoolCreateInfo = () => {
         />
       )}
 
-      <div className='mt-2 mb-1'>
-        <div
-          className='recipient-box'
-          onClick={() => {
-            setVisibleRecipient(!visibleRecipient)
-          }}
-        >
-          <TextBlue fontSize={14}>Add Recipient</TextBlue>
-          <TextBlue className='btn-toggle' fontSize={14}>
-            {visibleRecipient ? '-' : '+'}
-          </TextBlue>
-        </div>
-        {visibleRecipient && (
+      <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
+        <InfoRow>
+          <TextGrey>Recipient</TextGrey>
           <Input
             inputWrapProps={{
-              className: 'config-input-create-config'
+              className: 'recipient-input'
             }}
             width='100%'
             value={recipient}
-            placeholder={account}
+            placeholder={!account ? 'Logged In Wallet' : truncateAddress(account, { nPrefix: 8, nSuffix: 8 })}
             onChange={(e) => {
               // @ts-ignore
               setRecipient((e.target as HTMLInputElement).value)
             }}
           />
-        )}
-      </div>
-      <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
+        </InfoRow>
         <InfoRow>
           <TextGrey>Network Fee</TextGrey>
           {!nativePrice || !gasPrice || bn(poolSettings.gasUsed).isZero() ? (
