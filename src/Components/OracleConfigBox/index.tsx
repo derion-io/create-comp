@@ -222,9 +222,9 @@ export const OracleConfigBox = () => {
     const isDuplicateBaseSymbol =
       poolSettings.searchBySymbols[0] === baseToken?.symbol ||
       poolSettings.searchBySymbols[1] === baseToken?.symbol
-    if (isDuplicate) return 'Duplicated keywords'
+    if (isDuplicate) return '(Duplicated)'
     if (isDuplicateBaseSymbol) {
-      return "Keywords must different from base token's symbol"
+      return "(Same with base token symbol)"
     }
     return ''
   }, [baseToken?.symbol, poolSettings.searchBySymbols])
@@ -326,9 +326,9 @@ export const OracleConfigBox = () => {
 
         <div className='mt-2 mb-1'>
           <Text fontSize={14} fontWeight={600}>
-            Search Keywords{' '}
+            Additional Search Keywords{' '}
             {searchKeyError.length > 0 ? (
-              <TextPink>({searchKeyError})</TextPink>
+              <TextSell>{searchKeyError}</TextSell>
             ) : (
               ''
             )}
