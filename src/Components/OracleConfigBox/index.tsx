@@ -505,8 +505,8 @@ export const OracleConfigBox = () => {
             inputWrapProps={{
               className: 'config-input'
             }}
-            placeholder='0.0'
-            value={String(poolSettings.openingFee)}
+            placeholder='0'
+            value={poolSettings.openingFee}
             onValueChange={(e) => {
               // @ts-ignore
               if (Number(e.target.value) >= 0) {

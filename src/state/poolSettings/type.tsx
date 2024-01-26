@@ -12,7 +12,7 @@ export type PoolSettingsType = {
   vesting: string
   closingFeeDuration: string
   closingFee: string
-  openingFee: string
+  openingFee?: string
   amountIn?: string
   reserveToken: string
   errorMessage?: string
@@ -36,7 +36,6 @@ export const initialState: PoolSettingsType = {
   searchBySymbols: ['', ''],
   premiumRate: '0.3',
   vesting: '60',
-  openingFee: '0',
   closingFee: '0.3',
   closingFeeDuration: '24',
   reserveToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
