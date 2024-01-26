@@ -447,7 +447,7 @@ export const OracleConfigBox = () => {
               })
               // }
             }}
-            suffix='%/24h'
+            suffix='%/day'
             // suffix={
             //   poolSettings.interestRate !== '0'
             //     ? (
@@ -481,7 +481,7 @@ export const OracleConfigBox = () => {
                 })
               }
             }}
-            suffix='%/24h'
+            suffix='%/day'
             // suffix={
             //   (
             //     rateToHL(
