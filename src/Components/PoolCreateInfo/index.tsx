@@ -77,7 +77,7 @@ export const PoolCreateInfo = () => {
   console.log('#leverageData', leverageData)
   const { value } = useTokenValue({
     amount: STR(poolSettings.amountIn ?? 0),
-    tokenAddress: inputTokenAddress,
+    tokenAddress: inputTokenAddress
   })
 
   // useMemo(() => {
@@ -262,12 +262,16 @@ export const PoolCreateInfo = () => {
           }
         />
       </div>
-      {poolSettings?.baseToken?.symbol && poolSettings?.quoteToken?.symbol && (
-        <div className='pl-5 mt-1 mb-2'>
-          <IconArrowDown fill='#01A7FA' />
-        </div>
-      )}
-      <Box borderColor='blue' className='estimate-box swap-info-box mt-2 mb-2'>
+      <div className='pl-5 mt-1 mb-2'>
+        <IconArrowDown fill='#01A7FA' />
+      </div>
+      <Box
+        borderColor='blue'
+        style={{
+          fontSize: '1.6rem'
+        }}
+        className='estimate-box swap-info-box mt-2 mb-2'
+      >
         <TextBlue className='estimate-box__title liquidity'>
           Liquidity {poolSettings.power}x{' '}
           {poolSettings?.baseToken?.symbol && poolSettings?.quoteToken?.symbol
@@ -277,7 +281,7 @@ export const PoolCreateInfo = () => {
             : ''}
         </TextBlue>
         <InfoRow>
-          <TextGrey>Initial Liquidity</TextGrey>
+          <TextGrey className='estimate-box__text'>Initial Liquidity</TextGrey>
           <span className={`delta-box ${!poolSettings.amountIn && 'no-data'}`}>
             <div className='text-left' />
             {poolSettings.amountIn && (
@@ -304,7 +308,7 @@ export const PoolCreateInfo = () => {
           </span>
         </InfoRow>
         <InfoRow>
-          <TextGrey>New Pool Address</TextGrey>
+          <TextGrey className='estimate-box__text'>New Pool Address</TextGrey>
           <SkeletonLoader loading={isLoadingStaticParam}>
             <Tooltip
               position='right-top'
@@ -465,11 +469,7 @@ export const PoolCreateInfo = () => {
 
 const InfoRow = (props: any) => {
   return (
-    <div
-      className={
-        'd-flex jc-space-between info-row font-size-12 ' + props.className
-      }
-    >
+    <div className={'d-flex jc-space-between info-row ' + props.className}>
       {props.children}
     </div>
   )

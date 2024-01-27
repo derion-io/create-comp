@@ -37,15 +37,20 @@
 
   .estimate-box {
     position: relative;
-    padding: 1.5rem;
+    padding: 1rem;
+    padding-top: 1.5rem!important;
 
+    &__text {
+      font-size: 1.6rem;
+    }
 
     &__title {
  
       position: absolute;
       display: block;
-      transform: translateY(calc(-50% - 1.5rem));
-      left: 2rem;
+      font-size: 1.6rem;
+      transform: translateY(calc(-70% - 1.5rem));
+      left: 3rem;
       padding: 0.5rem;
       background: $color-card-bg;
       border: 1px solid $color-blue;
