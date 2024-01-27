@@ -8,7 +8,7 @@ import { useWeb3React } from '../../state/customWeb3React/hook'
 import { ToastContainer } from 'react-toastify'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useListPool } from '../../state/pools/hooks/useListPool'
-import { TIME_TO_REFRESH_STATE, UNDER_CONSTRUCTION } from '../../utils/constant'
+import { UNDER_CONSTRUCTION } from '../../utils/constant'
 import { CreatePool } from '../../pages/CreatePool'
 import { useFetchTokenPrice } from '../../state/pools/hooks/useTokenPrice'
 import { UnderConstruction } from '../UnderConstruction'
@@ -17,8 +17,8 @@ import { useFetchFeeData } from '../../state/pools/hooks/useFeeData'
 export const App = () => {
   const { tokens } = useListTokens()
   const { fetchBalanceAndAllowance } = useWalletBalance()
-  const { account } = useWeb3React()
-  const { ddlEngine, chainId, location, configs } = useConfigs()
+  const { chainId } = useWeb3React()
+  const { location, ddlEngine } = useConfigs()
   const chainIdRef = useRef(null)
   // const { initListPool } = useListPool()
   useFetchTokenPrice()
@@ -32,10 +32,8 @@ export const App = () => {
   // }, [ddlEngine, configs.name])
 
   useEffect(() => {
-    if (account && Object.keys(tokens).length > 0) {
-      fetchBalanceAndAllowance(Object.keys(tokens))
-    }
-  }, [account, tokens])
+    fetchBalanceAndAllowance(Object.keys(tokens))
+  }, [ddlEngine, tokens])
 
   const renderAppContent = () => {
     switch (true) {

@@ -6,6 +6,7 @@ import {
   initialState
 } from './type'
 import _ from 'lodash'
+import { ZERO_ADDRESS } from '../../utils/constant'
 
 export const tokens = createSlice({
   name: 'wallet',
@@ -39,23 +40,29 @@ export const tokens = createSlice({
     updateBalanceAndAllowancesReduce: (
       state,
       action: PayloadAction<{
+        chainId: number,
+        account: string,
         balances: BalancesType,
         routerAllowances: AllowancesType,
-        account: string,
       }>
     ) => {
-      if (action.payload.account !== state.account) {
-        state.balances = action.payload.balances
-        state.routerAllowances = action.payload.routerAllowances
-        state.account = action.payload.account
+      const { chainId, account, balances, routerAllowances } = action.payload
+      if (!chainId || !account || account == ZERO_ADDRESS) {
+        return
+      }
+      if (chainId !== state.chainId || account !== state.account) {
+        state.balances = balances
+        state.routerAllowances = routerAllowances
+        state.account = account
+        state.chainId = chainId
       } else {
         state.balances = {
           ...state.balances,
-          ...action.payload.balances
+          ...balances
         }
         state.routerAllowances = {
           ...state.routerAllowances,
-          ...action.payload.routerAllowances
+          ...routerAllowances
         }
       }
     }

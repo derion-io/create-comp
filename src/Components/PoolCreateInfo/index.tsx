@@ -8,7 +8,7 @@ import { usePoolSettings } from '../../state/poolSettings/hook'
 import { useListPool } from '../../state/pools/hooks/useListPool'
 import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
-import { NATIVE_ADDRESS, ZERO_ADDRESS } from '../../utils/constant'
+import { NATIVE_ADDRESS } from '../../utils/constant'
 import formatLocalisedCompactNumber, {
   formatWeiToDisplayNumber
 } from '../../utils/formatBalance'
@@ -20,17 +20,15 @@ import {
   formatFloat,
   numDec,
   numInt,
-  numberToWei,
   unwrap,
   weiToNumber
 } from '../../utils/helpers'
-import { TxFee } from '../TxFee'
 import { Box } from '../ui/Box'
 import { ButtonExecute } from '../ui/Button'
-import { IconArrowDown, NoDataIcon } from '../ui/Icon'
+import { IconArrowDown } from '../ui/Icon'
 import { Input } from '../ui/Input'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
-import { Text, TextBlue, TextGrey, TextPink } from '../ui/Text'
+import { Text, TextBlue, TextGrey } from '../ui/Text'
 import { TokenIcon } from '../ui/TokenIcon'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import './style.scss'
@@ -49,7 +47,6 @@ function numSplit(v: string) {
     </div>
   )
 }
-const slippageTolerance = 1
 export const PoolCreateInfo = () => {
   const {
     poolSettings,
@@ -67,12 +64,11 @@ export const PoolCreateInfo = () => {
   const { tokens } = useListTokens()
   const { balances } = useWalletBalance()
   const [recipient, setRecipient] = useState<string>('')
-  const [visibleRecipient, setVisibleRecipient] = useState<boolean>(false)
   const { account } = useWeb3React()
   const { pools, poolGroups } = useListPool()
+  const inputTokenAddress = NATIVE_ADDRESS
 
   const { configs } = useConfigs()
-  const wrappedTokenAddress = configs.wrappedTokenAddress
   const leverageData = useGenerateLeverageData(
     poolSettings.pairAddress,
     STR(poolSettings.power),
@@ -81,9 +77,7 @@ export const PoolCreateInfo = () => {
   console.log('#leverageData', leverageData)
   const { value } = useTokenValue({
     amount: STR(poolSettings.amountIn ?? 0),
-    tokenAddress:
-      poolSettings.reserveToken || NATIVE_ADDRESS || wrappedTokenAddress
-    // NATIVE_ADDRESS
+    tokenAddress: inputTokenAddress,
   })
 
   // useMemo(() => {
@@ -215,30 +209,30 @@ export const PoolCreateInfo = () => {
                 // setTokenTypeToSelect('input')
               }}
             >
-              <TokenIcon size={24} tokenAddress={poolSettings.reserveToken} />
+              <TokenIcon size={24} tokenAddress={inputTokenAddress} />
               <Text>
-                <TokenSymbol token={tokens[poolSettings.reserveToken]} />
+                <TokenSymbol token={tokens[inputTokenAddress]} />
               </Text>
             </span>
           </SkeletonLoader>
-          <SkeletonLoader loading={!balances[poolSettings.reserveToken]}>
+          <SkeletonLoader loading={!balances[inputTokenAddress]}>
             <Text
               className='amount-input-box__head--balance'
               onClick={() => {
                 updatePoolSettings({
                   amountIn: weiToNumber(
-                    balances[poolSettings.reserveToken],
-                    tokens[poolSettings.reserveToken]?.decimals || 18
+                    balances[inputTokenAddress],
+                    tokens[inputTokenAddress]?.decimals || 18
                   )
                 })
               }}
             >
               Balance:{' '}
-              {balances && balances[poolSettings.reserveToken]
+              {balances && balances[inputTokenAddress]
                 ? formatWeiToDisplayNumber(
-                    balances[poolSettings.reserveToken],
+                    balances[inputTokenAddress],
                     4,
-                    tokens[poolSettings.reserveToken]?.decimals || 18
+                    tokens[inputTokenAddress]?.decimals || 18
                   )
                 : 0}
             </Text>
