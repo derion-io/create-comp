@@ -18,13 +18,16 @@ import {
   findFetcher,
   mulDivNum
 } from '../../utils/deployHelper'
-import { NUM, bn, numberToWei, parseCallStaticError } from '../../utils/helpers'
+import { NUM, bn, numberToWei } from '../../utils/helpers'
 import { State } from '../types'
 import { setPoolSettings } from './reducer'
 import { PoolSettingsType } from './type'
 import { isAddress } from 'ethers/lib/utils'
+import { useConfigs } from '../config/useConfigs'
 
 export const usePoolSettings = () => {
+  const { configs } = useConfigs()
+
   const { poolSettings } = useSelector((state: State) => {
     return {
       poolSettings: state.poolSettings as PoolSettingsType
@@ -70,10 +73,6 @@ export const usePoolSettings = () => {
       updatePoolSettings({
         gasPrice: gasPrice
       })
-
-      const configs = await fetch(
-        `https://raw.githubusercontent.com/derivable-labs/configs/dev/${chainID}/network.json`
-      ).then((res) => res.json())
 
       const TOKEN_R =
         settings.reserveToken === 'PLD'
@@ -288,7 +287,7 @@ export const usePoolSettings = () => {
       }
       console.log('#configs.derivable.poolDeployer', configs)
       const poolDeployer = new ethers.Contract(
-        configs.derivable.poolDeployer,
+        configs.derivable.poolDeployer!,
         PoolDeployerAbi,
         deployer
       )
@@ -302,10 +301,10 @@ export const usePoolSettings = () => {
       )
       console.log(
         '#configs.derivable.helper',
-        configs.derivable.helper ?? configs.derivable.stateCalHelper
+        configs.derivable.stateCalHelper
       )
       const helper = new ethers.Contract(
-        configs.derivable.helper ?? configs.derivable.stateCalHelper,
+        configs.derivable.stateCalHelper,
         helperAbi,
         deployer
       )
@@ -491,9 +490,6 @@ export const usePoolSettings = () => {
         return
       }
       const settings = poolSettings
-      const configs = await fetch(
-        `https://raw.githubusercontent.com/derivable-labs/configs/dev/${chainID}/network.json`
-      ).then((res) => res.json())
       const TOKEN_R =
         settings.reserveToken === 'PLD'
           ? configs.derivable.playToken
@@ -514,7 +510,7 @@ export const usePoolSettings = () => {
       // )
       try {
         const poolDeployer = new ethers.Contract(
-          configs.derivable.poolDeployer,
+          configs.derivable.poolDeployer!,
           PoolDeployerAbi,
           deployer
         )
