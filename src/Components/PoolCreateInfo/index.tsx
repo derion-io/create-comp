@@ -286,19 +286,9 @@ export const PoolCreateInfo = () => {
             <div className='text-left' />
             {poolSettings.amountIn && (
               <div className='text-right'>
-                {value && parseFloat(poolSettings.amountIn.toString()) > 0 ? (
+                {Number(value) > 0 ? (
                   <Text>
-                    {/* {numSplit(
-                      formatLocalisedCompactNumber(
-                        formatFloat(poolSettings.amountIn)
-                      )
-                    )} */}
-                    {/* <Text>
-                      <TokenSymbol token={tokens[poolSettings.reserveToken]} />
-                    </Text> */}
-                    {numSplit(
-                      '$' + formatLocalisedCompactNumber(formatFloat(value, 2))
-                    )}
+                    ${formatLocalisedCompactNumber(formatFloat(value))}
                   </Text>
                 ) : (
                   ''
