@@ -170,11 +170,8 @@ export const PoolCreateInfo = () => {
     }
     setIsDeployPool(false)
   }
-  const [gasPrice, setGasPrice] = useState<any>(BigNumber.from(10 ** 8))
   const { feeData } = useFeeData()
-  useEffect(() => {
-    setGasPrice(feeData?.gasPrice ?? 1)
-  }, [feeData])
+  const gasPrice = bn(feeData?.gasPrice ?? 1)
 
   const handleBlur = () => {
     if (!provider) return

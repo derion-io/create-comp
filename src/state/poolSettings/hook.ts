@@ -24,9 +24,12 @@ import { setPoolSettings } from './reducer'
 import { PoolSettingsType } from './type'
 import { isAddress } from 'ethers/lib/utils'
 import { useConfigs } from '../config/useConfigs'
+import { useFeeData } from '../pools/hooks/useFeeData'
 
 export const usePoolSettings = () => {
   const { configs } = useConfigs()
+  const { feeData } = useFeeData()
+  const gasPrice = bn(feeData?.gasPrice ?? 1)
 
   const { poolSettings } = useSelector((state: State) => {
     return {
@@ -69,10 +72,6 @@ export const usePoolSettings = () => {
         })
         return []
       }
-      const gasPrice = await provider.getGasPrice()
-      updatePoolSettings({
-        gasPrice: gasPrice
-      })
 
       const TOKEN_R =
         settings.reserveToken === 'PLD'

@@ -22,7 +22,6 @@ export type PoolSettingsType = {
   R?: string | string
   x?: string
   newPoolAddress?: string
-  gasPrice: BigNumber
   baseToken?: TokenType
   quoteToken?: TokenType
   QTI?: 0 | 1
@@ -44,5 +43,4 @@ export const initialState: PoolSettingsType = {
   gasUsed: '0',
   markPrice: '0',
   x: '0',
-  gasPrice: BigNumber.from(0)
 }
