@@ -76,6 +76,7 @@ export const useTokenValue = ({
           valueInUsd && NUM(prices[address] ?? 0) > 0
             ? prices[address].toString()
             : 0
+        console.log('#tokenprice', tokenPrice, prices)
         value = IEW(BIG?.(WEI(_amount)).mul(WEI(tokenPrice)), 36)
       } catch (error) {
         return '0'

@@ -79,7 +79,9 @@ export const PoolCreateInfo = () => {
     amount: STR(poolSettings.amountIn ?? 0),
     tokenAddress: inputTokenAddress
   })
-
+  useMemo(() => {
+    console.log('#poolSettings.amountIn', poolSettings.amountIn)
+  }, [poolSettings.amountIn])
   // useMemo(() => {
   //   console.log('#data', data)
   //   console.log('#barData', barData)
