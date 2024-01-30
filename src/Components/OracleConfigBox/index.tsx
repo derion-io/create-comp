@@ -216,15 +216,17 @@ export const OracleConfigBox = () => {
 
   const { baseToken, quoteToken } = poolSettings
   const searchKeyError = useMemo(() => {
-    const isDuplicate =
-      poolSettings.searchBySymbols[0] !== '' &&
-      poolSettings.searchBySymbols[0] === poolSettings.searchBySymbols[1]
+    const [s0, s1] = poolSettings.searchBySymbols
+    const isDuplicatePlaceholder0 = s0 === baseToken?.symbol?.slice(1)
+    const isDuplicatePlaceholder1 = s1 === baseToken?.symbol?.slice(0, -1)
+    const isDuplicate = s0 !== '' && s0 === s1
     const isDuplicateBaseSymbol =
-      poolSettings.searchBySymbols[0] === baseToken?.symbol ||
-      poolSettings.searchBySymbols[1] === baseToken?.symbol
-    if (isDuplicate) return '(Duplicated)'
+      s0 === baseToken?.symbol || s1 === baseToken?.symbol
+    if (isDuplicate || isDuplicatePlaceholder0 || isDuplicatePlaceholder1) {
+      return '(Duplicated)'
+    }
     if (isDuplicateBaseSymbol) {
-      return "(Same with base token symbol)"
+      return '(Same with base token symbol)'
     }
     return ''
   }, [baseToken?.symbol, poolSettings.searchBySymbols])
