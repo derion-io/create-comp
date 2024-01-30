@@ -7,7 +7,7 @@ import { useHelper } from '../../state/config/useHelper'
 import { usePoolSettings } from '../../state/poolSettings/hook'
 import { useListTokens } from '../../state/token/hook'
 import { ZERO_ADDRESS } from '../../utils/constant'
-import { bn, div, unwrap, zerofy } from '../../utils/helpers'
+import { div, unwrap, zerofy } from '../../utils/helpers'
 import { SelectTokenModal } from '../SelectTokenModal'
 import { Box } from '../ui/Box'
 import { CurrencyLogo } from '../ui/CurrencyLogo'
@@ -17,7 +17,6 @@ import NumberInput from '../ui/Input/InputNumber'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { Text, TextBlue, TextGrey, TextPink, TextSell } from '../ui/Text'
 import './style.scss'
-import { useWeb3React } from '../../state/customWeb3React/hook'
 export const feeOptions = [100, 300, 500, 1000]
 export const OracleConfigBox = () => {
   const { poolSettings, updatePoolSettings, calculateParamsForPools } =
@@ -126,7 +125,6 @@ export const OracleConfigBox = () => {
     }
   }
   const [fetchPairLoading, setFetchPairLoading] = useState(false)
-  const { chainId, provider } = useWeb3React()
   const fetchPairInfo = async () => {
     if (
       ddlEngine &&
@@ -180,8 +178,7 @@ export const OracleConfigBox = () => {
           token1?.symbol &&
           isAddress(poolSettings.pairAddress)
         ) {
-          const signer = provider.getSigner()
-          calculateParamsForPools(chainId, provider, signer)
+          calculateParamsForPools()
         }
         setFetchPairLoading(false)
         // setPairInfo1({ pair: poolSettings.pairAddress, ...res })

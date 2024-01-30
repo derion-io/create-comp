@@ -34,7 +34,6 @@ import { TokenSymbol } from '../ui/TokenSymbol'
 import './style.scss'
 import { useNativePrice } from '../../hooks/useTokenPrice'
 import { useFeeData } from '../../state/pools/hooks/useFeeData'
-import { BigNumber } from 'ethers'
 import Tooltip from '../Tooltip/Tooltip'
 import { useSettings } from '../../state/setting/hooks/useSettings'
 import { truncate as truncateAddress } from 'truncate-ethereum-address'
@@ -59,12 +58,11 @@ export const PoolCreateInfo = () => {
   }, [poolSettings])
   const { data: nativePrice } = useNativePrice()
 
-  const { chainId, provider } = useWeb3React()
+  const { chainId, provider, account } = useWeb3React()
   const [barData, setBarData] = useState<any>({})
   const { tokens } = useListTokens()
   const { balances } = useWalletBalance()
   const [recipient, setRecipient] = useState<string>('')
-  const { account } = useWeb3React()
   const { pools, poolGroups } = useListPool()
   const inputTokenAddress = NATIVE_ADDRESS
 
@@ -117,9 +115,8 @@ export const PoolCreateInfo = () => {
 
   useEffect(() => {
     if (chainId && provider) {
-      const signer = provider.getSigner()
       setIsLoadingStaticParam(true)
-      calculateParamsForPools(chainId, provider, signer)
+      calculateParamsForPools()
         .then((res) => {
           setIsLoadingStaticParam(false)
         })
@@ -164,8 +161,7 @@ export const PoolCreateInfo = () => {
     // }
     console.log('#deplyer', chainId, provider, pairAddress)
     if (chainId && provider && pairAddress) {
-      const signer = provider.getSigner()
-      await deployPool(chainId, provider, signer)
+      await deployPool()
       setIsDeployPool(false)
     }
     setIsDeployPool(false)
@@ -175,10 +171,9 @@ export const PoolCreateInfo = () => {
 
   const handleBlur = () => {
     if (!provider) return
-    const signer = provider.getSigner()
 
     setIsLoadingStaticParam(true)
-    calculateParamsForPools(chainId, provider, signer)
+    calculateParamsForPools()
       .then((res) => {
         setIsLoadingStaticParam(false)
       })

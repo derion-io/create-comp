@@ -25,11 +25,14 @@ import { PoolSettingsType } from './type'
 import { isAddress } from 'ethers/lib/utils'
 import { useConfigs } from '../config/useConfigs'
 import { useFeeData } from '../pools/hooks/useFeeData'
+import { useWeb3React } from '../customWeb3React/hook'
 
 export const usePoolSettings = () => {
   const { configs } = useConfigs()
   const { feeData } = useFeeData()
   const gasPrice = bn(feeData?.gasPrice ?? 1)
+  const { provider, chainId } = useWeb3React()
+  const signer = provider.getSigner()
 
   const { poolSettings } = useSelector((state: State) => {
     return {
@@ -53,11 +56,7 @@ export const usePoolSettings = () => {
     }
   }
 
-  const calculateParamsForPools = async (
-    chainID: string,
-    provider: ethers.providers.JsonRpcProvider,
-    deployer: ethers.Signer
-  ) => {
+  const calculateParamsForPools = async () => {
     try {
       const settings = {
         ...poolSettings,
@@ -94,7 +93,7 @@ export const usePoolSettings = () => {
         uniswapPair = new ethers.Contract(
           settings.pairAddress,
           jsonUniswapV2Pool.abi,
-          deployer
+          signer
         )
       }
       const [slot0, token0, token1] = await Promise.all([
@@ -160,7 +159,7 @@ export const usePoolSettings = () => {
         const now = Math.floor(new Date().getTime() / 1000)
         const anEpochAgo = now - EPOCH
         const blockEpochAgo = await fetch(
-          `${configs.scanApi}?module=block&action=getblocknobytime&timestamp=${anEpochAgo}&closest=before&apikey=${SCAN_API_KEY[chainID]}`
+          `${configs.scanApi}?module=block&action=getblocknobytime&timestamp=${anEpochAgo}&closest=before&apikey=${SCAN_API_KEY[chainId]}`
         )
           .then((x) => x.json())
           .then((x) => Number(x?.result))
@@ -173,7 +172,7 @@ export const usePoolSettings = () => {
         logs = await fetch(
           `${configs.scanApi}?module=logs&action=getLogs&address=${settings.pairAddress}` +
             `&topic0=${SWAP_TOPIC[slot0 ? 3 : 2]}` +
-            `&fromBlock=${blockEpochAgo}&apikey=${SCAN_API_KEY[chainID]}`
+            `&fromBlock=${blockEpochAgo}&apikey=${SCAN_API_KEY[chainId]}`
         )
           .then((x) => x.json())
           .then((x) => x?.result)
@@ -288,7 +287,7 @@ export const usePoolSettings = () => {
       const poolDeployer = new ethers.Contract(
         configs.derivable.poolDeployer!,
         PoolDeployerAbi,
-        deployer
+        signer
       )
       const R = ethers.utils.parseEther(String(settings.amountIn || '0'))
       const initParams = calculateInitParamsFromPrice(config, MARK, R)
@@ -296,7 +295,7 @@ export const usePoolSettings = () => {
       const utr = new ethers.Contract(
         configs.helperContract.utr,
         univeralTokenRouterAbi,
-        deployer
+        signer
       )
       console.log(
         '#configs.derivable.helper',
@@ -305,12 +304,12 @@ export const usePoolSettings = () => {
       const helper = new ethers.Contract(
         configs.derivable.stateCalHelper,
         helperAbi,
-        deployer
+        signer
       )
       console.log('#pool-config', config)
       const poolAddress = await poolDeployer.callStatic.create(config)
       console.log('#poolAddress', poolAddress)
-      const pool = new ethers.Contract(poolAddress, poolBaseAbi, deployer)
+      const pool = new ethers.Contract(poolAddress, poolBaseAbi, signer)
 
       updatePoolSettings({
         newPoolAddress: poolAddress
@@ -381,7 +380,7 @@ export const usePoolSettings = () => {
       // }
 
       let params = []
-      const deployerAddress = await deployer.getAddress()
+      const deployerAddress = await signer.getAddress()
       const [baseToken, baseSymbol] =
         QTI == 1 ? [token0, symbol0] : [token1, symbol1]
       const topic2 = poolSettings.searchBySymbols[0] ?? baseSymbol.slice(0, -1)
@@ -394,7 +393,7 @@ export const usePoolSettings = () => {
       })
       if (TOKEN_R != configs.wrappedTokenAddress && deployerAddress) {
         console.log('#deployerAddress', deployerAddress, TOKEN_R)
-        const rToken = new ethers.Contract(TOKEN_R, jsonERC20.abi, deployer)
+        const rToken = new ethers.Contract(TOKEN_R, jsonERC20.abi, signer)
         const rBalance = await rToken.balanceOf(deployerAddress)
         if (rBalance.lt(R)) {
           throw new Error(`TOKEN_R balance insufficient: ${rBalance} < ${R}`)
@@ -478,13 +477,9 @@ export const usePoolSettings = () => {
       return []
     }
   }
-  const deployPool = async (
-    chainID: string,
-    provider: ethers.providers.JsonRpcProvider,
-    deployer: ethers.Signer
-  ) => {
-    if (provider && deployer) {
-      const params = await calculateParamsForPools(chainID, provider, deployer)
+  const deployPool = async () => {
+    if (provider && signer) {
+      const params = await calculateParamsForPools()
       if (params && params?.length === 0) {
         return
       }
@@ -499,7 +494,7 @@ export const usePoolSettings = () => {
       const utr = new ethers.Contract(
         configs.helperContract.utr,
         univeralTokenRouterAbi,
-        deployer
+        signer
       )
 
       // const helper = new ethers.Contract(
@@ -511,7 +506,7 @@ export const usePoolSettings = () => {
         const poolDeployer = new ethers.Contract(
           configs.derivable.poolDeployer!,
           PoolDeployerAbi,
-          deployer
+          signer
         )
         console.log('#param', params, TOKEN_R != configs.wrappedTokenAddress)
         const tx =
