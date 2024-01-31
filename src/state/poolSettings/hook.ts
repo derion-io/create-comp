@@ -97,44 +97,56 @@ export const usePoolSettings = () => {
           signer
         )
       }
-      const [slot0, token0, token1] = await Promise.all([
-        exp === 2 ? uniswapPair.callStatic.slot0() : undefined,
-        uniswapPair.callStatic.token0(),
-        uniswapPair.callStatic.token1()
-      ])
-      const ct0 = new ethers.Contract(token0, jsonERC20.abi, provider)
-      const ct1 = new ethers.Contract(token1, jsonERC20.abi, provider)
-      const [decimals0, decimals1, symbol0, symbol1] = await Promise.all([
-        ct0.callStatic.decimals(),
-        ct1.callStatic.decimals(),
-        ct0.callStatic.symbol(),
-        ct1.callStatic.symbol()
-      ])
-      if (!symbol0 && !symbol1 && !decimals0 && !decimals1) {
-        // throw new Error('Invalid Pool Address')
-        updatePoolSettings({
-          errorMessage: 'Invalid Pool Address'
-        })
-        return []
+      if (!settings.tokens) {
+        const [slot0, token0, token1] = await Promise.all([
+          exp === 2 ? uniswapPair.callStatic.slot0() : undefined,
+          uniswapPair.callStatic.token0(),
+          uniswapPair.callStatic.token1()
+        ])
+        const ct0 = new ethers.Contract(token0, jsonERC20.abi, provider)
+        const ct1 = new ethers.Contract(token1, jsonERC20.abi, provider)
+        const [decimals0, decimals1, symbol0, symbol1] = await Promise.all([
+          ct0.callStatic.decimals(),
+          ct1.callStatic.decimals(),
+          ct0.callStatic.symbol(),
+          ct1.callStatic.symbol()
+        ])
+        if (!symbol0 && !symbol1 && !decimals0 && !decimals1) {
+          // throw new Error('Invalid Pool Address')
+          updatePoolSettings({
+            errorMessage: 'Invalid Pool Address'
+          })
+          return []
+        }
+        settings.slot0 = slot0
+        settings.tokens = [{
+          address: token0,
+          symbol: symbol0,
+          decimals: decimals0,
+        }, {
+          address: token1,
+          symbol: symbol1,
+          decimals: decimals1,
+        }]
       }
       // detect QTI (quote token index)
       let QTI = poolSettings.QTI
-      if (QTI == null && symbol0.includes('USD')) {
+      if (QTI == null && settings.tokens[0].symbol.includes('USD')) {
         QTI = 0
       }
-      if (QTI == null && symbol1.includes('USD')) {
+      if (QTI == null && settings.tokens[1].symbol.includes('USD')) {
         QTI = 1
       }
-      if (QTI == null && configs.stablecoins.includes(token0)) {
+      if (QTI == null && configs.stablecoins.includes(settings.tokens[0].address)) {
         QTI = 0
       }
-      if (QTI == null && configs.stablecoins.includes(token1)) {
+      if (QTI == null && configs.stablecoins.includes(settings.tokens[1].address)) {
         QTI = 1
       }
-      if (QTI == null && configs.wrappedTokenAddress == token0) {
+      if (QTI == null && configs.wrappedTokenAddress == settings.tokens[0].address) {
         QTI = 0
       }
-      if (QTI == null && configs.wrappedTokenAddress == token1) {
+      if (QTI == null && configs.wrappedTokenAddress == settings.tokens[1].address) {
         QTI = 1
       }
       if (QTI == null) {
@@ -142,8 +154,9 @@ export const usePoolSettings = () => {
         // throw new Error('unable to detect QTI')
       }
 
+      const baseToken = settings.tokens[1-QTI]
+
       const K = Number(settings.power) * exp
-      const prefix = exp == 2 ? '√' : ''
 
       updatePoolSettings({
         QTI,
@@ -156,7 +169,7 @@ export const usePoolSettings = () => {
 
       let logs
       const EPOCH = 500 * 60
-      if ((slot0 && !settings.window) || (!slot0 && !settings?.windowBlocks)) {
+      if ((settings.slot0 && !settings.window) || (!settings.slot0 && !settings?.windowBlocks)) {
         const now = Math.floor(new Date().getTime() / 1000)
         const anEpochAgo = now - EPOCH
         const blockEpochAgo = await fetch(
@@ -172,7 +185,7 @@ export const usePoolSettings = () => {
 
         logs = await fetch(
           `${configs.scanApi}?module=logs&action=getLogs&address=${settings.pairAddress}` +
-            `&topic0=${SWAP_TOPIC[slot0 ? 3 : 2]}` +
+            `&topic0=${SWAP_TOPIC[settings.slot0 ? 3 : 2]}` +
             `&fromBlock=${blockEpochAgo}&apikey=${SCAN_API_KEY[chainId]}`
         )
           .then((x) => x.json())
@@ -186,7 +199,7 @@ export const usePoolSettings = () => {
         }
       }
       let WINDOW
-      if (slot0) {
+      if (settings.slot0) {
         if (logs?.length > 0) {
           const txFreq = EPOCH / logs.length
           WINDOW = Math.ceil(Math.sqrt(txFreq / 60)) * 60
@@ -232,8 +245,8 @@ export const usePoolSettings = () => {
       )
       let MARK, price
 
-      if (slot0) {
-        MARK = slot0.sqrtPriceX96.shl(32)
+      if (settings.slot0) {
+        MARK = settings.slot0.sqrtPriceX96.shl(32)
         if (QTI === 0) {
           MARK = Q256M.div(MARK)
         }
@@ -248,7 +261,7 @@ export const usePoolSettings = () => {
         price = MARK
       }
 
-      const decShift = QTI === 0 ? decimals1 - decimals0 : decimals0 - decimals1
+      const decShift = settings.tokens[1-QTI].decimals - settings.tokens[QTI].decimals
       if (decShift > 0) {
         price = price.mul(numberToWei(1, decShift))
       } else if (decShift < 0) {
@@ -382,15 +395,16 @@ export const usePoolSettings = () => {
 
       let params = []
       const deployerAddress = await signer.getAddress()
-      const [baseToken, baseSymbol] =
-        QTI == 1 ? [token0, symbol0] : [token1, symbol1]
-      const topic2 = poolSettings.searchBySymbols[0] ?? baseSymbol.slice(0, -1)
-      const topic3 = poolSettings.searchBySymbols[1] ?? baseSymbol.slice(1)
-      const topics = [baseToken, baseSymbol, topic2, topic3]
-      topics.forEach((_, i) => {
+      const topics = [
+        baseToken.address,
+        baseToken.symbol,
+        poolSettings.searchBySymbols[0] ?? baseToken.symbol.slice(0, -1),
+        poolSettings.searchBySymbols[1] ?? baseToken.symbol.slice(1),
+      ].map((value, i) => {
         if (i > 0) {
-          topics[i] = utils.formatBytes32String(topics[i])
+          return utils.formatBytes32String(value.toUpperCase())
         }
+        return value
       })
       if (TOKEN_R != configs.wrappedTokenAddress && deployerAddress) {
         console.log('#deployerAddress', deployerAddress, TOKEN_R)
