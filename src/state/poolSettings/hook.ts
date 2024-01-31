@@ -18,7 +18,7 @@ import {
   findFetcher,
   mulDivNum
 } from '../../utils/deployHelper'
-import { NUM, bn, numberToWei } from '../../utils/helpers'
+import { NUM, bn, numberToWei, parseCallStaticError } from '../../utils/helpers'
 import { State } from '../types'
 import { setPoolSettings } from './reducer'
 import { PoolSettingsType } from './type'
@@ -58,13 +58,9 @@ export const usePoolSettings = () => {
 
   const calculateParamsForPools = async () => {
     try {
-      const settings = {
-        ...poolSettings,
-        closingFee: Number(poolSettings.closingFee) / 100,
-        interestRate: Number(poolSettings.interestRate) / 100,
-        premiumRate: Number(poolSettings.premiumRate) / 100
-      }
-      if (!isAddress(poolSettings.pairAddress)) {
+      const settings = { ...poolSettings }
+
+      if (!isAddress(settings.pairAddress)) {
         // throw new Error('Invalid Pool Address')
         updatePoolSettings({
           errorMessage: 'Invalid Pool Address'
@@ -87,6 +83,9 @@ export const usePoolSettings = () => {
 
       // Note: some weird bug that "a ?? await b()" does not work
       const factory = settings.factory ? settings.factory : await uniswapPair.callStatic.factory()
+      updatePoolSettings({
+        factory,
+      })
       const [FETCHER, fetcherType] = findFetcher(configs, factory)
       const exp = fetcherType?.endsWith('3') ? 2 : 1
       if (exp === 1) {
@@ -98,10 +97,11 @@ export const usePoolSettings = () => {
         )
       }
       if (!settings.tokens) {
-        const [slot0, token0, token1] = await Promise.all([
-          exp === 2 ? uniswapPair.callStatic.slot0() : undefined,
+        const [slot0, [r0, r1], token0, token1] = await Promise.all([
+          exp == 2 ? uniswapPair.callStatic.slot0() : undefined,
+          exp == 2 ? [] : uniswapPair.getReserves(),
           uniswapPair.callStatic.token0(),
-          uniswapPair.callStatic.token1()
+          uniswapPair.callStatic.token1(),
         ])
         const ct0 = new ethers.Contract(token0, jsonERC20.abi, provider)
         const ct1 = new ethers.Contract(token1, jsonERC20.abi, provider)
@@ -128,9 +128,15 @@ export const usePoolSettings = () => {
           symbol: symbol1,
           decimals: decimals1,
         }]
+        settings.r0 = r0
+        settings.r1 = r1
+        updatePoolSettings({
+          slot0, r0, r1,
+          tokens: settings.tokens,
+        })
       }
       // detect QTI (quote token index)
-      let QTI = poolSettings.QTI
+      let QTI = settings.QTI
       if (QTI == null && settings.tokens[0].symbol.includes('USD')) {
         QTI = 0
       }
@@ -162,76 +168,27 @@ export const usePoolSettings = () => {
         QTI,
         x: String(K)
       })
-      const SCAN_API_KEY = {
-        42161: process.env.REACT_APP_ARBISCAN_API_KEY,
-        56: process.env.REACT_APP_BSCSCAN_API_KEY
-      }
 
-      let logs
-      const EPOCH = 500 * 60
-      if ((settings.slot0 && !settings.window) || (!settings.slot0 && !settings?.windowBlocks)) {
-        const now = Math.floor(new Date().getTime() / 1000)
-        const anEpochAgo = now - EPOCH
-        const blockEpochAgo = await fetch(
-          `${configs.scanApi}?module=block&action=getblocknobytime&timestamp=${anEpochAgo}&closest=before&apikey=${SCAN_API_KEY[chainId]}`
-        )
-          .then((x) => x.json())
-          .then((x) => Number(x?.result))
-
-        const SWAP_TOPIC = {
-          2: '0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822',
-          3: '0xc42079f94a6350d7e6235f29174924f928cc2ac818eb64fed8004e115fbcca67'
-        }
-
-        logs = await fetch(
-          `${configs.scanApi}?module=logs&action=getLogs&address=${settings.pairAddress}` +
-            `&topic0=${SWAP_TOPIC[settings.slot0 ? 3 : 2]}` +
-            `&fromBlock=${blockEpochAgo}&apikey=${SCAN_API_KEY[chainId]}`
-        )
-          .then((x) => x.json())
-          .then((x) => x?.result)
-
-        if (!logs?.length) {
-          updatePoolSettings({
-            errorMessage: 'No transaction for a whole day'
-          })
-          // throw new Error('no transaction for a whole day')
-        }
-      }
       let WINDOW
       if (settings.slot0) {
-        if (logs?.length > 0) {
-          const txFreq = EPOCH / logs.length
-          WINDOW = Math.ceil(Math.sqrt(txFreq / 60)) * 60
-        } else {
-          WINDOW = settings.window
-        }
+        WINDOW = settings.window
         if (WINDOW) console.log('WINDOW', NUM(WINDOW) / 60, 'min(s)')
-        try {
-          await uniswapPair.callStatic.observe([0, WINDOW])
-        } catch (err) {
-          if (err.reason == 'OLD') {
+        // no need to wait for this
+        uniswapPair.callStatic.observe([0, WINDOW])
+          .catch((err: any) => {
+            if (err.reason == 'OLD') {
+              updatePoolSettings({
+                errorMessage: 'WINDOW too long'
+              })
+              // throw new Error('WINDOW too long')
+            }
+            // throw err
             updatePoolSettings({
-              errorMessage: 'WINDOW too long'
+              errorMessage: parseCallStaticError(err) ?? err.reason ?? err.error ?? err
             })
-            // throw new Error('WINDOW too long')
-          }
-          // throw err
-          updatePoolSettings({
-            errorMessage: err.reason ?? err.error ?? err
           })
-        }
       } else {
-        if (logs?.length > 0) {
-          const range =
-            logs[logs.length - 1].blockNumber - logs[0].blockNumber + 1
-          const txFreq = range / logs.length
-          WINDOW = Math.floor(txFreq / 10) * 10
-          WINDOW = Math.max(WINDOW, 20)
-          WINDOW = Math.min(WINDOW, 256)
-        } else {
-          WINDOW = settings.windowBlocks
-        }
+        WINDOW = settings.windowBlocks
         console.log('WINDOW', WINDOW, 'block(s)')
       }
 
@@ -252,7 +209,13 @@ export const usePoolSettings = () => {
         }
         price = MARK.mul(MARK)
       } else {
-        const [r0, r1] = await uniswapPair.getReserves()
+        const {r0, r1} = settings
+        if (!r0 || !r1) {
+          updatePoolSettings({
+            errorMessage: 'Missing pair reserves'
+          })
+          return []
+        }
         if (QTI === 0) {
           MARK = r0.mul(Q128).div(r1)
         } else {
@@ -278,11 +241,6 @@ export const usePoolSettings = () => {
         })
         return []
       }
-      const INTEREST_HL = rateToHL(settings.interestRate, NUM(settings.power))
-      const PREMIUM_HL = rateToHL(
-        settings.premiumRate ? settings.premiumRate : 0,
-        NUM(settings.power)
-      )
 
       const config = {
         FETCHER,
@@ -290,12 +248,12 @@ export const usePoolSettings = () => {
         TOKEN_R,
         MARK,
         K: bn(K),
-        INTEREST_HL,
-        PREMIUM_HL,
+        INTEREST_HL: rateToHL(NUM(settings.interestRate ?? 0) / 100, NUM(settings.power)),
+        PREMIUM_HL: rateToHL(NUM(settings.premiumRate ?? 0) / 100, NUM(settings.power)),
         MATURITY: settings.closingFeeDuration,
         MATURITY_VEST: Number(settings.vesting),
-        MATURITY_RATE: feeToOpenRate(settings.closingFee ?? 0),
-        OPEN_RATE: feeToOpenRate(settings.openingFee ?? 0)
+        MATURITY_RATE: feeToOpenRate(NUM(settings.closingFee ?? 0) / 100),
+        OPEN_RATE: feeToOpenRate(NUM(settings.openingFee ?? 0) / 100)
       }
       console.log('#configs.derivable.poolDeployer', configs)
       const poolDeployer = new ethers.Contract(
@@ -398,8 +356,8 @@ export const usePoolSettings = () => {
       const topics = [
         baseToken.address,
         baseToken.symbol,
-        poolSettings.searchBySymbols[0] ?? baseToken.symbol.slice(0, -1),
-        poolSettings.searchBySymbols[1] ?? baseToken.symbol.slice(1),
+        settings.searchBySymbols[0] ?? baseToken.symbol.slice(0, -1),
+        settings.searchBySymbols[1] ?? baseToken.symbol.slice(1),
       ].map((value, i) => {
         if (i > 0) {
           return utils.formatBytes32String(value.toUpperCase())

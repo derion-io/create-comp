@@ -27,6 +27,8 @@ export type PoolSettingsType = {
   QTI?: 0 | 1
   factory?: string
   slot0?: any
+  r0?: BigNumber,
+  r1?: BigNumber,
   tokens?: {
     address: string,
     symbol: string,
