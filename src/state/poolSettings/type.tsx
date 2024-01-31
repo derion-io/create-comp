@@ -25,6 +25,7 @@ export type PoolSettingsType = {
   baseToken?: TokenType
   quoteToken?: TokenType
   QTI?: 0 | 1
+  factory?: string
 }
 
 export const initialState: PoolSettingsType = {

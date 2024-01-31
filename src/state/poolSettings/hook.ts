@@ -85,8 +85,9 @@ export const usePoolSettings = () => {
         provider
       )
 
-      const factory = await uniswapPair.callStatic.factory()
-      const [FETCHER, fetcherType] = findFetcher(configs.fetchers, factory)
+      // Note: some weird bug that "a ?? await b()" does not work
+      const factory = settings.factory ? settings.factory : await uniswapPair.callStatic.factory()
+      const [FETCHER, fetcherType] = findFetcher(configs, factory)
       const exp = fetcherType?.endsWith('3') ? 2 : 1
       if (exp === 1) {
         // Case this pair is UniswapV2

@@ -1,10 +1,12 @@
 import { BigNumber } from 'ethers'
 import {
+  ZERO_ADDRESS,
   Q128,
   Q256M,
   Q64
 } from './constant'
 import { bn, numberToWei } from './helpers'
+import { INetworkConfig } from 'derivable-tools/dist/utils/configs'
 
 export function feeToOpenRate(fee: any) {
   return bn(((1 - fee) * 10000).toFixed(0))
@@ -12,19 +14,11 @@ export function feeToOpenRate(fee: any) {
     .div(10000)
 }
 
-export function findFetcher(fetchers: any, factory: string): any[] {
-  const fs = Object.keys(fetchers)
-  let defaultFetcher = [null, null]
-  for (const f of fs) {
-    if (!fetchers[f].factory?.length) {
-      defaultFetcher = [f, fetchers[f]?.type]
-      continue
-    }
-    if (fetchers[f].factory?.includes(factory)) {
-      return [f, fetchers[f]?.type]
-    }
-  }
-  return defaultFetcher
+export function findFetcher(configs: INetworkConfig, factory: string): any[] {
+  const factoryConfig = configs.factory[factory] ?? configs.factory['0x']
+  const fetcher = factoryConfig.fetcher ?? ZERO_ADDRESS
+  const type = factoryConfig.type
+  return [fetcher, type]
 }
 
 export function mulDivNum(a: any, b: any, precision = 4) {
