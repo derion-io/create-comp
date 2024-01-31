@@ -113,18 +113,18 @@ export const PoolCreateInfo = () => {
   //   }
   // }, [account])
 
-  useEffect(() => {
-    if (chainId && provider) {
-      setIsLoadingStaticParam(true)
-      calculateParamsForPools()
-        .then((res) => {
-          setIsLoadingStaticParam(false)
-        })
-        .catch((e) => {
-          setIsLoadingStaticParam(false)
-        })
-    }
-  }, [chainId, provider, poolSettings.pairAddress])
+  // useEffect(() => {
+  //   if (chainId && provider) {
+  //     setIsLoadingStaticParam(true)
+  //     calculateParamsForPools()
+  //       .then((res) => {
+  //         setIsLoadingStaticParam(false)
+  //       })
+  //       .catch((e) => {
+  //         setIsLoadingStaticParam(false)
+  //       })
+  //   }
+  // }, [chainId, provider, poolSettings.pairAddress])
   const { initListPool } = useListPool()
   const { ddlEngine } = useConfigs()
   const [isBarLoading, setIsBarLoading] = useState(false)
@@ -224,10 +224,10 @@ export const PoolCreateInfo = () => {
               Balance:{' '}
               {balances && balances[inputTokenAddress]
                 ? formatWeiToDisplayNumber(
-                    balances[inputTokenAddress],
-                    4,
+                  balances[inputTokenAddress],
+                  4,
                     tokens[inputTokenAddress]?.decimals || 18
-                  )
+                )
                 : 0}
             </Text>
           </SkeletonLoader>
@@ -373,12 +373,12 @@ export const PoolCreateInfo = () => {
                       <Text>
                         {bn(gasPrice || 0)?.gte?.(1e6)
                           ? (Number(chainId) === 42161
-                              ? Number(gasPrice) / 1e9
-                              : formatWeiToDisplayNumber(
-                                  gasPrice.div(1e9),
-                                  0,
-                                  0
-                                )) + ' gwei'
+                            ? Number(gasPrice) / 1e9
+                            : formatWeiToDisplayNumber(
+                              gasPrice.div(1e9),
+                              0,
+                              0
+                            )) + ' gwei'
                           : formatWeiToDisplayNumber(gasPrice, 0, 0) + ' wei'}
                       </Text>
                     </div>
@@ -442,10 +442,10 @@ export const PoolCreateInfo = () => {
         {isLoadingStaticParam
           ? 'Calculating...'
           : isDeployPool
-          ? 'Waiting for confirmation...'
-          : poolSettings.errorMessage
-          ? poolSettings.errorMessage
-          : 'Deploy New Pool'}
+            ? 'Waiting for confirmation...'
+            : poolSettings.errorMessage
+              ? poolSettings.errorMessage
+              : 'Deploy New Pool'}
       </ButtonExecute>
     </div>
   )

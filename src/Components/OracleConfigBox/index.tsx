@@ -1,4 +1,4 @@
-import { utils } from 'ethers'
+import { ethers, utils } from 'ethers'
 import { isAddress } from 'ethers/lib/utils'
 import React, { Fragment, useEffect, useMemo, useState } from 'react'
 import { useContract } from '../../hooks/useContract'
@@ -17,6 +17,11 @@ import NumberInput from '../ui/Input/InputNumber'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { Text, TextBlue, TextGrey, TextPink, TextSell } from '../ui/Text'
 import './style.scss'
+import { findFetcher } from '../../utils/deployHelper'
+import { useWeb3React } from '../../state/customWeb3React/hook'
+import jsonUniswapV2Pool from '@uniswap/v2-core/build/UniswapV2Pair.json'
+import jsonUniswapV3Pool from '../../utils/abi/UniswapV3Pool.json'
+
 export const feeOptions = [100, 300, 500, 1000]
 export const OracleConfigBox = () => {
   const { poolSettings, updatePoolSettings, calculateParamsForPools } =
@@ -113,15 +118,16 @@ export const OracleConfigBox = () => {
   //   }
   // }
 
-  const { getUniV3PairContract } = useContract()
-
+  const { getUniV3PairContract, getUniV2PairContract } = useContract()
+  const { provider, chainId } = useWeb3React()
+  const signer = provider.getSigner()
   const formatTokenType = async (token: any) => {
     return {
-      address: utils.getAddress(token.adr),
+      address: utils.getAddress(token.address),
       decimals: token.decimals,
       symbol: token.symbol,
       name: token.name,
-      logoURI: await getTokenIconUrl(utils.getAddress(token.adr))
+      logoURI: await getTokenIconUrl(utils.getAddress(token.address))
     }
   }
   const [fetchPairLoading, setFetchPairLoading] = useState(false)
@@ -135,13 +141,47 @@ export const OracleConfigBox = () => {
       try {
         setFetchPairLoading(true)
         console.log('#pair-start-fetch')
-        const res = await ddlEngine.UNIV3PAIR.getPairInfo({
-          pairAddress: poolSettings.pairAddress
-        })
-        const pairContract = getUniV3PairContract(poolSettings.pairAddress)
-        const fee = await pairContract.fee()
-        const _token0 = await formatTokenType(res.token0)
-        const _token1 = await formatTokenType(res.token1)
+
+        // let pairContract = getUniV3PairContract(poolSettings.pairAddress)
+
+        let pairContract = new ethers.Contract(
+          poolSettings.pairAddress,
+          jsonUniswapV3Pool.abi,
+          provider
+        )
+        console.log('#pair-start-fetch2')
+        let tokens
+        const factory = poolSettings.factory
+          ? poolSettings.factory
+          : await pairContract.callStatic.factory()
+        console.log('#pair-start-fetch3')
+        const [FETCHER, fetcherType] = findFetcher(configs, factory)
+        const exp = fetcherType?.endsWith('3') ? 2 : 1
+        console.log('#pair-start-fetch4')
+
+        if (exp === 1) {
+          // pairContract = getUniV2PairContract(poolSettings.pairAddress)
+          pairContract = new ethers.Contract(
+            poolSettings.pairAddress,
+            jsonUniswapV2Pool.abi,
+            signer
+          )
+          tokens = await ddlEngine.UNIV2PAIR.getPairInfo({
+            pairAddress: poolSettings.pairAddress
+          })
+        } else {
+          console.log('#pair-start-fetch5')
+          tokens = await ddlEngine.UNIV3PAIR.getPairInfo({
+            pairAddress: poolSettings.pairAddress
+          })
+          console.log('#pair-start-fetch6')
+          const fee = await pairContract.fee()
+          console.log('#pair-start-fetch7')
+          setFee(fee)
+        }
+        console.log('#tokenss', tokens)
+        const _token0 = await formatTokenType(tokens.token0)
+        const _token1 = await formatTokenType(tokens.token1)
         setToken0(_token0)
         setToken1(_token1)
         setFee(fee)
@@ -314,8 +354,8 @@ export const OracleConfigBox = () => {
                     {fee
                       ? `Uniswap V3 (${fee / 10_000}% fee)`
                       : quoteToken?.symbol && baseToken.symbol
-                      ? 'Uniswap V2'
-                      : ''}
+                        ? 'Uniswap V2'
+                        : ''}
                   </TextGrey>
                 </div>
               </Fragment>

@@ -7,7 +7,7 @@ import { useConfigs } from '../state/config/useConfigs'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { ZERO_ADDRESS } from '../utils/constant'
 import UniV3Pair from '../assets/abi/UniV3Pair.json'
-
+import UniV2Pair from '@uniswap/v2-core/build/UniswapV2Pair.json'
 export const routerAbi = [
   {
     inputs: [
@@ -402,12 +402,16 @@ export const useContract = () => {
   const getUniV3PairContract = (pairAddress: string) => {
     return getContract(UniV3Pair, pairAddress)
   }
+  const getUniV2PairContract = (pairAddress: string) => {
+    return getContract(UniV2Pair.abi, pairAddress)
+  }
 
   return {
     getRouterContract,
     getPoolContract,
     getTokenInfoContract,
     getUniV3FactoryContract,
-    getUniV3PairContract
+    getUniV3PairContract,
+    getUniV2PairContract
   }
 }
