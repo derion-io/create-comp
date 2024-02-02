@@ -51,7 +51,6 @@ export const PoolCreateInfo = () => {
     poolSettings,
     updatePoolSettings,
     deployPool,
-    calculateParamsForPools
   } = usePoolSettings()
   useEffect(() => {
     console.log('#poolSettings', poolSettings)

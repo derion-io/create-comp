@@ -26,6 +26,7 @@ import { isAddress } from 'ethers/lib/utils'
 import { useConfigs } from '../config/useConfigs'
 import { useFeeData } from '../pools/hooks/useFeeData'
 import { useWeb3React } from '../customWeb3React/hook'
+import { useState } from 'react'
 
 export const usePoolSettings = () => {
   const { configs } = useConfigs()
@@ -33,6 +34,8 @@ export const usePoolSettings = () => {
   const gasPrice = bn(feeData?.gasPrice ?? 1)
   const { provider, chainId } = useWeb3React()
   const signer = provider.getSigner()
+
+  const [ deployParams, setDeployParams] = useState<{}[]>([])
 
   const { poolSettings } = useSelector((state: State) => {
     return {
@@ -365,24 +368,19 @@ export const usePoolSettings = () => {
           { value: R, gasPrice }
         ]
       }
-      console.log('#gas.config', params)
+      console.log('#params', params)
       const gasUsed =
         TOKEN_R != configs.wrappedTokenAddress
           ? await utr.estimateGas.exec(...params)
           : await poolDeployer.estimateGas.deploy(...params)
 
-      // const gasUsed =
-      //   TOKEN_R != configs.wrappedTokenAddress
-      //     ? await utr.estimateGas.exec(...params)
-      //     : await helper.estimateGas.createPool(...params)
-      updatePoolSettings({
-        gasUsed: gasUsed.toString()
-      })
       console.log('#gasUsed', gasPrice, gasUsed)
-
       updatePoolSettings({
-        errorMessage: ''
+        gasUsed: gasUsed.toString(),
+        errorMessage: '',
       })
+
+      setDeployParams(params)
       return params
     } catch (err) {
       console.log('####', err)
@@ -395,7 +393,10 @@ export const usePoolSettings = () => {
   }
   const deployPool = async () => {
     if (provider && signer) {
-      const params = await calculateParamsForPools()
+      const params = deployParams?.length > 0
+          ? deployParams
+          : await calculateParamsForPools()
+      console.log('#param', deployParams)
       if (params && params?.length === 0) {
         return
       }
@@ -404,8 +405,8 @@ export const usePoolSettings = () => {
         settings.reserveToken === 'PLD'
           ? configs.derivable.playToken
           : settings.reserveToken === NATIVE_ADDRESS
-            ? configs.wrappedTokenAddress
-            : settings.reserveToken
+          ? configs.wrappedTokenAddress
+          : settings.reserveToken
 
       const utr = new ethers.Contract(
         configs.helperContract.utr,
