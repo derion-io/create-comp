@@ -169,19 +169,6 @@ export const PoolCreateInfo = () => {
   const { feeData } = useFeeData()
   const gasPrice = bn(feeData?.gasPrice ?? 1)
 
-  const handleBlur = () => {
-    if (!provider) return
-
-    setIsLoadingStaticParam(true)
-    calculateParamsForPools()
-      .then((res) => {
-        setIsLoadingStaticParam(false)
-      })
-      .catch((e) => {
-        setIsLoadingStaticParam(false)
-      })
-    // Additional logic you want to perform when input is blurred
-  }
   const leverageCondition = useMemo(() => {
     const isHavePool =
       Object.keys(poolGroups).length > 0 || Object.keys(pools).length > 0
@@ -234,7 +221,6 @@ export const PoolCreateInfo = () => {
         </div>
         <Input
           placeholder='Initial Liquidity'
-          onBlur={handleBlur}
           // suffix={Number(valueIn) > 0 ? <TextGrey>${formatLocalisedCompactNumber(formatFloat(valueIn))}</TextGrey> : ''}
           className='fs-24'
           value={poolSettings.amountIn}
