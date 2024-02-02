@@ -204,7 +204,7 @@ export const usePoolSettings = () => {
         PoolDeployerAbi,
         signer
       )
-      const R = settings.amountIn ? ethers.utils.parseEther(STR(settings.amountIn)) : bn(30)
+      const R = settings.amountIn ? ethers.utils.parseEther(STR(settings.amountIn)) : bn(3000)
       const initParams = calculateInitParamsFromPrice(config, MARK, R)
       console.log('#configs.helperContract.utr', configs.helperContract.utr)
       const utr = new ethers.Contract(
