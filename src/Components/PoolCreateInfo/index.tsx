@@ -298,13 +298,13 @@ export const PoolCreateInfo = () => {
               position='right-top'
               handle={
                 <Text>
-                  {truncateAddress(poolSettings.newPoolAddress ?? '', {
+                  {truncateAddress(poolSettings.poolAddress ?? '', {
                     nPrefix: 8,
                     nSuffix: 8
                   })}
                 </Text>
               }
-              renderContent={() => <Text>{poolSettings.newPoolAddress}</Text>}
+              renderContent={() => <Text>{poolSettings.poolAddress}</Text>}
             />
           </SkeletonLoader>
         </InfoRow>

@@ -68,111 +68,45 @@ export const usePoolSettings = () => {
         return []
       }
 
-      const TOKEN_R =
-        settings.reserveToken === 'PLD'
-          ? configs.derivable.playToken
-          : settings.reserveToken === NATIVE_ADDRESS
-          ? configs.wrappedTokenAddress
-          : settings.reserveToken
-
-      let uniswapPair = new ethers.Contract(
-        settings.pairAddress,
-        jsonUniswapV3Pool.abi,
-        provider
-      )
-
       // Note: some weird bug that "a ?? await b()" does not work
-      const factory = settings.factory ? settings.factory : await uniswapPair.callStatic.factory()
-      updatePoolSettings({
-        factory,
-      })
+      const factory = settings.factory
+      if (!factory) {
+        updatePoolSettings({
+          errorMessage: 'Missing factory'
+        })
+        return []
+      }
       const [FETCHER, fetcherType] = findFetcher(configs, factory)
       const exp = fetcherType?.endsWith('3') ? 2 : 1
-      if (exp === 1) {
-        // Case this pair is UniswapV2
-        uniswapPair = new ethers.Contract(
-          settings.pairAddress,
-          jsonUniswapV2Pool.abi,
-          signer
-        )
-      }
       if (!settings.tokens) {
-        const [slot0, [r0, r1], token0, token1] = await Promise.all([
-          exp == 2 ? uniswapPair.callStatic.slot0() : undefined,
-          exp == 2 ? [] : uniswapPair.getReserves(),
-          uniswapPair.callStatic.token0(),
-          uniswapPair.callStatic.token1(),
-        ])
-        const ct0 = new ethers.Contract(token0, jsonERC20.abi, provider)
-        const ct1 = new ethers.Contract(token1, jsonERC20.abi, provider)
-        const [decimals0, decimals1, symbol0, symbol1] = await Promise.all([
-          ct0.callStatic.decimals(),
-          ct1.callStatic.decimals(),
-          ct0.callStatic.symbol(),
-          ct1.callStatic.symbol()
-        ])
-        if (!symbol0 && !symbol1 && !decimals0 && !decimals1) {
-          // throw new Error('Invalid Pool Address')
-          updatePoolSettings({
-            errorMessage: 'Invalid Pool Address'
-          })
-          return []
-        }
-        settings.slot0 = slot0
-        settings.tokens = [{
-          address: token0,
-          symbol: symbol0,
-          decimals: decimals0,
-        }, {
-          address: token1,
-          symbol: symbol1,
-          decimals: decimals1,
-        }]
-        settings.r0 = r0
-        settings.r1 = r1
         updatePoolSettings({
-          slot0, r0, r1,
-          tokens: settings.tokens,
+          errorMessage: 'Missing pair tokens'
         })
+        return []
       }
-      // detect QTI (quote token index)
-      let QTI = settings.QTI
-      if (QTI == null && settings.tokens[0].symbol.includes('USD')) {
-        QTI = 0
-      }
-      if (QTI == null && settings.tokens[1].symbol.includes('USD')) {
-        QTI = 1
-      }
-      if (QTI == null && configs.stablecoins.includes(settings.tokens[0].address)) {
-        QTI = 0
-      }
-      if (QTI == null && configs.stablecoins.includes(settings.tokens[1].address)) {
-        QTI = 1
-      }
-      if (QTI == null && configs.wrappedTokenAddress == settings.tokens[0].address) {
-        QTI = 0
-      }
-      if (QTI == null && configs.wrappedTokenAddress == settings.tokens[1].address) {
-        QTI = 1
-      }
-      if (QTI == null) {
-        QTI = 0
-        // throw new Error('unable to detect QTI')
-      }
-
-      const baseToken = settings.tokens[1-QTI]
-
       const K = Number(settings.power) * exp
-
       updatePoolSettings({
-        QTI,
-        x: String(K)
+        x: String(K),
       })
+
+      const { QTI, baseToken } = settings
+
+      if (QTI == null || baseToken == null) {
+        updatePoolSettings({
+          errorMessage: 'Missing token info'
+        })
+        return []
+      }
 
       let WINDOW
       if (settings.slot0) {
         WINDOW = settings.window
         if (WINDOW) console.log('WINDOW', NUM(WINDOW) / 60, 'min(s)')
+        const uniswapPair = new ethers.Contract(
+          settings.pairAddress,
+          jsonUniswapV3Pool.abi,
+          provider
+        )
         // no need to wait for this
         uniswapPair.callStatic.observe([0, WINDOW])
           .catch((err: any) => {
@@ -201,6 +135,8 @@ export const usePoolSettings = () => {
         32
       )
       let MARK, price
+
+      console.log('zerg', settings.slot0)
 
       if (settings.slot0) {
         MARK = settings.slot0.sqrtPriceX96.shl(32)
@@ -241,6 +177,13 @@ export const usePoolSettings = () => {
         })
         return []
       }
+
+      const TOKEN_R =
+        settings.reserveToken === 'PLD'
+          ? configs.derivable.playToken
+          : settings.reserveToken === NATIVE_ADDRESS
+          ? configs.wrappedTokenAddress
+          : settings.reserveToken
 
       const config = {
         FETCHER,
@@ -284,7 +227,7 @@ export const usePoolSettings = () => {
       const pool = new ethers.Contract(poolAddress, poolBaseAbi, signer)
 
       updatePoolSettings({
-        newPoolAddress: poolAddress
+        poolAddress,
       })
 
       if (R.eq(0)) {

@@ -21,7 +21,7 @@ export type PoolSettingsType = {
   markPrice: string
   R?: string | string
   x?: string
-  newPoolAddress?: string
+  poolAddress?: string
   baseToken?: TokenType
   quoteToken?: TokenType
   QTI?: 0 | 1
@@ -29,11 +29,8 @@ export type PoolSettingsType = {
   slot0?: any
   r0?: BigNumber,
   r1?: BigNumber,
-  tokens?: {
-    address: string,
-    symbol: string,
-    decimals: number,
-  }[]
+  tokens?: TokenType[],
+  fee?: number,
 }
 
 export const initialState: PoolSettingsType = {

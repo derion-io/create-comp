@@ -5,10 +5,8 @@ import { useContract } from '../../hooks/useContract'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useHelper } from '../../state/config/useHelper'
 import { usePoolSettings } from '../../state/poolSettings/hook'
-import { useListTokens } from '../../state/token/hook'
 import { ZERO_ADDRESS } from '../../utils/constant'
 import { div, unwrap, zerofy } from '../../utils/helpers'
-import { SelectTokenModal } from '../SelectTokenModal'
 import { Box } from '../ui/Box'
 import { CurrencyLogo } from '../ui/CurrencyLogo'
 import { SwapIcon } from '../ui/Icon'
@@ -19,31 +17,19 @@ import { Text, TextBlue, TextGrey, TextPink, TextSell } from '../ui/Text'
 import './style.scss'
 import { findFetcher } from '../../utils/deployHelper'
 import { useWeb3React } from '../../state/customWeb3React/hook'
-import jsonUniswapV2Pool from '@uniswap/v2-core/build/UniswapV2Pair.json'
-import jsonUniswapV3Pool from '../../utils/abi/UniswapV3Pool.json'
-
 export const feeOptions = [100, 300, 500, 1000]
 export const OracleConfigBox = () => {
   const { poolSettings, updatePoolSettings, calculateParamsForPools } =
     usePoolSettings()
-  const { ddlEngine } = useConfigs()
+  const { ddlEngine, configs } = useConfigs()
+  const { provider } = useWeb3React()
   // const [pairInfo, setPairInfo] = useState<string[]>([])
   const [windowTimeSuggest, setWindowTimeSuggest] = useState<string[]>([])
   // const [mark, setMark] = useState<string>('')
   // const [markSuggest, setMarkSuggest] = useState<string[]>([])
   // const [initTime, setInitTime] = useState<string>('')
   // const [initTimeSuggest, setInitTimeSuggest] = useState<string[]>([])
-  const [token0, setToken0] = useState<any>({})
-  const [token1, setToken1] = useState<any>({})
-  const { configs } = useConfigs()
-  const [fee, setFee] = useState<any>(null)
-  const { tokens } = useListTokens()
   const { getTokenIconUrl } = useHelper()
-  const [visibleSelectTokenModal, setVisibleSelectTokenModal] =
-    useState<boolean>(false)
-  const [selectingToken, setSelectingToken] = useState<
-    'token0' | 'token1' | ''
-  >('')
   // const { getUniV3FactoryContract } = useContract()
 
   // const suggestConfigs = (qTIndex: string, qTDecimal: string) => {
@@ -91,43 +77,25 @@ export const OracleConfigBox = () => {
   // }, [token0, token1, fee])
 
   useEffect(() => {
-    fetchPairInfo()
+    fetchPairInfo().catch(console.error)
   }, [poolSettings.pairAddress])
 
-  // useEffect(() => {
-  //   const [baseToken, quoteToken] = poolSettings.QTI
-  //     ? [token0, token1]
-  //     : [token1, token0]
-  //   updatePoolSettings({
-  //     quoteToken,
-  //     baseToken
-  //   })
-  // }, [poolSettings.pairAddress, poolSettings.QTI])
+  useEffect(() => {
+    if (poolSettings.baseToken) {
+      calculateParamsForPools()
+    }
+  }, [poolSettings])
 
-  // const getPairAddress = async () => {
-  //   try {
-  //     const contract = getUniV3FactoryContract()
-  //     const res = await contract.getPool(token0.address, token1.address, fee)
-  //     if (res !== poolSettings.pairAddress) {
-  //       updatePoolSettings({
-  //         pairAddress: utils.getAddress(res)
-  //       })
-  //     }
-  //   } catch (e) {
-  //     console.log(e)
-  //   }
-  // }
+  const { getUniV3PairContract } = useContract()
 
-  const { getUniV3PairContract, getUniV2PairContract } = useContract()
-  const { provider, chainId } = useWeb3React()
-  const signer = provider.getSigner()
   const formatTokenType = async (token: any) => {
+    const address = utils.getAddress(token.address)
     return {
-      address: utils.getAddress(token.address),
+      address,
       decimals: token.decimals,
       symbol: token.symbol,
       name: token.name,
-      logoURI: await getTokenIconUrl(utils.getAddress(token.address))
+      logoURI: await getTokenIconUrl(address)
     }
   }
   const [fetchPairLoading, setFetchPairLoading] = useState(false)
@@ -141,103 +109,69 @@ export const OracleConfigBox = () => {
       try {
         setFetchPairLoading(true)
         console.log('#pair-start-fetch')
+        const settings = poolSettings
+        const { pairAddress } = settings
+        let uniswapPair = getUniV3PairContract(poolSettings.pairAddress)
+        const factory = await uniswapPair.callStatic.factory()
+        updatePoolSettings({
+          factory,
+        })
+        const [, fetcherType] = findFetcher(configs, factory)
+        const pairV3 = fetcherType?.endsWith('3')
 
-        // let pairContract = getUniV3PairContract(poolSettings.pairAddress)
+        // TODO: move slot0 and fee into UNIV3PAIR.getPairInfo
+        const [{ token0, token1 }, slot0, fee ] = await Promise.all([
+          ddlEngine.UNIV3PAIR.getPairInfo({ pairAddress }),
+          pairV3 ? uniswapPair.callStatic.slot0() : undefined,
+          pairV3 ? uniswapPair.callStatic.fee() : undefined,
+        ])
+        const tokens = await Promise.all([
+          formatTokenType(token0),
+          formatTokenType(token1),
+        ])
+        updatePoolSettings({
+          slot0,
+          fee,
+          tokens,
+          r0: token0.reserve,
+          r1: token0.reserve,
+        })
 
-        let pairContract = new ethers.Contract(
-          poolSettings.pairAddress,
-          jsonUniswapV3Pool.abi,
-          provider
-        )
-        console.log('#pair-start-fetch2')
-        let tokens
-        const factory = poolSettings.factory
-          ? poolSettings.factory
-          : await pairContract.callStatic.factory()
-        console.log('#pair-start-fetch3')
-        const [FETCHER, fetcherType] = findFetcher(configs, factory)
-        const exp = fetcherType?.endsWith('3') ? 2 : 1
-        console.log('#pair-start-fetch4')
-
-        if (exp === 1) {
-          // pairContract = getUniV2PairContract(poolSettings.pairAddress)
-          pairContract = new ethers.Contract(
-            poolSettings.pairAddress,
-            jsonUniswapV2Pool.abi,
-            signer
-          )
-          tokens = await ddlEngine.UNIV2PAIR.getPairInfo({
-            pairAddress: poolSettings.pairAddress
-          })
-        } else {
-          console.log('#pair-start-fetch5')
-          tokens = await ddlEngine.UNIV3PAIR.getPairInfo({
-            pairAddress: poolSettings.pairAddress
-          })
-          console.log('#pair-start-fetch6')
-          const fee = await pairContract.fee()
-          console.log('#pair-start-fetch7')
-          setFee(fee)
-        }
-        console.log('#tokenss', tokens)
-        const _token0 = await formatTokenType(tokens.token0)
-        const _token1 = await formatTokenType(tokens.token1)
-        setToken0(_token0)
-        setToken1(_token1)
-        setFee(fee)
-        let QTI = poolSettings.QTI
-        if (QTI == null && _token0.symbol.includes('USD')) {
+        // detect QTI (quote token index)
+        let QTI: 0 | 1 | undefined
+        if (QTI == null && token0.symbol.includes('USD')) {
           QTI = 0
         }
-        if (QTI == null && _token1.symbol.includes('USD')) {
+        if (QTI == null && token1.symbol.includes('USD')) {
           QTI = 1
         }
-        if (QTI == null && configs.stablecoins.includes(_token0.address)) {
+        if (QTI == null && configs.stablecoins.includes(token0.address)) {
           QTI = 0
         }
-        if (QTI == null && configs.stablecoins.includes(_token1.address)) {
+        if (QTI == null && configs.stablecoins.includes(token1.address)) {
           QTI = 1
         }
-        if (QTI == null && configs.wrappedTokenAddress === _token0.address) {
+        if (QTI == null && configs.wrappedTokenAddress == token0.address) {
           QTI = 0
         }
-        if (QTI == null && configs.wrappedTokenAddress === _token1.address) {
+        if (QTI == null && configs.wrappedTokenAddress == token1.address) {
           QTI = 1
         }
-        const [baseToken, quoteToken] = QTI
-          ? [_token0, _token1]
-          : [_token1, _token0]
+        if (QTI == null) {
+          QTI = 0
+          // throw new Error('unable to detect QTI')
+        }
+
+        const baseToken = tokens[1-QTI]
+        const quoteToken = tokens[QTI]
+
         updatePoolSettings({
           QTI,
+          baseToken,
           quoteToken,
-          baseToken
-          // errorMessage: ''
         })
-        if (
-          token0?.symbol &&
-          token1?.symbol &&
-          isAddress(poolSettings.pairAddress)
-        ) {
-          calculateParamsForPools()
-        }
+
         setFetchPairLoading(false)
-        // setPairInfo1({ pair: poolSettings.pairAddress, ...res })
-        // console.log(res)
-        // if (res.token0.symbol.toLowerCase().includes('us') || res.token0.symbol.toLowerCase().includes('dai')) {
-        //   setPairInfo([
-        //     res.token1.symbol + '/' + res.token0.symbol,
-        //     res.token0.symbol + '/' + res.token1.symbol
-        //   ])
-        //   setQuoteTokenIndex('0')
-        //   suggestConfigs('0', res.token0.decimals)
-        // } else {
-        //   setPairInfo([
-        //     res.token0.symbol + '/' + res.token1.symbol,
-        //     res.token1.symbol + '/' + res.token0.symbol
-        //   ])
-        //   setQuoteTokenIndex('1')
-        //   suggestConfigs('1', res.token1.decimals)
-        // }
       } catch (error) {
         setFetchPairLoading(false)
         updatePoolSettings({
@@ -351,8 +285,8 @@ export const OracleConfigBox = () => {
                   </SkeletonLoader>
 
                   <TextGrey className='config-fee'>
-                    {fee
-                      ? `Uniswap V3 (${fee / 10_000}% fee)`
+                    {poolSettings.fee
+                      ? `Uniswap V3 (${poolSettings.fee / 10_000}% fee)`
                       : quoteToken?.symbol && baseToken.symbol
                         ? 'Uniswap V2'
                         : ''}
@@ -632,19 +566,6 @@ export const OracleConfigBox = () => {
           />
         </div>
       </Box>
-      <SelectTokenModal
-        visible={visibleSelectTokenModal}
-        setVisible={setVisibleSelectTokenModal}
-        iniTokens={Object.values(tokens)}
-        onSelectToken={(token: any) => {
-          console.log(selectingToken)
-          if (selectingToken === 'token0') {
-            setToken0(token)
-          } else {
-            setToken1(token)
-          }
-        }}
-      />
     </React.Fragment>
   )
 }
