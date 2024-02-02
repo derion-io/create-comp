@@ -111,11 +111,8 @@ export const OracleConfigBox = () => {
         console.log('#pair-start-fetch')
         const settings = poolSettings
         const { pairAddress } = settings
-        let uniswapPair = getUniV3PairContract(poolSettings.pairAddress)
+        const uniswapPair = getUniV3PairContract(poolSettings.pairAddress)
         const factory = await uniswapPair.callStatic.factory()
-        updatePoolSettings({
-          factory,
-        })
         const [, fetcherType] = findFetcher(configs, factory)
         const pairV3 = fetcherType?.endsWith('3')
 
@@ -129,13 +126,6 @@ export const OracleConfigBox = () => {
           formatTokenType(token0),
           formatTokenType(token1),
         ])
-        updatePoolSettings({
-          slot0,
-          fee,
-          tokens,
-          r0: token0.reserve,
-          r1: token0.reserve,
-        })
 
         // detect QTI (quote token index)
         let QTI: 0 | 1 | undefined
@@ -169,8 +159,13 @@ export const OracleConfigBox = () => {
           QTI,
           baseToken,
           quoteToken,
+          slot0,
+          fee,
+          factory,
+          tokens,
+          r0: token0.reserve,
+          r1: token1.reserve
         })
-
         setFetchPairLoading(false)
       } catch (error) {
         setFetchPairLoading(false)
@@ -359,16 +354,22 @@ export const OracleConfigBox = () => {
               }`
             }}
             placeholder='0'
-            value={String(poolSettings.window)}
+            value={String(poolSettings.slot0 ? poolSettings.window : poolSettings.windowBlocks)}
             onValueChange={(e) => {
               // @ts-ignore
               if (Number(e.target.value) >= 0) {
-                updatePoolSettings({
-                  window: (e.target as HTMLInputElement).value
-                })
+                updatePoolSettings(
+                  poolSettings.slot0
+                    ? {
+                      windowBlocks: (e.target as HTMLInputElement).value,
+                    }
+                    : {
+                      window: (e.target as HTMLInputElement).value,
+                    }
+                )
               }
             }}
-            suffix='seconds'
+            suffix={poolSettings.slot0 ? 'seconds' : 'blocks'}
           />
         </div>
         <div className='config-item'>

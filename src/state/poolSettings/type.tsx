@@ -36,6 +36,7 @@ export type PoolSettingsType = {
 export const initialState: PoolSettingsType = {
   pairAddress: '',
   window: '120',
+  windowBlocks: '40',
   power: '2',
   interestRate: '0.03',
   searchBySymbols: ['', ''],
