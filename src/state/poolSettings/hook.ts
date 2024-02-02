@@ -18,7 +18,7 @@ import {
   findFetcher,
   mulDivNum
 } from '../../utils/deployHelper'
-import { NUM, bn, numberToWei, parseCallStaticError } from '../../utils/helpers'
+import { NUM, STR, bn, numberToWei, parseCallStaticError } from '../../utils/helpers'
 import { State } from '../types'
 import { setPoolSettings } from './reducer'
 import { PoolSettingsType } from './type'
@@ -204,7 +204,7 @@ export const usePoolSettings = () => {
         PoolDeployerAbi,
         signer
       )
-      const R = ethers.utils.parseEther(String(settings.amountIn || '0'))
+      const R = settings.amountIn ? ethers.utils.parseEther(STR(settings.amountIn)) : bn(30)
       const initParams = calculateInitParamsFromPrice(config, MARK, R)
       console.log('#configs.helperContract.utr', configs.helperContract.utr)
       const utr = new ethers.Contract(
