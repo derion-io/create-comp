@@ -43,7 +43,7 @@ export const initialState: PoolSettingsType = {
   premiumRate: '0.3',
   vesting: '60',
   closingFee: '0.3',
-  closingFeeDuration: '24',
+  closingFeeDuration: '1',
   reserveToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
   // reserveToken: ''0xBa95100a0c3abaD1e10414Be77347D3D0900D8c2'', // PlayDerivable
   errorMessage: '',
