@@ -8,6 +8,7 @@ import {
   NATIVE_ADDRESS,
   ZERO_ADDRESS
 } from '../../utils/constant'
+import { loadJSON } from '../setting/type'
 
 export const useInitConfig = ({
   library,
@@ -31,6 +32,8 @@ export const useInitConfig = ({
   const dispatch = useDispatch()
   const location = useLocation()
 
+  const scanApiKeys = loadJSON('scanApiKey', {})
+
   useEffect(() => {
     dispatch(
       setConfigs({
@@ -50,12 +53,15 @@ export const useInitConfig = ({
         console.log('=======await sync account========')
       }
 
+      const scanApiKey = scanApiKeys?.[chainId] ?? ''
+      console.log('scan API Key', scanApiKey)
+
       const engine = new Engine({
         env,
         chainId,
         account: account || ZERO_ADDRESS,
         signer: library?.getSigner(),
-        scanApiKey: '',
+        scanApiKey,
         storage: {
           // @ts-ignore
           setItem: (itemName, value) => localStorage.setItem(itemName, value),

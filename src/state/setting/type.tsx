@@ -1,4 +1,4 @@
-function loadJSON(key: string, defaultValue: any): any {
+export function loadJSON(key: string, defaultValue: any): any {
   try {
     const json = localStorage.getItem(key)
     if (json != null) {
