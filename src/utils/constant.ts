@@ -68,3 +68,5 @@ export const UNWRAP = {
   WETH: 'ETH',
   WBNB: 'BNB',
 }
+
+export const R_PLACEHOLDER = '0.000000003'

@@ -8,7 +8,7 @@ import { usePoolSettings } from '../../state/poolSettings/hook'
 import { useListPool } from '../../state/pools/hooks/useListPool'
 import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
-import { NATIVE_ADDRESS } from '../../utils/constant'
+import { NATIVE_ADDRESS, R_PLACEHOLDER } from '../../utils/constant'
 import formatLocalisedCompactNumber, {
   formatWeiToDisplayNumber
 } from '../../utils/formatBalance'
@@ -219,7 +219,7 @@ export const PoolCreateInfo = () => {
           </SkeletonLoader>
         </div>
         <Input
-          placeholder='Initial Liquidity'
+          placeholder={R_PLACEHOLDER}
           // suffix={Number(valueIn) > 0 ? <TextGrey>${formatLocalisedCompactNumber(formatFloat(valueIn))}</TextGrey> : ''}
           className='fs-24'
           value={poolSettings.amountIn}

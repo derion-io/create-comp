@@ -11,7 +11,7 @@ import { abi as poolBaseAbi } from '../../utils/abi/PoolBase.json'
 import { abi as PoolDeployerAbi } from '../../utils/abi/PoolDeployer.json'
 import jsonUniswapV3Pool from '../../utils/abi/UniswapV3Pool.json'
 import { abi as univeralTokenRouterAbi } from '../../utils/abi/UniversalTokenRouter.json'
-import { NATIVE_ADDRESS, Q128, Q256M } from '../../utils/constant'
+import { NATIVE_ADDRESS, Q128, Q256M, R_PLACEHOLDER } from '../../utils/constant'
 import {
   calculateInitParamsFromPrice,
   feeToOpenRate,
@@ -207,7 +207,7 @@ export const usePoolSettings = () => {
         PoolDeployerAbi,
         signer
       )
-      const R = settings.amountIn ? ethers.utils.parseEther(STR(settings.amountIn)) : bn(3000)
+      const R = ethers.utils.parseEther(STR(settings.amountIn || R_PLACEHOLDER))
       const initParams = calculateInitParamsFromPrice(config, MARK, R)
       console.log('#configs.helperContract.utr', configs.helperContract.utr)
       const utr = new ethers.Contract(
