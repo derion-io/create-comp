@@ -40,7 +40,7 @@
     "@uniswap/v3-sdk": "^3.9.0",
     "assisted-json-rpc-provider": "git+ssh://git@github.com:derivable-labs/AssistedJsonRpcProvider.git#dev",
     "caniuse-lite": "^1.0.30001576",
-    "derivable-tools": "git+ssh://git@github.com:derivable-labs/derivable-tools.git#search-index",
+    "derivable-tools": "git+ssh://git@github.com:derivable-labs/engine.git#search-index",
     "ethereum-multicall": "^2.15.0",
     "ethers": "^5.4.6",
     "graphql": "^15.5.0",
