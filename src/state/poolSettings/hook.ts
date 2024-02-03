@@ -236,66 +236,6 @@ export const usePoolSettings = () => {
       if (R.eq(0)) {
         return []
       }
-      // let params = []
-
-      // if (TOKEN_R !== configs.wrappedTokenAddress) {
-      //   const deployerAddress = await deployer.getAddress()
-      //   if (
-      //     (TOKEN_R as String).toLowerCase() !== NATIVE_ADDRESS.toLowerCase()
-      //   ) {
-      //     const rERC20 = new ethers.Contract(TOKEN_R, jsonERC20.abi, deployer)
-      //     const rAllowance = await rERC20.allowance(
-      //       deployerAddress,
-      //       utr.address
-      //     )
-      //     if (rAllowance.lt(R)) {
-      //       updatePoolSettings({
-      //         errorMessage: 'Token reserve approval required'
-      //       })
-      //       // throw new Error('!!! Token reserve approval required !!!')
-      //     }
-      //   }
-      //   const payment = {
-      //     utr: utr.address,
-      //     payer: deployerAddress,
-      //     recipient: deployerAddress
-      //   }
-      //   const PAYMENT = 0
-
-      //   params = [
-      //     [],
-      //     [
-      //       {
-      //         inputs: [],
-      //         code: poolDeployer.address,
-      //         data: (await poolDeployer.populateTransaction.create(config)).data
-      //       },
-      //       {
-      //         inputs: [
-      //           {
-      //             mode: PAYMENT,
-      //             eip: 20,
-      //             token: TOKEN_R,
-      //             id: 0,
-      //             amountIn: R,
-      //             recipient: pool.address
-      //           }
-      //         ],
-      //         code: poolAddress,
-      //         data: (await pool.populateTransaction.init(initParams, payment))
-      //           .data
-      //       }
-      //     ],
-      //     { gasPrice }
-      //   ]
-      // } else {
-      //   params = [
-      //     config,
-      //     initParams,
-      //     configs.derivable.poolDeployer,
-      //     { value: R, gasPrice }
-      //   ]
-      // }
 
       let params = []
       const deployerAddress = await signer.getAddress()

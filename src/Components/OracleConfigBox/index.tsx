@@ -1,4 +1,4 @@
-import { ethers, utils } from 'ethers'
+import { utils } from 'ethers'
 import { isAddress } from 'ethers/lib/utils'
 import React, { Fragment, useEffect, useMemo, useState } from 'react'
 import { useContract } from '../../hooks/useContract'
@@ -16,65 +16,13 @@ import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { Text, TextBlue, TextGrey, TextPink, TextSell } from '../ui/Text'
 import './style.scss'
 import { findFetcher } from '../../utils/deployHelper'
-import { useWeb3React } from '../../state/customWeb3React/hook'
 export const feeOptions = [100, 300, 500, 1000]
 export const OracleConfigBox = () => {
   const { poolSettings, updatePoolSettings, calculateParamsForPools } =
     usePoolSettings()
   const { ddlEngine, configs } = useConfigs()
-  const { provider } = useWeb3React()
-  // const [pairInfo, setPairInfo] = useState<string[]>([])
   const [windowTimeSuggest, setWindowTimeSuggest] = useState<string[]>([])
-  // const [mark, setMark] = useState<string>('')
-  // const [markSuggest, setMarkSuggest] = useState<string[]>([])
-  // const [initTime, setInitTime] = useState<string>('')
-  // const [initTimeSuggest, setInitTimeSuggest] = useState<string[]>([])
   const { getTokenIconUrl } = useHelper()
-  // const { getUniV3FactoryContract } = useContract()
-
-  // const suggestConfigs = (qTIndex: string, qTDecimal: string) => {
-  //   // const filterExistPoolData = Object.entries(pools).filter(([key]) => {
-  //   //   return key.includes(poolSettings.pairAddress.substring(2).toLowerCase())
-  //   // })
-  //   const filterExistPoolData: any = []
-  //   const wTimeArr = []
-  //   const markArr = []
-  //   const iTimeArr = []
-  //   for (let index = 0; index < filterExistPoolData.length; index++) {
-  //     const poolData = filterExistPoolData[index][1]
-  //     const oracle = poolData.ORACLE
-  //     if (
-  //       (qTIndex === '0' && oracle.includes('0x0')) ||
-  //       (qTIndex === '1' && oracle.includes('0x8'))
-  //     ) {
-  //       wTimeArr.push(bn(oracle).shr(192).toNumber().toString())
-  //       if (parseInt(qTDecimal) === 6) {
-  //         markArr.push(
-  //           Math.pow(poolData.MARK.mul(1e6).shr(128).toNumber(), 2).toString()
-  //         )
-  //       } else {
-  //         markArr.push(
-  //           Math.pow(poolData.MARK.shr(128).toNumber(), 2).toString()
-  //         )
-  //       }
-  //       iTimeArr.push(poolData.INIT_TIME.toNumber().toString())
-  //     }
-  //   }
-  //   updatePoolSettings({
-  //     window: String(parseInt(wTimeArr[0]))
-  //   })
-  //   setWindowTimeSuggest(wTimeArr)
-  //   setMark(markArr[0])
-  //   setMarkSuggest(markArr)
-  //   setInitTime(iTimeArr[0])
-  //   setInitTimeSuggest(iTimeArr)
-  // }
-
-  // useEffect(() => {
-  //   if (token0 && token1 && fee) {
-  //     getPairAddress()
-  //   }
-  // }, [token0, token1, fee])
 
   useEffect(() => {
     fetchPairInfo().catch(console.error)
