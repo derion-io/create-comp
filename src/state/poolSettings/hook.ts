@@ -1,5 +1,4 @@
 import jsonERC20 from '@uniswap/v2-core/build/ERC20.json'
-import jsonUniswapV2Pool from '@uniswap/v2-core/build/UniswapV2Pair.json'
 import { ADDRESS_ZERO } from '@uniswap/v3-sdk'
 import { rateToHL } from 'derivable-tools/dist/utils/helper'
 import { ethers, utils } from 'ethers'
@@ -32,8 +31,8 @@ export const usePoolSettings = () => {
   const { configs } = useConfigs()
   const { feeData } = useFeeData()
   const gasPrice = bn(feeData?.gasPrice ?? 1)
-  const { provider, chainId } = useWeb3React()
-  const signer = provider.getSigner()
+  const { provider } = useWeb3React()
+  const signer = provider?.getSigner()
 
   const [ deployParams, setDeployParams] = useState<{}[]>([])
 
