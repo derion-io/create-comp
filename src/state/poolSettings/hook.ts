@@ -179,12 +179,12 @@ export const usePoolSettings = () => {
         TOKEN_R,
         MARK,
         K: bn(K),
-        INTEREST_HL: rateToHL(NUM(settings.interestRate ?? 0) / 100, NUM(settings.power)),
-        PREMIUM_HL: rateToHL(NUM(settings.premiumRate ?? 0) / 100, NUM(settings.power)),
-        MATURITY: NUM(settings.maturityHours ?? 0) * 3600,
-        MATURITY_VEST: NUM(settings.vesting ?? 0),
-        MATURITY_RATE: feeToOpenRate(NUM(settings.closingFee ?? 0) / 100),
-        OPEN_RATE: feeToOpenRate(NUM(settings.openingFee ?? 0) / 100)
+        INTEREST_HL: rateToHL(NUM(settings.interestRate || 0) / 100, NUM(settings.power)),
+        PREMIUM_HL: rateToHL(NUM(settings.premiumRate || 0) / 100, NUM(settings.power)),
+        MATURITY: NUM(settings.maturityHours || 0) * 3600,
+        MATURITY_VEST: NUM(settings.vesting || 0),
+        MATURITY_RATE: feeToOpenRate(NUM(settings.closingFee || 0) / 100),
+        OPEN_RATE: feeToOpenRate(NUM(settings.openingFee || 0) / 100)
       }
       const poolDeployer = new ethers.Contract(
         configs.derivable.poolDeployer!,
