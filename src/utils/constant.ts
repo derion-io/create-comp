@@ -14,7 +14,8 @@ export const DEFAULT_CHAIN = 42161
 export const CHAINS = {
   ARBITRUM: 42161,
   BASE: 8453,
-  BSC: 56
+  BSC: 56,
+  OPBNB: 204,
 }
 
 export const SECONDS_PER_HOUR = 60 * 60
