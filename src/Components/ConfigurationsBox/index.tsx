@@ -204,9 +204,9 @@ export const ConfigurationsBox = () => {
             className: 'config-input'
           }}
           placeholder='0'
-          value={poolSettings.closingFeeDuration}
+          value={poolSettings.maturityHours}
           onValueChange={(e) => {
-            updatePoolSettings({ closingFeeDuration: e.target.value })
+            updatePoolSettings({ maturityHours: e.target.value })
           }}
           suffix='hours'
         />

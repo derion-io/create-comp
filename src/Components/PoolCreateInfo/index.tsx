@@ -188,11 +188,11 @@ export const PoolCreateInfo = () => {
     if (isDeployPool) {
       return 'Waiting for confirmation...'
     }
-    const { openingFee, vesting, closingFeeDuration } = poolSettings
+    const { openingFee, vesting, maturityHours } = poolSettings
     if (openingFee) {
       return 'Opening Fee Not Supported'
     }
-    const maturity = Number(closingFeeDuration) * 3600
+    const maturity = Number(maturityHours) * 3600
     if (Number(vesting) > maturity) {
       return 'Vesting > Maturity '
     }
