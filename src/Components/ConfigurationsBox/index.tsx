@@ -4,7 +4,7 @@ import { useHelper } from '../../state/config/useHelper'
 import { usePoolSettings } from '../../state/poolSettings/hook'
 import { Box } from '../ui/Box'
 import NumberInput from '../ui/Input/InputNumber'
-import { Text, TextBlue } from '../ui/Text'
+import { Text, TextBlue, TextSell } from '../ui/Text'
 import '../OracleConfigBox/style.scss'
 export const feeOptions = [100, 300, 500, 1000]
 export const ConfigurationsBox = () => {
@@ -141,6 +141,7 @@ export const ConfigurationsBox = () => {
       <div className='config-item'>
         <Text fontSize={14} fontWeight={600}>
             Opening Fee
+            {poolSettings.openingFee && <TextSell>{' '}(UNSUPPORTED)</TextSell>}
         </Text>
         <NumberInput
           inputWrapProps={{
