@@ -180,7 +180,25 @@ export const PoolCreateInfo = () => {
       (leverageData as { bars: any[] }[])[0].bars.length > 1
     return isHaveLeverage && isHavePool
   }, [poolGroups, pools, leverageData])
-  const { settings } = useSettings()
+
+  const getValidationError = (): string => {
+    if (isLoadingStaticParam) {
+      return 'Calculating...'
+    }
+    if (isDeployPool) {
+      return 'Waiting for confirmation...'
+    }
+    const { openingFee, vesting, closingFeeDuration } = poolSettings
+    if (openingFee) {
+      return 'Opening Fee Not Supported'
+    }
+    const maturity = Number(closingFeeDuration) * 3600
+    if (Number(vesting) > maturity) {
+      return 'Vesting > Maturity '
+    }
+    return ''
+  }
+
   return (
     <div className='pool-create-info'>
       <div className='amount-input-box'>
@@ -422,17 +440,9 @@ export const PoolCreateInfo = () => {
       <ButtonExecute
         className='create-pool-button w-100 mt-1'
         onClick={handleCreatePool}
-        disabled={
-          isLoadingStaticParam ||
-          isDeployPool ||
-          !!deployError
-        }
+        disabled={!!getValidationError() || !!deployError}
       >
-        {isLoadingStaticParam
-          ? 'Calculating...'
-          : isDeployPool
-            ? 'Waiting for confirmation...'
-            : deployError || 'Deploy New Pool'}
+        {getValidationError() || deployError || 'Deploy New Pool'}
       </ButtonExecute>
     </div>
   )

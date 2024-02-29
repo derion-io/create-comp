@@ -141,7 +141,6 @@ export const ConfigurationsBox = () => {
       <div className='config-item'>
         <Text fontSize={14} fontWeight={600}>
             Opening Fee
-            {poolSettings.openingFee && <TextSell>{' '}(UNSUPPORTED)</TextSell>}
         </Text>
         <NumberInput
           inputWrapProps={{
