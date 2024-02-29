@@ -50,7 +50,8 @@ export const PoolCreateInfo = () => {
   const {
     poolSettings,
     updatePoolSettings,
-    deployPool
+    deployPool,
+    deployError,
   } = usePoolSettings()
   useEffect(() => {
     console.log('#poolSettings', poolSettings)
@@ -424,16 +425,14 @@ export const PoolCreateInfo = () => {
         disabled={
           isLoadingStaticParam ||
           isDeployPool ||
-          poolSettings.errorMessage?.length !== 0
+          !!deployError
         }
       >
         {isLoadingStaticParam
           ? 'Calculating...'
           : isDeployPool
             ? 'Waiting for confirmation...'
-            : poolSettings.errorMessage
-              ? poolSettings.errorMessage
-              : 'Deploy New Pool'}
+            : deployError || 'Deploy New Pool'}
       </ButtonExecute>
     </div>
   )

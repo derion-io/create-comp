@@ -19,8 +19,12 @@ import { findFetcher } from '../../utils/deployHelper'
 import { useWindowSize } from '../../hooks/useWindowSize'
 export const feeOptions = [100, 300, 500, 1000]
 export const OracleConfigBox = () => {
-  const { poolSettings, updatePoolSettings, calculateParamsForPools } =
-    usePoolSettings()
+  const {
+    poolSettings,
+    updatePoolSettings,
+    calculateParamsForPools,
+    setDeployError,
+  } = usePoolSettings()
   const { ddlEngine, configs } = useConfigs()
   const [windowTimeSuggest, setWindowTimeSuggest] = useState<string[]>([])
   const { getTokenIconUrl } = useHelper()
@@ -122,8 +126,8 @@ export const OracleConfigBox = () => {
         updatePoolSettings({
           quoteToken: undefined,
           baseToken: undefined,
-          errorMessage: 'Invalid Pool Address'
         })
+        setDeployError('Invalid Pool Address')
         console.log('#pair-load-error', error)
         // setPairInfo(['Can not get Pair Address Info'])
       }

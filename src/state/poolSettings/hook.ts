@@ -34,6 +34,7 @@ export const usePoolSettings = () => {
   const { provider } = useWeb3React()
   const signer = provider?.getSigner()
 
+  const [ deployError, setDeployError ] = useState<string>('')
   const [ deployParams, setDeployParams] = useState<{}[]>([])
 
   const { poolSettings } = useSelector((state: State) => {
@@ -64,26 +65,20 @@ export const usePoolSettings = () => {
 
       if (!isAddress(settings.pairAddress)) {
         // throw new Error('Invalid Pool Address')
-        updatePoolSettings({
-          errorMessage: 'Invalid Pool Address'
-        })
+        setDeployError('Invalid Pool Address')
         return []
       }
 
       // Note: some weird bug that "a ?? await b()" does not work
       const factory = settings.factory
       if (!factory) {
-        updatePoolSettings({
-          errorMessage: 'Missing factory'
-        })
+        setDeployError('Missing factory')
         return []
       }
       const [FETCHER, fetcherType] = findFetcher(configs, factory)
       const exp = fetcherType?.endsWith('3') ? 2 : 1
       if (!settings.tokens) {
-        updatePoolSettings({
-          errorMessage: 'Missing pair tokens'
-        })
+        setDeployError('Missing pair tokens')
         return []
       }
       const K = Number(settings.power) * exp
@@ -94,9 +89,7 @@ export const usePoolSettings = () => {
       const { QTI, baseToken } = settings
 
       if (QTI == null || baseToken == null) {
-        updatePoolSettings({
-          errorMessage: 'Missing token info'
-        })
+        setDeployError('Missing token info')
         return []
       }
 
@@ -113,15 +106,12 @@ export const usePoolSettings = () => {
         uniswapPair.callStatic.observe([0, WINDOW])
           .catch((err: any) => {
             if (err.reason == 'OLD') {
-              updatePoolSettings({
-                errorMessage: 'WINDOW too long'
-              })
+              setDeployError('WINDOW too long')
+              return
               // throw new Error('WINDOW too long')
             }
             // throw err
-            updatePoolSettings({
-              errorMessage: parseCallStaticError(err) ?? err.reason ?? err.error ?? err
-            })
+            setDeployError(STR(parseCallStaticError(err)))
           })
       } else {
         WINDOW = settings.windowBlocks
@@ -149,9 +139,7 @@ export const usePoolSettings = () => {
       } else {
         const {r0, r1} = settings
         if (!r0 || !r1) {
-          updatePoolSettings({
-            errorMessage: 'Missing pair reserves'
-          })
+          setDeployError('Missing pair reserves')
           return []
         }
         if (QTI === 0) {
@@ -174,9 +162,7 @@ export const usePoolSettings = () => {
       })
       if (settings.amountIn === '' || settings.amountIn === '0') {
         // throw new Error('Invalid Input Amount')
-        updatePoolSettings({
-          errorMessage: 'Invalid Input Amount'
-        })
+        setDeployError('Invalid Input Amount')
         return []
       }
 
@@ -315,17 +301,14 @@ export const usePoolSettings = () => {
       console.log('#gasUsed', gasPrice, gasUsed)
       updatePoolSettings({
         gasUsed: gasUsed.toString(),
-        errorMessage: '',
       })
+      setDeployError('')
 
       setDeployParams(params)
       return params
     } catch (err) {
       console.log('####', err)
-      updatePoolSettings({
-        errorMessage:
-          err?.reason ?? err?.error ?? err?.data?.message ?? 'unknown'
-      })
+      setDeployError(STR(parseCallStaticError(err)))
       return []
     }
   }
@@ -393,6 +376,9 @@ export const usePoolSettings = () => {
 
   return {
     poolSettings,
+    deployParams,
+    setDeployError,
+    deployError,
     updatePoolSettings,
     calculateParamsForPools,
     deployPool
