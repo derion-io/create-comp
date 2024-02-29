@@ -136,12 +136,15 @@ export const OracleConfigBox = () => {
 
   const { baseToken, quoteToken } = poolSettings
   const searchKeyError = useMemo(() => {
+    if (!baseToken) {
+      return ''
+    }
     const [s0, s1] = poolSettings.searchBySymbols
-    const isDuplicatePlaceholder0 = s0 === baseToken?.symbol?.slice(1)
-    const isDuplicatePlaceholder1 = s1 === baseToken?.symbol?.slice(0, -1)
+    const baseSymbol = baseToken.symbol.toUpperCase()
+    const isDuplicatePlaceholder0 = s0 === baseSymbol.slice(1)
+    const isDuplicatePlaceholder1 = s1 === baseSymbol.slice(0, -1)
     const isDuplicate = s0 !== '' && s0 === s1
-    const isDuplicateBaseSymbol =
-      s0 === baseToken?.symbol || s1 === baseToken?.symbol
+    const isDuplicateBaseSymbol = s0 === baseSymbol || s1 === baseSymbol
     if (isDuplicate || isDuplicatePlaceholder0 || isDuplicatePlaceholder1) {
       return '(Duplicated)'
     }
@@ -279,9 +282,9 @@ export const OracleConfigBox = () => {
                 }}
                 placeholder={
                   (key
-                    ? baseToken?.symbol?.slice(1)
-                    : baseToken?.symbol?.slice(0, -1)) || 'keyword'
-                }
+                    ? baseToken?.symbol?.toUpperCase()?.slice(1)
+                    : baseToken?.symbol?.toUpperCase()?.slice(0, -1)) || 'keyword'
+              }
               />
             </div>
           )

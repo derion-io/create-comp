@@ -33,15 +33,15 @@ export type PoolSettingsType = {
 }
 
 export const initialState: PoolSettingsType = {
+  searchBySymbols: ['', ''],
   pairAddress: '',
   window: '120',
   windowBlocks: '40',
   power: '2',
   interestRate: '0.03',
-  searchBySymbols: ['', ''],
-  premiumRate: '0.3',
-  vesting: '60',
-  closingFee: '0.3',
+  premiumRate: '3',
+  vesting: '120',
+  closingFee: '1',
   closingFeeDuration: '1',
   reserveToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
   // reserveToken: ''0xBa95100a0c3abaD1e10414Be77347D3D0900D8c2'', // PlayDerivable

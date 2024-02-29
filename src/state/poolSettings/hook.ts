@@ -226,8 +226,8 @@ export const usePoolSettings = () => {
       const topics = [
         baseToken.address,
         baseToken.symbol,
-        settings.searchBySymbols[0] ?? baseToken.symbol.slice(0, -1),
-        settings.searchBySymbols[1] ?? baseToken.symbol.slice(1),
+        settings.searchBySymbols[0] || baseToken.symbol.slice(0, -1),
+        settings.searchBySymbols[1] || baseToken.symbol.slice(1),
       ].map((value, i) => {
         if (i > 0) {
           return utils.formatBytes32String(value.toUpperCase())
