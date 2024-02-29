@@ -14,7 +14,17 @@ $element-gap: 2rem;
   //&__config-card {
   //  width: 648px;
   //}
-
+  &__wrap {
+    width: 1400px;
+    gap: 2rem;
+    display: flex;
+    @media only screen and (max-width: 768px) {
+      display: block;
+      width: calc(100% - 2rem);
+      margin-left: 1rem;
+      gap: 1rem;
+     };
+  }
   &__header {
     margin-bottom: 1.5rem;
     display: flex;
@@ -34,7 +44,13 @@ $element-gap: 2rem;
       margin: auto;
     }
   }
-
+  &__output {
+    width: 400px;
+    @media only screen and (max-width: 768px) {
+      width: 100%;
+      margin-top: 1rem;
+     };   
+  }
   &__head {
     display: flex;
     align-items: center;
@@ -59,10 +75,8 @@ $element-gap: 2rem;
     max-width: calc(100vw - 3rem);
     padding-bottom: 24px;
     display: flex;
-    @media only screen and (max-width: 768px) {
-      display: block;
-     };
     gap: 2rem;
+    
     &--left {
       width: 50%;
       // margin-left: 25%;

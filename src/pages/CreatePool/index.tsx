@@ -15,11 +15,13 @@ import { Text } from '../../Components/ui/Text'
 import { bn } from '../../utils/helpers'
 import { PoolCreateInfo } from '../../Components/PoolCreateInfo'
 import { OracleConfigBox } from '../../Components/OracleConfigBox'
+import { ConfigurationsBox } from '../../Components/ConfigurationsBox'
+import { useWindowSize } from '../../hooks/useWindowSize'
 
 export const CreatePool = () => {
   const { account, chainId } = useWeb3React()
   const [recipient, setRecipient] = useState<string>(ZERO_ADDRESS)
-
+  const { width } = useWindowSize()
   useMemo(() => {
     if (account) {
       setRecipient(account)
@@ -30,10 +32,9 @@ export const CreatePool = () => {
     <div className={`ddl-pool-page ${UNDER_CONSTRUCTION && 'blur-3'}`}>
       <div
         style={{
-          display: 'flex',
-          width: '1400px',
-          gap: '2rem'
+
         }}
+        className='ddl-pool-page__wrap'
       >
         <Card
           style={{
@@ -49,14 +50,26 @@ export const CreatePool = () => {
             </Text>
           </div>
           <OracleConfigBox />
+          {width && width < 768 ? '' : <ConfigurationsBox/>}
         </Card>
         <Card
+          className='ddl-pool-page__output'
           style={{
-            width: '400px'
+            paddingBottom: '1rem'
           }}
         >
           <PoolCreateInfo />
+
         </Card>
+        {width && width < 768 ? <Card
+          className='ddl-pool-page__output'
+          style={{
+            padding: '1rem'
+          }}
+        >
+          <ConfigurationsBox/>
+        </Card> : ''}
+
       </div>
       {/* <PoolCreateInfo /> */}
     </div>

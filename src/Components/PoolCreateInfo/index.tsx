@@ -50,7 +50,7 @@ export const PoolCreateInfo = () => {
   const {
     poolSettings,
     updatePoolSettings,
-    deployPool,
+    deployPool
   } = usePoolSettings()
   useEffect(() => {
     console.log('#poolSettings', poolSettings)
@@ -76,6 +76,9 @@ export const PoolCreateInfo = () => {
     amount: STR(poolSettings.amountIn ?? 0),
     tokenAddress: inputTokenAddress
   })
+  useEffect(() => {
+    console.log('#price', value)
+  }, [value, inputTokenAddress])
   useMemo(() => {
     console.log('#poolSettings.amountIn', poolSettings.amountIn)
   }, [poolSettings.amountIn])
