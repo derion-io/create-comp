@@ -6,7 +6,7 @@ import {
   Q64
 } from './constant'
 import { bn, numberToWei } from './helpers'
-import { INetworkConfig } from 'derivable-tools/dist/utils/configs'
+import { INetworkConfig } from 'derivable-engine/dist/utils/configs'
 
 export function feeToOpenRate(fee: any) {
   return bn(((1 - fee) * 10000).toFixed(0))

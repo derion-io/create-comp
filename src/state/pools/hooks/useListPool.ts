@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../types'
 import { addTokensReduce, setTokensReduce } from '../../token/reducer'
 import { useSwapHistory } from '../../wallet/hooks/useSwapHistory'
-import { TokenType } from 'derivable-tools/dist/types'
+import { TokenType } from 'derivable-engine/dist/types'
 import { isAddress } from 'ethers/lib/utils'
 
 export const useListPool = () => {

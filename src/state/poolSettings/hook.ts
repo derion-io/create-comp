@@ -1,6 +1,6 @@
 import jsonERC20 from '@uniswap/v2-core/build/ERC20.json'
 import { ADDRESS_ZERO } from '@uniswap/v3-sdk'
-import { rateToHL } from 'derivable-tools/dist/utils/helper'
+import { rateToHL } from 'derivable-engine/dist/utils/helper'
 import { ethers, utils } from 'ethers'
 import { useDispatch, useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
@@ -34,6 +34,7 @@ export const usePoolSettings = () => {
   const { provider } = useWeb3React()
   const signer = provider?.getSigner()
 
+  const [ deployError, setDeployError ] = useState<string>('')
   const [ deployParams, setDeployParams] = useState<{}[]>([])
 
   const { poolSettings } = useSelector((state: State) => {
@@ -64,26 +65,20 @@ export const usePoolSettings = () => {
 
       if (!isAddress(settings.pairAddress)) {
         // throw new Error('Invalid Pool Address')
-        updatePoolSettings({
-          errorMessage: 'Invalid Pool Address'
-        })
+        setDeployError('Invalid Pool Address')
         return []
       }
 
       // Note: some weird bug that "a ?? await b()" does not work
       const factory = settings.factory
       if (!factory) {
-        updatePoolSettings({
-          errorMessage: 'Missing factory'
-        })
+        setDeployError('Missing factory')
         return []
       }
       const [FETCHER, fetcherType] = findFetcher(configs, factory)
       const exp = fetcherType?.endsWith('3') ? 2 : 1
       if (!settings.tokens) {
-        updatePoolSettings({
-          errorMessage: 'Missing pair tokens'
-        })
+        setDeployError('Missing pair tokens')
         return []
       }
       const K = Number(settings.power) * exp
@@ -94,9 +89,7 @@ export const usePoolSettings = () => {
       const { QTI, baseToken } = settings
 
       if (QTI == null || baseToken == null) {
-        updatePoolSettings({
-          errorMessage: 'Missing token info'
-        })
+        setDeployError('Missing token info')
         return []
       }
 
@@ -113,15 +106,12 @@ export const usePoolSettings = () => {
         uniswapPair.callStatic.observe([0, WINDOW])
           .catch((err: any) => {
             if (err.reason == 'OLD') {
-              updatePoolSettings({
-                errorMessage: 'WINDOW too long'
-              })
+              setDeployError('WINDOW too long')
+              return
               // throw new Error('WINDOW too long')
             }
             // throw err
-            updatePoolSettings({
-              errorMessage: parseCallStaticError(err) ?? err.reason ?? err.error ?? err
-            })
+            setDeployError(STR(parseCallStaticError(err)))
           })
       } else {
         WINDOW = settings.windowBlocks
@@ -149,9 +139,7 @@ export const usePoolSettings = () => {
       } else {
         const {r0, r1} = settings
         if (!r0 || !r1) {
-          updatePoolSettings({
-            errorMessage: 'Missing pair reserves'
-          })
+          setDeployError('Missing pair reserves')
           return []
         }
         if (QTI === 0) {
@@ -174,9 +162,7 @@ export const usePoolSettings = () => {
       })
       if (settings.amountIn === '' || settings.amountIn === '0') {
         // throw new Error('Invalid Input Amount')
-        updatePoolSettings({
-          errorMessage: 'Invalid Input Amount'
-        })
+        setDeployError('Invalid Input Amount')
         return []
       }
 
@@ -193,14 +179,13 @@ export const usePoolSettings = () => {
         TOKEN_R,
         MARK,
         K: bn(K),
-        INTEREST_HL: rateToHL(NUM(settings.interestRate ?? 0) / 100, NUM(settings.power)),
-        PREMIUM_HL: rateToHL(NUM(settings.premiumRate ?? 0) / 100, NUM(settings.power)),
-        MATURITY: settings.closingFeeDuration,
-        MATURITY_VEST: Number(settings.vesting),
-        MATURITY_RATE: feeToOpenRate(NUM(settings.closingFee ?? 0) / 100),
-        OPEN_RATE: feeToOpenRate(NUM(settings.openingFee ?? 0) / 100)
+        INTEREST_HL: rateToHL(NUM(settings.interestRate || 0) / 100, NUM(settings.power)),
+        PREMIUM_HL: rateToHL(NUM(settings.premiumRate || 0) / 100, NUM(settings.power)),
+        MATURITY: NUM(settings.maturityHours || 0) * 3600,
+        MATURITY_VEST: NUM(settings.vesting || 0),
+        MATURITY_RATE: feeToOpenRate(NUM(settings.closingFee || 0) / 100),
+        OPEN_RATE: feeToOpenRate(NUM(settings.openingFee || 0) / 100)
       }
-      console.log('#configs.derivable.poolDeployer', configs)
       const poolDeployer = new ethers.Contract(
         configs.derivable.poolDeployer!,
         PoolDeployerAbi,
@@ -241,8 +226,8 @@ export const usePoolSettings = () => {
       const topics = [
         baseToken.address,
         baseToken.symbol,
-        settings.searchBySymbols[0] ?? baseToken.symbol.slice(0, -1),
-        settings.searchBySymbols[1] ?? baseToken.symbol.slice(1),
+        settings.searchBySymbols[0] || baseToken.symbol.slice(0, -1),
+        settings.searchBySymbols[1] || baseToken.symbol.slice(1),
       ].map((value, i) => {
         if (i > 0) {
           return utils.formatBytes32String(value.toUpperCase())
@@ -316,17 +301,14 @@ export const usePoolSettings = () => {
       console.log('#gasUsed', gasPrice, gasUsed)
       updatePoolSettings({
         gasUsed: gasUsed.toString(),
-        errorMessage: '',
       })
+      setDeployError('')
 
       setDeployParams(params)
       return params
     } catch (err) {
       console.log('####', err)
-      updatePoolSettings({
-        errorMessage:
-          err?.reason ?? err?.error ?? err?.data?.message ?? 'unknown'
-      })
+      setDeployError(STR(parseCallStaticError(err)))
       return []
     }
   }
@@ -394,6 +376,9 @@ export const usePoolSettings = () => {
 
   return {
     poolSettings,
+    deployParams,
+    setDeployError,
+    deployError,
     updatePoolSettings,
     calculateParamsForPools,
     deployPool

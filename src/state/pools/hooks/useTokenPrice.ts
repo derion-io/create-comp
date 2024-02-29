@@ -40,6 +40,9 @@ export const useFetchTokenPrice = () => {
       )
       console.log('#usetokenprice', tokenAddress, tokens)
       if (ddlEngine?.PRICE && tokenAddress.length > 0) {
+        // TODO: this should not be here
+        await ddlEngine.RESOURCE.getWhiteListResource([])
+
         ddlEngine.PRICE.getTokenPriceByRoutes()
           .then((data: any) => {
             console.log('#usetokenprice1', data, tokenAddress, tokens)

@@ -4,7 +4,7 @@ import { useHelper } from '../../state/config/useHelper'
 import { usePoolSettings } from '../../state/poolSettings/hook'
 import { Box } from '../ui/Box'
 import NumberInput from '../ui/Input/InputNumber'
-import { Text, TextBlue } from '../ui/Text'
+import { Text, TextBlue, TextSell } from '../ui/Text'
 import '../OracleConfigBox/style.scss'
 export const feeOptions = [100, 300, 500, 1000]
 export const ConfigurationsBox = () => {
@@ -204,9 +204,9 @@ export const ConfigurationsBox = () => {
             className: 'config-input'
           }}
           placeholder='0'
-          value={poolSettings.closingFeeDuration}
+          value={poolSettings.maturityHours}
           onValueChange={(e) => {
-            updatePoolSettings({ closingFeeDuration: e.target.value })
+            updatePoolSettings({ maturityHours: e.target.value })
           }}
           suffix='hours'
         />

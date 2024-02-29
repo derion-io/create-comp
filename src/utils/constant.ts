@@ -14,7 +14,8 @@ export const DEFAULT_CHAIN = 42161
 export const CHAINS = {
   ARBITRUM: 42161,
   BASE: 8453,
-  BSC: 56
+  BSC: 56,
+  OPBNB: 204,
 }
 
 export const SECONDS_PER_HOUR = 60 * 60
@@ -43,9 +44,6 @@ export const LIQUIDITY_TAB = {
   ADD: Symbol('add'),
   REMOVE: Symbol('remove')
 }
-
-export const CHART_API_ENDPOINT = 'https://api.lz.finance/56/chart/'
-export const LASTEST_BLOCK_NUMBER = 99999999999999999
 
 export const POOL_IDS = {
   cToken: 131072,
