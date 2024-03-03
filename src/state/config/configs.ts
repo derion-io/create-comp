@@ -7,8 +7,7 @@ export default {
     explorer: 'https://arbiscan.io',
     scanApi: 'https://api.arbiscan.io/api',
     candleChartApi: 'https://api.derivable.org/56/chart/',
-    theGraphMessari:
-      'https://api.thegraph.com/subgraphs/name/messari/uniswap-v3-arbitrum',
+    theGraphMessari: 'https://api.thegraph.com/subgraphs/name/messari/uniswap-v3-arbitrum',
     scanName: 'Arbitrum Scan',
     ddlGenesisBlock: 70615018,
     timePerBlock: 1000,
@@ -46,8 +45,7 @@ export default {
     explorer: 'https://basescan.org',
     scanApi: 'https://api.basescan.org/api',
     candleChartApi: 'https://api.derivable.org/56/chart/',
-    theGraphMessari:
-      'https://api.thegraph.com/subgraphs/name/messari/uniswap-v3-base',
+    theGraphMessari: 'https://api.thegraph.com/subgraphs/name/messari/uniswap-v3-base',
     scanName: 'Base Scan',
     ddlGenesisBlock: 70615018,
     timePerBlock: 1000,

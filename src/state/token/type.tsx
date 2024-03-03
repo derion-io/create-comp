@@ -28,6 +28,6 @@ export const initialState: tokensState = {
   tokens: {
     [CHAINS.ARBITRUM]: {},
     [CHAINS.BASE]: {},
-    [CHAINS.BSC]: {}
+    [CHAINS.BSC]: {},
   }
 }

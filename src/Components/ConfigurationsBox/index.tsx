@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { useConfigs } from '../../state/config/useConfigs'
-import { useHelper } from '../../state/config/useHelper'
 import { usePoolSettings } from '../../state/poolSettings/hook'
 import { Box } from '../ui/Box'
 import NumberInput from '../ui/Input/InputNumber'

@@ -23,13 +23,6 @@ export const App = () => {
   // const { initListPool } = useListPool()
   useFetchTokenPrice()
   useFetchFeeData()
-  // useEffect(() => {
-  //   initListPool(account)
-  //   const intervalId = setInterval(() => {
-  //     initListPool(account)
-  //   }, TIME_TO_REFRESH_STATE)
-  //   return () => clearInterval(intervalId)
-  // }, [ddlEngine, configs.name])
 
   useEffect(() => {
     fetchBalanceAndAllowance(Object.keys(tokens))

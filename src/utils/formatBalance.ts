@@ -73,7 +73,7 @@ export const formatLocalisedCompactNumber = (number: number): string => {
 export const formatWeiToDisplayNumber = (
   wei: string | number | BigNumber,
   displayDecimals = 4,
-  decimals = 18
+  decimals = 18,
 ) => {
   if (bn(wei).isZero()) {
     return '0'
@@ -81,7 +81,7 @@ export const formatWeiToDisplayNumber = (
   const fixedNumber = formatBigNumberToFixed(
     ethers.BigNumber.from(wei),
     displayDecimals,
-    decimals
+    decimals,
   )
   return formatLocalisedCompactNumber(Number(fixedNumber))
 }

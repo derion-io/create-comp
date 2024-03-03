@@ -2,17 +2,12 @@ import React, { useState, useMemo, useEffect } from 'react'
 import './style.scss'
 import 'react-tabs/style/react-tabs.css'
 import {
-  NATIVE_ADDRESS,
   UNDER_CONSTRUCTION,
   ZERO_ADDRESS
 } from '../../utils/constant'
 import { Card } from '../../Components/ui/Card'
-import { IconArrowLeft } from '../../Components/ui/Icon'
-import { ButtonGrey } from '../../Components/ui/Button'
 import { useWeb3React } from '../../state/customWeb3React/hook'
-import { useConfigs } from '../../state/config/useConfigs'
 import { Text } from '../../Components/ui/Text'
-import { bn } from '../../utils/helpers'
 import { PoolCreateInfo } from '../../Components/PoolCreateInfo'
 import { OracleConfigBox } from '../../Components/OracleConfigBox'
 import { ConfigurationsBox } from '../../Components/ConfigurationsBox'

@@ -29,5 +29,5 @@ export const initialState: walletState = {
   balances: {},
   swapLogs: {},
   formartedSwapLogs: [],
-  routerAllowances: {}
+  routerAllowances: {},
 }

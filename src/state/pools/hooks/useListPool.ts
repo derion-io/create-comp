@@ -63,45 +63,6 @@ export const useListPool = () => {
         .catch((e) => {
           console.log(e)
         })
-      // ddlEngine.RESOURCE.searchIndex(baseToken.address).then((_data: any) => {
-      //   const data = _data[Object.keys(_data)[0]]
-      //   console.log('#search', data, _data)
-      //   dispatch(
-      //     addTokensReduce({
-      //       tokens: [...data.pairInfo.token0, ...data.pairInfo.token1],
-      //       chainId
-      //     })
-      //   )
-      //   dispatch(addPoolGroupsWithChain({ poolGroups: data, chainId }))
-      //   dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
-      // })
-      // ddlEngine.RESOURCE.generateData({
-      //   poolAddresses: _poolsAddress,
-      //   transferLogs: []
-      // }).then((data: any) => {
-      //   console.log('#getWhiteListResource', data)
-      //   dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
-      //   dispatch(
-      //     addPoolGroupsWithChain({ poolGroups: data.poolGroups, chainId })
-      //   )
-      //   dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
-      // })
-      // ddlEngine.RESOURCE.getResourceCached(account).then((data: any) => {
-      //   dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
-      //   dispatch(
-      //     addPoolGroupsWithChain({ poolGroups: data.poolGroups, chainId })
-      //   )
-      //   dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
-      //   updateSwapTxsHandle(account, data.swapLogs)
-      // })
-      // ddlEngine.RESOURCE.getNewResource(account).then((data: any) => {
-      //   dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
-      //   dispatch(
-      //     addPoolGroupsWithChain({ poolGroups: data.poolGroups, chainId })
-      //   )
-      //   dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
-      //   updateSwapTxsHandle(account, data.swapLogs)
-      // })
     }
   }
 

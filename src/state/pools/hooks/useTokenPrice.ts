@@ -7,7 +7,6 @@ import { useConfigs } from '../../config/useConfigs'
 import { isAddress } from 'ethers/lib/utils'
 import { NATIVE_ADDRESS } from '../../../utils/constant'
 import _ from 'lodash'
-import { bn } from '../../../utils/helpers'
 
 export const useTokenPrice = () => {
   const { chainId } = useConfigs()

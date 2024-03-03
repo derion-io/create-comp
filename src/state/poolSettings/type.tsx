@@ -1,5 +1,4 @@
 import { BigNumber } from 'ethers'
-import { type } from 'os'
 import { TokenType } from '../token/type'
 
 export type PoolSettingsType = {
