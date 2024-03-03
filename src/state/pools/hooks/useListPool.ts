@@ -23,7 +23,6 @@ export const useListPool = () => {
   const dispatch = useDispatch()
   const { updateSwapTxsHandle } = useSwapHistory()
   const setNewResource = (data: any, account: string) => {
-    console.log('#setNewResource', data)
     dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
     dispatch(setPoolGroupsWithChain({ poolGroups: data.poolGroups, chainId }))
     dispatch(setPoolsWithChain({ pools: data.pools, chainId }))
@@ -35,11 +34,9 @@ export const useListPool = () => {
       baseToken.address &&
       isAddress(baseToken.address)
     ) {
-      console.log('#search-input', baseToken.address)
       const searchResults = await ddlEngine?.RESOURCE.searchIndex(
         baseToken.address
       )
-      console.log('#searchResults', searchResults)
       let poolAddresses: string[] = []
       Object.keys(searchResults).map((key) => {
         const poolSearch = searchResults[key]

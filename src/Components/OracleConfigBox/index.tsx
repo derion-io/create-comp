@@ -62,7 +62,6 @@ export const OracleConfigBox = () => {
     ) {
       try {
         setFetchPairLoading(true)
-        console.log('#pair-start-fetch')
         const settings = poolSettings
         const { pairAddress } = settings
         const uniswapPair = getUniV3PairContract(poolSettings.pairAddress)
@@ -128,7 +127,6 @@ export const OracleConfigBox = () => {
           baseToken: undefined,
         })
         setDeployError('Invalid Pool Address')
-        console.log('#pair-load-error', error)
         // setPairInfo(['Can not get Pair Address Info'])
       }
     }

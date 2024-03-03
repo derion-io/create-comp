@@ -2,7 +2,6 @@ import { useMemo } from 'react'
 import { NATIVE_ADDRESS, POOL_IDS, ZERO_ADDRESS } from '../utils/constant'
 import { useTokenValue } from './useTokenValue'
 import { bn, numberToWei, weiToNumber } from '../utils/helpers'
-import { useListTokens } from '../state/token/hook'
 import { useListPool } from '../state/pools/hooks/useListPool'
 import { PoolType } from '../state/types'
 import _ from 'lodash'
@@ -14,11 +13,9 @@ export const useGenerateLeverageData = (
   power: string,
   amountIn: string
 ) => {
-  const { tokens } = useListTokens()
   const { getTokenValue } = useTokenValue({})
   const { poolGroups } = useListPool()
   const pools: PoolType = useMemo(() => {
-    console.log('#poolGroups', poolGroups)
     return (pairAddr ? poolGroups[Object.keys(poolGroups)[0]]?.pools : {}) || {}
   }, [pairAddr, poolGroups])
 

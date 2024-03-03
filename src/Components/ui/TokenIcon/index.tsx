@@ -22,8 +22,6 @@ export const TokenIcon = (props: {
   useEffect(() => {
     if (tokenAddress) {
       getTokenIconUrl(utils.getAddress(tokenAddress || '')).then((res) => {
-        console.log('#tokenAddress', utils.getAddress(tokenAddress || ''))
-        console.log('#token', res)
         setLogoURI(res)
       })
     }

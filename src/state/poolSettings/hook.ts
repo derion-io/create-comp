@@ -193,24 +193,12 @@ export const usePoolSettings = () => {
       )
       const R = ethers.utils.parseEther(STR(settings.amountIn || R_PLACEHOLDER))
       const initParams = calculateInitParamsFromPrice(config, MARK, R)
-      console.log('#configs.helperContract.utr', configs.helperContract.utr)
       const utr = new ethers.Contract(
         configs.helperContract.utr,
         univeralTokenRouterAbi,
         signer
       )
-      console.log(
-        '#configs.derivable.helper',
-        configs.derivable.stateCalHelper
-      )
-      const helper = new ethers.Contract(
-        configs.derivable.stateCalHelper,
-        helperAbi,
-        signer
-      )
-      console.log('#pool-config', config)
       const poolAddress = await poolDeployer.callStatic.create(config)
-      console.log('#poolAddress', poolAddress)
       const pool = new ethers.Contract(poolAddress, poolBaseAbi, signer)
 
       updatePoolSettings({
@@ -235,7 +223,6 @@ export const usePoolSettings = () => {
         return value
       })
       if (TOKEN_R != configs.wrappedTokenAddress && deployerAddress) {
-        console.log('#deployerAddress', deployerAddress, TOKEN_R)
         const rToken = new ethers.Contract(TOKEN_R, jsonERC20.abi, signer)
         const rBalance = await rToken.balanceOf(deployerAddress)
         if (rBalance.lt(R)) {
@@ -292,13 +279,13 @@ export const usePoolSettings = () => {
           { value: R, gasPrice }
         ]
       }
-      console.log('#params', params)
+      console.log('params', params)
       const gasUsed =
         TOKEN_R != configs.wrappedTokenAddress
           ? await utr.estimateGas.exec(...params)
           : await poolDeployer.estimateGas.deploy(...params)
 
-      console.log('#gasUsed', gasPrice, gasUsed)
+      console.log('gasUsed', gasPrice, gasUsed)
       updatePoolSettings({
         gasUsed: gasUsed.toString(),
       })
@@ -307,7 +294,7 @@ export const usePoolSettings = () => {
       setDeployParams(params)
       return params
     } catch (err) {
-      console.log('####', err)
+      console.error(err)
       setDeployError(STR(parseCallStaticError(err)))
       return []
     }
@@ -317,7 +304,7 @@ export const usePoolSettings = () => {
       const params = deployParams?.length > 0
           ? deployParams
           : await calculateParamsForPools()
-      console.log('#param', deployParams)
+      console.log('deployParams', deployParams)
       if (params && params?.length === 0) {
         return
       }
@@ -346,7 +333,7 @@ export const usePoolSettings = () => {
           PoolDeployerAbi,
           signer
         )
-        console.log('#param', params, TOKEN_R != configs.wrappedTokenAddress)
+        console.log('params', params, TOKEN_R != configs.wrappedTokenAddress)
         const tx =
           TOKEN_R != configs.wrappedTokenAddress
             ? await utr.exec(...(params || []))

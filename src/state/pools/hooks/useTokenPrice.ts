@@ -37,14 +37,12 @@ export const useFetchTokenPrice = () => {
           return isAddress(a) && a !== NATIVE_ADDRESS
         })
       )
-      console.log('#usetokenprice', tokenAddress, tokens)
       if (ddlEngine?.PRICE && tokenAddress.length > 0) {
         // TODO: this should not be here
         await ddlEngine.RESOURCE.getWhiteListResource([])
 
         ddlEngine.PRICE.getTokenPriceByRoutes()
           .then((data: any) => {
-            console.log('#usetokenprice1', data, tokenAddress, tokens)
             dispatch(
               addTokenPriceWithChain({
                 prices: data,
@@ -53,7 +51,6 @@ export const useFetchTokenPrice = () => {
             )
           })
           .catch((e) => {
-            console.log('#usetokenprice2', e)
             console.error(e)
             const data = {}
             tokenAddress.map((a: string) => {

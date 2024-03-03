@@ -54,7 +54,6 @@ export const PoolCreateInfo = () => {
     deployError,
   } = usePoolSettings()
   useEffect(() => {
-    console.log('#poolSettings', poolSettings)
   }, [poolSettings])
   const { data: nativePrice } = useNativePrice()
 
@@ -72,28 +71,16 @@ export const PoolCreateInfo = () => {
     STR(poolSettings.power),
     STR(poolSettings.amountIn ?? 0)
   )
-  console.log('#leverageData', leverageData)
   const { value } = useTokenValue({
     amount: STR(poolSettings.amountIn ?? 0),
     tokenAddress: inputTokenAddress
   })
-  useEffect(() => {
-    console.log('#price', value)
-  }, [value, inputTokenAddress])
-  useMemo(() => {
-    console.log('#poolSettings.amountIn', poolSettings.amountIn)
-  }, [poolSettings.amountIn])
-  // useMemo(() => {
-  //   console.log('#data', data)
-  //   console.log('#barData', barData)
-  // }, [data, barData])
 
   useEffect(() => {
     if (Object.values(pools).length > 0) {
       for (let i = 0; i < leverageData.length; i++) {
         const leve: any = leverageData[i]
         for (let k = 0; k < leve.bars.length; k++) {
-          console.log('#leve-bar', leve.bars[k])
           if (
             (
               (poolGroups[Object.keys(poolGroups)[0]]?.allTokens as String[]) ||
@@ -110,24 +97,6 @@ export const PoolCreateInfo = () => {
     }
   }, [pools, leverageData])
 
-  // useMemo(() => {
-  //   if (account) {
-  //     setRecipient(account)
-  //   }
-  // }, [account])
-
-  // useEffect(() => {
-  //   if (chainId && provider) {
-  //     setIsLoadingStaticParam(true)
-  //     calculateParamsForPools()
-  //       .then((res) => {
-  //         setIsLoadingStaticParam(false)
-  //       })
-  //       .catch((e) => {
-  //         setIsLoadingStaticParam(false)
-  //       })
-  //   }
-  // }, [chainId, provider, poolSettings.pairAddress])
   const { initListPool } = useListPool()
   const { ddlEngine } = useConfigs()
   const [isBarLoading, setIsBarLoading] = useState(false)
@@ -147,22 +116,6 @@ export const PoolCreateInfo = () => {
   const handleCreatePool = async () => {
     setIsDeployPool(true)
     const pairAddress = poolSettings.pairAddress
-    // const settings = {
-    //   // pairAddress: '0xC31E54c7a869B9FcBEcc14363CF510d1c41fa443',
-    //   // pairAddress: '0x8d76e9c2bd1adde00a3dcdc315fcb2774cb3d1d6',
-    //   pairAddress: ['0x31C77F72BCc209AD00E3B7be13d719c08cb7BA7B'],
-    //   windowBlocks: 120,
-    //   power: 2,
-    //   interestRate: 0.03 / 100,
-    //   premiumRate: 0.3 / 100,
-    //   vesting: 60,
-    //   closingFee: 0.3 / 100,
-    //   closingFeeDuration: 24 * 60 * 60,
-    //   reserveToken: 'PLD' // PlayDerivable
-    //   // openingFee: 0/100,
-    //   // R: 0.0001, // init liquidity
-    // }
-    console.log('#deplyer', chainId, provider, pairAddress)
     if (chainId && provider && pairAddress) {
       await deployPool()
       setIsDeployPool(false)
