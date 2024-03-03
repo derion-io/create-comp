@@ -1,6 +1,6 @@
 @import "../../../styles/abstracts/variables";
 
-.derivable-text {
+.ddl-pool-page .derivable-text {
   font-size: 14px;
   color: white;
 
@@ -18,7 +18,7 @@
     }
   }
   &.text-grey {
-    color: $color-grey;
+    color: $color-text-grey;
   }
   &.text-green {
     color: $color-green

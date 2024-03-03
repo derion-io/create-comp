@@ -1,259 +1,293 @@
-import React, { useEffect, useState } from 'react'
-import { Text, TextBlue } from '../ui/Text'
-import { Input } from '../ui/Input'
-import { ButtonGrey } from '../ui/Button'
-import { SwapIcon } from '../ui/Icon'
-import { useConfigs } from '../../state/config/useConfigs'
-import { ZERO_ADDRESS } from '../../utils/constant'
-import { bn } from '../../utils/helpers'
-import { Box } from '../ui/Box'
-import './style.scss'
-import { SelectTokenModal } from '../SelectTokenModal'
-import { useListTokens } from '../../state/token/hook'
-import { useContract } from '../../hooks/useContract'
 import { utils } from 'ethers'
-
-export const OracleConfigBox = ({
-  power,
-  setPower,
-  pairAddr,
-  setPairAddr
-}: {
-  power: string,
-  setPower: any,
-  pairAddr: string,
-  setPairAddr: any
-}) => {
-  const { ddlEngine } = useConfigs()
-  const [pairInfo, setPairInfo] = useState<string[]>([])
-  const [quoteTokenIndex, setQuoteTokenIndex] = useState<string>('0')
+import { isAddress } from 'ethers/lib/utils'
+import React, { Fragment, useEffect, useMemo, useState } from 'react'
+import { useContract } from '../../hooks/useContract'
+import { useConfigs } from '../../state/config/useConfigs'
+import { useHelper } from '../../state/config/useHelper'
+import { usePoolSettings } from '../../state/poolSettings/hook'
+import { ZERO_ADDRESS } from '../../utils/constant'
+import { div, unwrap, zerofy } from '../../utils/helpers'
+import { Box } from '../ui/Box'
+import { CurrencyLogo } from '../ui/CurrencyLogo'
+import { SwapIcon } from '../ui/Icon'
+import { Input } from '../ui/Input'
+import NumberInput from '../ui/Input/InputNumber'
+import { SkeletonLoader } from '../ui/SkeletonLoader'
+import { Text, TextBlue, TextGrey, TextSell } from '../ui/Text'
+import '../OracleConfigBox/style.scss'
+import { findFetcher } from '../../utils/deployHelper'
+import { useWindowSize } from '../../hooks/useWindowSize'
+export const feeOptions = [100, 300, 500, 1000]
+export const OracleConfigBox = () => {
+  const {
+    poolSettings,
+    updatePoolSettings,
+    calculateParamsForPools,
+    setDeployError,
+  } = usePoolSettings()
+  const { ddlEngine, configs } = useConfigs()
   const [windowTimeSuggest, setWindowTimeSuggest] = useState<string[]>([])
-  const [mark, setMark] = useState<string>('')
-  const [markSuggest, setMarkSuggest] = useState<string[]>([])
-  const [initTime, setInitTime] = useState<string>('')
-  const [initTimeSuggest, setInitTimeSuggest] = useState<string[]>([])
-  const [windowTime, setWindowTime] = useState<string>('')
-  const [token0, setToken0] = useState<any>({})
-  const [token1, setToken1] = useState<any>({})
-  const [fee, setFee] = useState<any>(0)
-  const { tokens } = useListTokens()
-  const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
-  const [selectingToken, setSelectingToken] = useState<'token0' | 'token1' | ''>('')
-  const { getUniV3FactoryContract } = useContract()
-
-  const suggestConfigs = (qTIndex: string, qTDecimal: string) => {
-    // const filterExistPoolData = Object.entries(pools).filter(([key]) => {
-    //   return key.includes(pairAddr.substring(2).toLowerCase())
-    // })
-    const filterExistPoolData: any = []
-    const wTimeArr = []
-    const markArr = []
-    const iTimeArr = []
-    for (let index = 0; index < filterExistPoolData.length; index++) {
-      const poolData = filterExistPoolData[index][1]
-      const oracle = poolData.ORACLE
-      if ((qTIndex === '0' && oracle.includes('0x0')) || (qTIndex === '1' && oracle.includes('0x8'))) {
-        wTimeArr.push(bn(oracle).shr(192).toNumber().toString())
-        if (parseInt(qTDecimal) === 6) {
-          markArr.push(Math.pow(poolData.MARK.mul(1e6).shr(128).toNumber(), 2).toString())
-        } else {
-          markArr.push(Math.pow(poolData.MARK.shr(128).toNumber(), 2).toString())
-        }
-        iTimeArr.push(poolData.INIT_TIME.toNumber().toString())
-      }
-    }
-    setWindowTime(wTimeArr[0])
-    setWindowTimeSuggest(wTimeArr)
-    setMark(markArr[0])
-    setMarkSuggest(markArr)
-    setInitTime(iTimeArr[0])
-    setInitTimeSuggest(iTimeArr)
-  }
+  const { getTokenIconUrl } = useHelper()
+  const { width } = useWindowSize()
 
   useEffect(() => {
-    if (token0 && token1 && fee) {
-      console.log(token0, token1, fee)
-      getPairAddress()
-    }
-  }, [token0, token1, fee])
+    fetchPairInfo().catch(console.error)
+  }, [poolSettings.pairAddress])
 
   useEffect(() => {
-    fetchPairInfo()
-  }, [pairAddr])
+    if (poolSettings.baseToken) {
+      calculateParamsForPools()
+    }
+  }, [poolSettings])
 
-  const getPairAddress = async () => {
-    try {
-      const contract = getUniV3FactoryContract()
-      const res = await contract.getPool(token0.address, token1.address, fee)
-      console.log(res)
-      if (res !== pairAddr) {
-        setPairAddr(utils.getAddress(res))
-      }
-    } catch (e) {
-      console.log(e)
+  const { getUniV3PairContract } = useContract()
+
+  const formatTokenType = async (token: any) => {
+    const address = utils.getAddress(token.address)
+    return {
+      address,
+      decimals: token.decimals,
+      symbol: token.symbol,
+      name: token.name,
+      logoURI: await getTokenIconUrl(address)
     }
   }
-
+  const [fetchPairLoading, setFetchPairLoading] = useState(false)
   const fetchPairInfo = async () => {
-    if (ddlEngine && pairAddr && pairAddr !== ZERO_ADDRESS) {
+    if (
+      ddlEngine &&
+      poolSettings.pairAddress &&
+      poolSettings.pairAddress !== ZERO_ADDRESS &&
+      isAddress(poolSettings.pairAddress)
+    ) {
       try {
-        const res = await ddlEngine.UNIV3PAIR.getPairInfo({
-          pairAddress: pairAddr
+        setFetchPairLoading(true)
+        const settings = poolSettings
+        const { pairAddress } = settings
+        const uniswapPair = getUniV3PairContract(poolSettings.pairAddress)
+        const factory = await uniswapPair.callStatic.factory()
+        const [, fetcherType] = findFetcher(configs, factory)
+        const pairV3 = fetcherType?.endsWith('3')
+
+        // TODO: move slot0 and fee into UNIV3PAIR.getPairInfo
+        const [{ token0, token1 }, slot0, fee] = await Promise.all([
+          ddlEngine.UNIV3PAIR.getPairInfo({ pairAddress }),
+          pairV3 ? uniswapPair.callStatic.slot0() : undefined,
+          pairV3 ? uniswapPair.callStatic.fee() : undefined
+        ])
+        const tokens = await Promise.all([
+          formatTokenType(token0),
+          formatTokenType(token1)
+        ])
+
+        // detect QTI (quote token index)
+        let QTI: 0 | 1 | undefined
+        if (QTI == null && token0.symbol.includes('USD')) {
+          QTI = 0
+        }
+        if (QTI == null && token1.symbol.includes('USD')) {
+          QTI = 1
+        }
+        if (QTI == null && configs.stablecoins.includes(token0.address)) {
+          QTI = 0
+        }
+        if (QTI == null && configs.stablecoins.includes(token1.address)) {
+          QTI = 1
+        }
+        if (QTI == null && configs.wrappedTokenAddress == token0.address) {
+          QTI = 0
+        }
+        if (QTI == null && configs.wrappedTokenAddress == token1.address) {
+          QTI = 1
+        }
+        if (QTI == null) {
+          QTI = 0
+          // throw new Error('unable to detect QTI')
+        }
+
+        const baseToken = tokens[1 - QTI]
+        const quoteToken = tokens[QTI]
+
+        updatePoolSettings({
+          QTI,
+          baseToken,
+          quoteToken,
+          slot0,
+          fee,
+          factory,
+          tokens,
+          r0: token0.reserve,
+          r1: token1.reserve
         })
-        setToken0(formatTokenType(res.token0))
-        setToken1(formatTokenType(res.token1))
-        setFee(res.fee.toNumber)
-        // setPairInfo1({ pair: pairAddr, ...res })
-        // console.log(res)
-        // if (res.token0.symbol.toLowerCase().includes('us') || res.token0.symbol.toLowerCase().includes('dai')) {
-        //   setPairInfo([
-        //     res.token1.symbol + '/' + res.token0.symbol,
-        //     res.token0.symbol + '/' + res.token1.symbol
-        //   ])
-        //   setQuoteTokenIndex('0')
-        //   suggestConfigs('0', res.token0.decimals)
-        // } else {
-        //   setPairInfo([
-        //     res.token0.symbol + '/' + res.token1.symbol,
-        //     res.token1.symbol + '/' + res.token0.symbol
-        //   ])
-        //   setQuoteTokenIndex('1')
-        //   suggestConfigs('1', res.token1.decimals)
-        // }
+        setFetchPairLoading(false)
       } catch (error) {
-        console.log(error)
-        setPairInfo(['Can not get UniswapV3 Pair Info'])
+        setFetchPairLoading(false)
+        updatePoolSettings({
+          quoteToken: undefined,
+          baseToken: undefined,
+        })
+        setDeployError('Invalid Pool Address')
+        // setPairInfo(['Can not get Pair Address Info'])
       }
     }
   }
 
-  return <React.Fragment>
-    <Box
-      className='oracle-config-box mt-1 mb-2'
-      borderColor='blue'
-    >
-      <TextBlue className='oracle-config__title'>
-        UniswapV3 Pair
-      </TextBlue>
+  const { baseToken, quoteToken } = poolSettings
+  const searchKeyError = useMemo(() => {
+    if (!baseToken) {
+      return ''
+    }
+    const [s0, s1] = poolSettings.searchBySymbols
+    const baseSymbol = baseToken.symbol.toUpperCase()
+    const isDuplicatePlaceholder0 = s0 === baseSymbol.slice(1)
+    const isDuplicatePlaceholder1 = s1 === baseSymbol.slice(0, -1)
+    const isDuplicate = s0 !== '' && s0 === s1
+    const isDuplicateBaseSymbol = s0 === baseSymbol || s1 === baseSymbol
+    if (isDuplicate || isDuplicatePlaceholder0 || isDuplicatePlaceholder1) {
+      return '(Duplicated)'
+    }
+    if (isDuplicateBaseSymbol) {
+      return '(Same with base token symbol)'
+    }
+    return ''
+  }, [baseToken?.symbol, poolSettings.searchBySymbols])
+  return (
+    <Box className='oracle-config-box mt-1 mb-2' borderColor='blue'>
+      <TextBlue className='oracle-config__title'>Oracle Index</TextBlue>
       <div className='ddl-pool-page__content--pool-config'>
         <div className='config-item'>
           {/* <TextBlue fontSize={14} fontWeight={600} /> */}
           <Input
             inputWrapProps={{
-              className: 'config-input'
+              className: 'config-input-oracle-config',
+              style: {
+                width: '100%'
+              }
             }}
-            value={pairAddr}
-            placeholder='0x...'
+            width='100%'
+            value={poolSettings.pairAddress}
+            placeholder='Uniswap Pool Address (v2 or v3)'
             onChange={(e) => {
               // @ts-ignore
-              setPairAddr((e.target as HTMLInputElement).value)
+              updatePoolSettings({
+                pairAddress: (e.target as HTMLInputElement).value
+              })
             }}
           />
         </div>
       </div>
-      <div className='oracle-config__select-token-box'>
-        <ButtonGrey
-          onClick={() => {
-            setSelectingToken('token0')
-            setVisibleSelectTokenModal(true)
-          }}
-        >{(quoteTokenIndex === '0' ? token0?.symbol : token1?.symbol) || 'Select token'}</ButtonGrey>
-        <span
-          onClick={() => {
-            setQuoteTokenIndex(quoteTokenIndex === '0' ? '1' : '0')
-          }}
-        ><SwapIcon /></span>
-        <ButtonGrey
-          onClick={() => {
-            setSelectingToken('token1')
-            setVisibleSelectTokenModal(true)
-          }}
-        >{(quoteTokenIndex === '0' ? token1?.symbol : token0?.symbol) || 'Select token'}</ButtonGrey>
-      </div>
-      <div className='oracle-config__select-fee-box'>
-        <ButtonGrey className={`btn-select-fee ${fee === 100 && 'active'}`} onClick={() => setFee(100)}>0.01%</ButtonGrey>
-        <ButtonGrey className={`btn-select-fee ${fee === 300 && 'active'}`} onClick={() => setFee(300)}>0.03%</ButtonGrey>
-        <ButtonGrey className={`btn-select-fee ${fee === 500 && 'active'}`} onClick={() => setFee(500)}>0.05%</ButtonGrey>
-        <ButtonGrey className={`btn-select-fee ${fee === 1000 && 'active'}`} onClick={() => setFee(1000)}>0.1%</ButtonGrey>
-      </div>
-    </Box>
 
-    <Box
-      borderColor='blue'
-      className='oracle-config-box mt-1 mb-1'
-    >
-      <TextBlue className='oracle-config__title'>
-      Permanent Config
-      </TextBlue>
+      {fetchPairLoading || !quoteToken || !baseToken ? (
+        <div className='oracle-config__select-token-box'>
+          <SkeletonLoader
+            height='50px'
+            style={{ width: '100%' }}
+            loading={fetchPairLoading}
+          />
+        </div>
+      ) : (
+        quoteToken.symbol &&
+            baseToken.symbol && (
+          <Fragment>
+            <div className='oracle-config__select-token-box'>
+              <div className='oracle-config__token-wrap'>
+                <div className='oracle-config__token'>
+                  {baseToken.logoURI && (
+                    <CurrencyLogo currencyURI={baseToken.logoURI} size={24} />
+                  )}
+                  {unwrap(baseToken.symbol)} / {unwrap(quoteToken.symbol)}
+                  {quoteToken.logoURI && (
+                    <CurrencyLogo
+                      currencyURI={quoteToken.logoURI}
+                      size={24}
+                    />
+                  )}
+                </div>
+              </div>
+              <div
+                onClick={() => {
+                  updatePoolSettings({
+                    QTI: poolSettings.QTI ? 0 : 1,
+                    baseToken: poolSettings.quoteToken,
+                    quoteToken: poolSettings.baseToken,
+                    markPrice: div(1, poolSettings.markPrice)
+                  })
+                }}
+                style={{ textAlign: 'center', cursor: 'pointer', width: (width && width < 768) ? '100px' : '' }}
+              >
+                <SwapIcon />
+              </div>
+              <div className='oracle-config__price-type'>
+                <SkeletonLoader loading={poolSettings.markPrice === '0'}>
+                  {zerofy(poolSettings.markPrice)}
+                </SkeletonLoader>
+                {width && width < 768 ? '' : <TextGrey className='config-fee'>
+                  {poolSettings.fee
+                    ? `Uniswap V3 (${poolSettings.fee / 10_000}% fee)`
+                    : quoteToken?.symbol && baseToken.symbol
+                      ? 'Uniswap V2'
+                      : ''}
+                </TextGrey> }
+              </div>
+            </div>
+            <div style={{
+              width: '100%',
+              textAlign: 'center',
+              marginTop: '1rem'
+            }}>
+              {width && width < 768 ? <TextGrey className='config-fee'>
+                {poolSettings.fee
+                  ? `Uniswap V3 (${poolSettings.fee / 10_000}% fee)`
+                  : quoteToken?.symbol && baseToken.symbol
+                    ? 'Uniswap V2'
+                    : ''}
+              </TextGrey> : ''}
+            </div>
+          </Fragment>
+        )
+      )}
 
-      <div className='config-item'>
+      <div className='mt-2 mb-1'>
         <Text fontSize={14} fontWeight={600}>
-          Window time (s)
+            Additional Search Keywords{' '}
+          {searchKeyError.length > 0 ? (
+            <TextSell>{searchKeyError}</TextSell>
+          ) : (
+            ''
+          )}
         </Text>
-        <Input
-          inputWrapProps={{
-            className: `config-input ${windowTimeSuggest.includes(windowTime) ? '' : 'warning-input'}`
-          }}
-          type='number'
-          placeholder='0'
-          value={windowTime}
-          onChange={(e) => {
-            // @ts-ignore
-            if (Number(e.target.value) >= 0) {
-              setWindowTime((e.target as HTMLInputElement).value)
-            }
-          }}
-        />
       </div>
-      <div className='ddl-pool-page__content--pool-config mt-18px'>
-        <div className='config-item'>
-          <Text fontSize={14} fontWeight={600}>
-            Power
-          </Text>
-          <Input
-            inputWrapProps={{
-              className: 'config-input'
-            }}
-            type='number'
-            placeholder='0.0'
-            value={power}
-            onChange={(e) => {
-              // @ts-ignore
-              if (Number(e.target.value) >= 0) {
-                setPower((e.target as HTMLInputElement).value)
+      <div className='grid-container'>
+        {[0, 1].map((key, idx) => {
+          return (
+            <div className='config-item' key={idx}>
+              <Input
+                inputWrapProps={{
+                  className: `config-input ${
+                      windowTimeSuggest.includes(poolSettings.window.toString())
+                        ? ''
+                        : 'warning-input'
+                    }`
+                }}
+                value={poolSettings.searchBySymbols[key]}
+                onChange={(e) => {
+                  const _searchBySymbols = poolSettings.searchBySymbols.map(
+                    (p, _) => (_ === idx ? e.target.value.toUpperCase() : p)
+                  )
+                  updatePoolSettings({
+                    searchBySymbols: _searchBySymbols
+                  })
+                }}
+                placeholder={
+                  (key
+                    ? baseToken?.symbol?.toUpperCase()?.slice(1)
+                    : baseToken?.symbol?.toUpperCase()?.slice(0, -1)) || 'keyword'
               }
-            }}
-            onBlur={(e) => {
-              if (Number(e.target.value) >= 0) {
-                const powerRounded = Math.round(Number(e.target.value) * 2) / 2
-                setPower(powerRounded.toString())
-              }
-            }}
-          />
-        </div>
+              />
+            </div>
+          )
+        })}
       </div>
-      <SelectTokenModal
-        visible={visibleSelectTokenModal}
-        setVisible={setVisibleSelectTokenModal}
-        iniTokens={Object.values(tokens)}
-        onSelectToken={(token: any) => {
-          console.log(selectingToken)
-          if (selectingToken === 'token0') {
-            setToken0(token)
-          } else {
-            setToken1(token)
-          }
-        }}
-      />
     </Box>
-  </React.Fragment>
-}
-
-const formatTokenType = (token: any) => {
-  return {
-    address: utils.getAddress(token.adr),
-    decimals: token.decimals,
-    symbol: token.symbol,
-    name: token.name
-  }
+  )
 }

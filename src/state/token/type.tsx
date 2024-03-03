@@ -13,6 +13,7 @@ export interface TokenType {
   isCustomToken?: boolean
   value?: string
   hideInSearchModal?: boolean
+  logoURI?: string
 }
 
 export type ListTokensType = { [key: string]: TokenType }
@@ -26,6 +27,7 @@ export interface tokensState {
 export const initialState: tokensState = {
   tokens: {
     [CHAINS.ARBITRUM]: {},
-    [CHAINS.BASE]: {}
+    [CHAINS.BASE]: {},
+    [CHAINS.BSC]: {},
   }
 }

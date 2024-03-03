@@ -1,9 +1,9 @@
 {
-  "name": "derivable-comp",
+  "name": "create-comp",
   "version": "1.0.0",
-  "author": "LaunchZone",
+  "author": "derivable-labs",
   "license": "MIT",
-  "repository": "ezDeFi/lz-comp",
+  "repository": "derivable-labs/create-comp",
   "main": "dist/index.js",
   "module": "dist/index.modern.js",
   "source": "src/index.tsx",
@@ -39,8 +39,8 @@
     "@uniswap/v3-core": "^1.0.1",
     "@uniswap/v3-sdk": "^3.9.0",
     "assisted-json-rpc-provider": "git+ssh://git@github.com:derivable-labs/AssistedJsonRpcProvider.git#dev",
-    "caniuse-lite": "^1.0.30001434",
-    "derivable-tools": "git+ssh://git@github.com:derivable-labs/derivable-tools.git#dev-build",
+    "caniuse-lite": "^1.0.30001576",
+    "derivable-engine": "git+ssh://git@github.com:derivable-labs/engine.git#dev-build",
     "ethereum-multicall": "^2.15.0",
     "ethers": "^5.4.6",
     "graphql": "^15.5.0",
@@ -60,7 +60,8 @@
     "redux": "^4.1.1",
     "redux-localstorage-simple": "^2.4.1",
     "redux-thunk": "^2.3.0",
-    "swr": "^2.0.0"
+    "swr": "^2.0.0",
+    "truncate-ethereum-address": "^0.3.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^4.2.4",
@@ -76,6 +77,7 @@
     "@web3-react/core": "^6.1.9",
     "babel-eslint": "^10.0.3",
     "cross-env": "^7.0.2",
+    "dotenv-webpack": "^8.0.1",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.7.0",
     "eslint-config-standard": "^14.1.0",

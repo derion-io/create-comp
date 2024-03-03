@@ -1,80 +1,112 @@
 import { useMemo } from 'react'
 import {
-  bn, cutDecimal,
+  BIG,
+  bn,
+  cutDecimal,
   decodeErc1155Address,
   isErc1155Address,
-  numberToWei,
-  weiToNumber
+  WEI,
+  IEW,
+  NUM,
+  STR
 } from '../utils/helpers'
+import { useTokenPrice } from '../state/pools/hooks/useTokenPrice'
+import { parseSqrtX96 } from 'derivable-engine/dist/utils/helper'
 import { useConfigs } from '../state/config/useConfigs'
 import { useListTokens } from '../state/token/hook'
-import { useListPool } from '../state/pools/hooks/useListPool'
 import { useHelper } from '../state/config/useHelper'
-import { useTokenPrice } from '../state/pools/hooks/useTokenPrice'
-import { POOL_IDS } from '../utils/constant'
-import { parseSqrtX96 } from 'derivable-tools/dist/utils/helper'
+import { NATIVE_ADDRESS, POOL_IDS } from '../utils/constant'
+import { useResource } from '../state/pools/hooks/useResource'
+import { useSettings } from '../state/setting/hooks/useSettings'
 
 export const useTokenValue = ({
   amount,
   tokenAddress
 }: {
-  amount?: string,
+  amount?: string
   tokenAddress?: string
 }) => {
   const { prices } = useTokenPrice()
   const { configs } = useConfigs()
   const { tokens } = useListTokens()
-  const { pools } = useListPool()
+  const { pools } = useResource()
   const { convertNativeAddressToWrapAddress } = useHelper()
+  const { settings } = useSettings()
+  // const { isShowValueInUsd } = useHelper()
 
-  const getTokenValue = (_tokenAddress: string, _amount: string) => {
+  const getTokenValue = (
+    _tokenAddress: string,
+    _amount: string,
+    valueInUsd: boolean = true
+  ) => {
     let value = '0'
     const address = convertNativeAddressToWrapAddress(_tokenAddress)
+    if (!prices || !pools) return value
 
     if (isErc1155Address(address)) {
       const { address: poolAddress, id } = decodeErc1155Address(address)
       const pool = pools[poolAddress]
       if (pool && pool.states) {
-        const rX = Number(id) === POOL_IDS.A
-          ? pool.states.rA
-          : Number(id) === POOL_IDS.B ? pool.states.rB : pool.states.rB
+        const rX =
+          Number(id) === POOL_IDS.A
+            ? pool.states.rA
+            : Number(id) === POOL_IDS.B
+              ? pool.states.rB
+              : pool.states.rC
 
-        const sX = Number(id) === POOL_IDS.A
-          ? pool.states.sA
-          : Number(id) === POOL_IDS.B ? pool.states.sB : pool.states.sB
+        const sX =
+          Number(id) === POOL_IDS.A
+            ? pool.states.sA
+            : Number(id) === POOL_IDS.B
+              ? pool.states.sB
+              : pool.states.sC
 
-        const tokenPrice = parseSqrtX96(
-          prices[pool.TOKEN_R]?.mul(rX)?.div(sX).mul(numberToWei(1, 9)) || bn(0),
-          tokens[address] || {},
-          tokens[configs.stablecoins[0]] || {}
-        )
-
-        value = weiToNumber(
-          bn(numberToWei(_amount)).mul(numberToWei(tokenPrice))
-          , 54)
+        // TOTO: need remove mul(numberToWei(1, 9) after fix parseSqrtX96 function
+        const tokenPrice =
+          valueInUsd && NUM(prices[pool.TOKEN_R] ?? 0) > 0
+            ? prices[pool.TOKEN_R].toString()
+            : 1
+        value = IEW(BIG(WEI(_amount)).mul(WEI(tokenPrice)).mul(rX).div(sX), 36)
       }
     } else {
-      console.log(prices, address)
-      const tokenPrice = prices[address] && prices[address].gt(0) ? parseSqrtX96(
-        prices[address]?.mul(numberToWei(1, 9)) || bn(0),
-        tokens[address] || {},
-        tokens[configs.stablecoins[0]] || {}
-      ) : numberToWei(1, 36)
-
-      value = weiToNumber(
-        bn(numberToWei(_amount)).mul(numberToWei(tokenPrice))
-        , 54)
+      // TOTO: need remove mul(numberToWei(1, 9) after fix parseSqrtX96 function
+      try {
+        if ((configs.stablecoins || []).includes(address)) return _amount
+        const tokenPrice =
+          valueInUsd && NUM(prices[address] ?? 0) > 0
+            ? prices[address].toString()
+            : 0
+        value = IEW(BIG?.(WEI(_amount)).mul(WEI(tokenPrice)), 36)
+      } catch (error) {
+        console.error(error)
+        return '0'
+      }
     }
-    return cutDecimal(value, 18)
+    value = cutDecimal(value, 18)
+    if (value == null || Number.isNaN(value)) {
+      return '0'
+    }
+    return value
   }
-
+  const convertTokenValue = (
+    tokenIn: string,
+    tokenOut: string = NATIVE_ADDRESS,
+    amount: string
+  ): string => {
+    if (tokenIn === tokenOut) return amount
+    if (!tokenIn || !amount) return '0'
+    const tokenInValue = NUM(getTokenValue(tokenIn, amount))
+    const tokenOutValue = NUM(getTokenValue(tokenOut, '1'))
+    return STR(tokenInValue / tokenOutValue)
+  }
   const value = useMemo(() => {
-    if (!amount || !tokenAddress) return 0
+    if (!amount || !tokenAddress) return '0'
     return getTokenValue(tokenAddress, amount)
-  }, [amount, tokenAddress, prices])
+  }, [amount, tokenAddress, prices, settings.showValueInUsd])
 
   return {
     value,
-    getTokenValue
+    getTokenValue,
+    convertTokenValue
   }
 }

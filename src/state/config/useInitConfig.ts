@@ -1,9 +1,14 @@
 import { useDispatch } from 'react-redux'
 import { useEffect } from 'react'
-import { seNetworkConfigs, setConfigs } from './reducer'
+import { setNetworkConfigs, setConfigs } from './reducer'
 import { addTokensReduce } from '../token/reducer'
-import { Engine } from 'derivable-tools/dist/engine'
-import { DEFAULT_CHAIN, NATIVE_ADDRESS, ZERO_ADDRESS } from '../../utils/constant'
+import { Engine } from 'derivable-engine/dist/engine'
+import {
+  DEFAULT_CHAIN,
+  NATIVE_ADDRESS,
+  ZERO_ADDRESS
+} from '../../utils/constant'
+import { loadJSON } from '../setting/type'
 
 export const useInitConfig = ({
   library,
@@ -27,6 +32,8 @@ export const useInitConfig = ({
   const dispatch = useDispatch()
   const location = useLocation()
 
+  const scanApiKeys = loadJSON('scanApiKey', {})
+
   useEffect(() => {
     dispatch(
       setConfigs({
@@ -46,23 +53,23 @@ export const useInitConfig = ({
         console.log('=======await sync account========')
       }
 
-      const engine = new Engine(
-        {
-          env,
-          chainId,
-          account: account || ZERO_ADDRESS,
-          signer: library?.getSigner(),
-          scanApiKey: '',
-          storage: {
-            // @ts-ignore
-            setItem: (itemName, value) => localStorage.setItem(itemName, value),
-            // @ts-ignore
-            getItem: (itemName) => localStorage.getItem(itemName)
-          }
+      const scanApiKey = scanApiKeys?.[chainId] ?? ''
+      console.log('scan API Key', scanApiKey)
+
+      const engine = new Engine({
+        env,
+        chainId,
+        account: account || ZERO_ADDRESS,
+        signer: library?.getSigner(),
+        scanApiKey,
+        storage: {
+          // @ts-ignore
+          setItem: (itemName, value) => localStorage.setItem(itemName, value),
+          // @ts-ignore
+          getItem: (itemName) => localStorage.getItem(itemName)
         }
-      )
+      })
       await engine.initServices()
-      console.log(engine.profile.configs)
       dispatch(
         addTokensReduce({
           tokens: [{
@@ -74,11 +81,13 @@ export const useInitConfig = ({
           chainId: chainId || DEFAULT_CHAIN
         })
       )
-      dispatch(seNetworkConfigs({
-        chainId,
-        engine,
-        configs: engine.profile.configs
-      }))
+      dispatch(
+        setNetworkConfigs({
+          chainId,
+          engine,
+          configs: engine.profile.configs
+        })
+      )
       // dispatch(setEngine({ engine }))
     }
 

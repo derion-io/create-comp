@@ -1,3 +1,5 @@
+import { bn } from './helpers'
+
 export const UNDER_CONSTRUCTION = false
 export const LARGE_VALUE =
   '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'
@@ -11,8 +13,18 @@ export const TIME_TO_REFRESH_STATE = 30000
 export const DEFAULT_CHAIN = 42161
 export const CHAINS = {
   ARBITRUM: 42161,
-  BASE: 8453
+  BASE: 8453,
+  BSC: 56,
+  OPBNB: 204,
 }
+
+export const SECONDS_PER_HOUR = 60 * 60
+export const PAYMENT = 0
+export const PRECISION = 1000000
+
+export const Q256M = bn(1).shl(256).sub(1)
+export const Q128 = bn(1).shl(128)
+export const Q64 = bn(1).shl(64)
 
 export const SUPPORTED_CHAINS = Object.values(CHAINS)
 
@@ -33,9 +45,6 @@ export const LIQUIDITY_TAB = {
   REMOVE: Symbol('remove')
 }
 
-export const CHART_API_ENDPOINT = 'https://api.lz.finance/56/chart/'
-export const LASTEST_BLOCK_NUMBER = 99999999999999999
-
 export const POOL_IDS = {
   cToken: 131072,
   cp: 65536,
@@ -52,3 +61,10 @@ export const COLORS = {
   BUY: '#3DBAA2',
   SELL: '#FF7A68'
 }
+
+export const UNWRAP = {
+  WETH: 'ETH',
+  WBNB: 'BNB',
+}
+
+export const R_PLACEHOLDER = '0.000000003'

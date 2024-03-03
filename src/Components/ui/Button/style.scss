@@ -1,6 +1,6 @@
 @import "../../../styles/abstracts/variables";
 
-.derivable-button {
+.ddl-pool-page .derivable-button {
   padding: 12px 16px;
   font-weight: 700;
   font-size: 14px;
@@ -43,10 +43,6 @@
 
   &.reset {
     background: $color-reset-btn;
-  }
-
-  &.add {
-    background: $color-add;
   }
 
   &.border {

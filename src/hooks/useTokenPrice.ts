@@ -1,10 +1,14 @@
+import { useConfigs } from '../state/config/useConfigs'
+import { useTokenPrice } from '../state/pools/hooks/useTokenPrice'
+import { NUM } from '../utils/helpers'
+import { NATIVE_ADDRESS } from '../utils/constant'
+
 export const useNativePrice = () => {
-  // const { ddlEngine } = useConfigs()
-  // return useSWR({ ddlEngine }, ({ ddlEngine }) => {
-  //   if (ddlEngine) {
-  //     return ddlEngine.PRICE.getNativePrice()
-  //   }
-  //   return undefined
-  // })
-  return { data: 1900 }
+  const { configs } = useConfigs()
+  const { prices } = useTokenPrice()
+  const nativePrice = NUM(prices[configs.wrappedTokenAddress] || prices[NATIVE_ADDRESS])
+  if (nativePrice > 0) {
+    return { data: nativePrice }
+  }
+  return { data: configs.nativePriceUSD ?? 1600 }
 }

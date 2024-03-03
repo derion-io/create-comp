@@ -1,4 +1,5 @@
 import { BigNumber } from 'ethers'
+import { DEFAULT_CHAIN } from '../../utils/constant'
 
 export type BalancesType = { [key: string]: BigNumber }
 export type AllowancesType = { [key: string]: BigNumber }
@@ -14,6 +15,7 @@ export type SwapTxType = {
 }
 
 export interface walletState {
+  chainId: number
   account: string
   balances: BalancesType
   swapLogs: {[key: string]: any[] }
@@ -22,9 +24,10 @@ export interface walletState {
 }
 
 export const initialState: walletState = {
+  chainId: DEFAULT_CHAIN,
   account: '',
   balances: {},
   swapLogs: {},
   formartedSwapLogs: [],
-  routerAllowances: {}
+  routerAllowances: {},
 }

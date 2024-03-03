@@ -6,34 +6,75 @@ export const tokens = createSlice({
   name: 'pools',
   initialState,
   reducers: {
-    addPoolGroupsWithChain: (state, action: PayloadAction<{
-      poolGroups: {[key: string]: PoolType},
-      chainId: number
-    }>) => {
-      if (Object.keys(action.payload.poolGroups || {}).length === 0) return
+    addPoolGroupsWithChain: (
+      state,
+      action: PayloadAction<{
+        poolGroups: { [key: string]: PoolType }
+        chainId: number
+      }>
+    ) => {
+      if (Object.keys(action.payload.poolGroups ?? {}).length === 0) return
       state.poolGroups[action.payload.chainId] = {
         ...state[action.payload.chainId],
         ...action.payload.poolGroups
       }
     },
-    addPoolsWithChain: (state, action: PayloadAction<{
-      pools: {[key: string]: PoolType},
-      chainId: number
-    }>) => {
-      if (Object.keys(action.payload.pools || {}).length === 0) return
+    setPoolGroupsWithChain: (
+      state,
+      action: PayloadAction<{
+        poolGroups: { [key: string]: PoolType }
+        chainId: number
+      }>
+    ) => {
+      state.poolGroups[action.payload.chainId] = action.payload.poolGroups
+    },
+    addPoolsWithChain: (
+      state,
+      action: PayloadAction<{
+        pools: { [key: string]: PoolType }
+        chainId: number
+      }>
+    ) => {
+      if (Object.keys(action.payload.pools ?? {}).length === 0) return
       state.pools[action.payload.chainId] = {
         ...state[action.payload.chainId],
         ...action.payload.pools
       }
     },
-    addTokenPriceWithChain: (state, action: PayloadAction<{
-      prices: {[key: string]: BigNumber},
-      chainId: number
-    }>) => {
-      if (Object.keys(action.payload.prices || {}).length === 0) return
+    setPoolsWithChain: (
+      state,
+      action: PayloadAction<{
+        pools: { [key: string]: PoolType }
+        chainId: number
+      }>
+    ) => {
+      // if (Object.keys(action.payload.pools ?? {}).length === 0) return
+      state.pools[action.payload.chainId] = action.payload.pools
+    },
+    addTokenPriceWithChain: (
+      state,
+      action: PayloadAction<{
+        prices: { [key: string]: BigNumber }
+        chainId: number
+      }>
+    ) => {
+      if (Object.keys(action.payload.prices ?? {}).length === 0) return
       state.prices[action.payload.chainId] = {
         ...state[action.payload.chainId],
         ...action.payload.prices
+      }
+    },
+    addFeeDataWithChain: (
+      state,
+      action: PayloadAction<{
+        feeData: { [key: string]: BigNumber }
+        chainId: number
+      }>
+    ) => {
+      if (Object.keys(action.payload.feeData ?? {}).length === 0) return
+      state.feeData[action.payload.chainId] = {
+        ...state[action.payload.chainId],
+        ...action.payload.feeData
       }
     }
   }
@@ -42,8 +83,11 @@ export const tokens = createSlice({
 // Actions
 export const {
   addPoolsWithChain,
+  setPoolGroupsWithChain,
   addPoolGroupsWithChain,
-  addTokenPriceWithChain
+  setPoolsWithChain,
+  addTokenPriceWithChain,
+  addFeeDataWithChain
 } = tokens.actions
 
 export default tokens.reducer

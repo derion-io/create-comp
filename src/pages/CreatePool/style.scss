@@ -3,10 +3,10 @@
 
 $element-gap: 2rem;
 
-.exposure-interface .ddl-pool-page {
+.ddl-pool-page .ddl-pool-page {
   //display: flex;
   //justify-content: center;
-  //width: 100%;
+  // width: 100%;
   //gap: 1rem;
   //align-items: flex-start;
   margin: 0 auto;
@@ -14,7 +14,17 @@ $element-gap: 2rem;
   //&__config-card {
   //  width: 648px;
   //}
-
+  &__wrap {
+    width: 1400px;
+    gap: 2rem;
+    display: flex;
+    @media only screen and (max-width: 768px) {
+      display: block;
+      width: calc(100% - 2rem);
+      margin-left: 1rem;
+      gap: 1rem;
+     };
+  }
   &__header {
     margin-bottom: 1.5rem;
     display: flex;
@@ -34,13 +44,20 @@ $element-gap: 2rem;
       margin: auto;
     }
   }
-
+  &__output {
+    width: 400px;
+    @media only screen and (max-width: 768px) {
+      width: 100%;
+      margin-top: 1rem;
+     };   
+  }
   &__head {
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
-    padding: 24px;
+    margin: 16px;
+    font-size: 1.6rem;
 
     &--back-btn {
       position: absolute;
@@ -54,10 +71,27 @@ $element-gap: 2rem;
   &__content {
     padding-left: 24px;
     padding-right: 24px;
+    width: 1400px;
+    max-width: calc(100vw - 3rem);
     padding-bottom: 24px;
     display: flex;
     gap: 2rem;
+    
+    &--left {
+      width: 50%;
+      // margin-left: 25%;
+      @media only screen and (max-width: 768px) {
+        width: 100%;
+       };    // 0 - 768px
 
+    }
+    &--right {
+      width: 50%;
+      @media only screen and (max-width: 768px) {
+        width: 100%;
+       };
+
+    }
     //.oracle-radio {
     //  margin-left: 125px;
     //  margin-top: 8px;

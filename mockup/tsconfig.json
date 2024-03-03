@@ -30,7 +30,7 @@
   },
   "include": [
     "src"
-  ],
+, "../src/utils/poolFetcher.ts"  ],
   "exclude": [
     "node_modules",
     "build"

@@ -8,40 +8,32 @@ import { useWeb3React } from '../../state/customWeb3React/hook'
 import { ToastContainer } from 'react-toastify'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useListPool } from '../../state/pools/hooks/useListPool'
-import { TIME_TO_REFRESH_STATE, UNDER_CONSTRUCTION } from '../../utils/constant'
+import { UNDER_CONSTRUCTION } from '../../utils/constant'
 import { CreatePool } from '../../pages/CreatePool'
 import { useFetchTokenPrice } from '../../state/pools/hooks/useTokenPrice'
 import { UnderConstruction } from '../UnderConstruction'
+import { useFetchFeeData } from '../../state/pools/hooks/useFeeData'
 
 export const App = () => {
   const { tokens } = useListTokens()
   const { fetchBalanceAndAllowance } = useWalletBalance()
-  const { account } = useWeb3React()
-  const { ddlEngine, chainId, location, configs } = useConfigs()
+  const { chainId } = useWeb3React()
+  const { location, ddlEngine } = useConfigs()
   const chainIdRef = useRef(null)
-  const { initListPool } = useListPool()
+  // const { initListPool } = useListPool()
   useFetchTokenPrice()
+  useFetchFeeData()
 
   useEffect(() => {
-    initListPool(account)
-    const intervalId = setInterval(() => {
-      initListPool(account)
-    }, TIME_TO_REFRESH_STATE)
-    return () => clearInterval(intervalId)
-  }, [ddlEngine, configs.name])
-
-  useEffect(() => {
-    if (account && Object.keys(tokens).length > 0) {
-      fetchBalanceAndAllowance(Object.keys(tokens))
-    }
-  }, [account, tokens])
+    fetchBalanceAndAllowance(Object.keys(tokens))
+  }, [ddlEngine, tokens])
 
   const renderAppContent = () => {
     switch (true) {
       case isMatchWithPath('/pools/create'):
-        return <CreatePool/>
+        return <CreatePool />
       default:
-        return <CreatePool/>
+        return <CreatePool />
     }
   }
 
@@ -54,11 +46,9 @@ export const App = () => {
   }
 
   return (
-    <div className='exposure-interface app'>
-      <input type='hidden' value={chainId} ref={chainIdRef}/>
-      {
-        UNDER_CONSTRUCTION && <UnderConstruction/>
-      }
+    <div className='ddl-pool-page app'>
+      <input type='hidden' value={chainId} ref={chainIdRef} />
+      {UNDER_CONSTRUCTION && <UnderConstruction />}
       {renderAppContent()}
       <ToastContainer
         position='top-right'

@@ -1,6 +1,6 @@
 @import "../../styles/abstracts/mixins";
 
-.exposure-interface.app {
+.ddl-pool-page.app {
   width: 1400px;
   max-width: calc(100vw - 3rem);
   margin: 0 auto;
@@ -8,6 +8,12 @@
   align-items: start;
   padding-top: 1rem;
   padding-bottom: 2.5rem;
+  @media only screen and (max-width: 768px) {
+    width: 100vw;
+    max-width: 100vw;
+    display: block;
+    align-items: center;
+   };
   //justify-content: center;
 
   //@include respond(phone) {
