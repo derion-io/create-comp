@@ -106,13 +106,11 @@ export const PoolCreateInfo = () => {
   const [isLoadingStaticParam, setIsLoadingStaticParam] = useState(false)
   useEffect(() => {
     setIsBarLoading(true)
+
     initListPool(account, poolSettings.baseToken)
-      .then((res) => {
-        setIsBarLoading(false)
-      })
-      .catch((e) => {
-        setIsBarLoading(false)
-      })
+      // .then((res) => {})
+      // .catch((e) => {
+      // })
   }, [poolSettings.baseToken, configs, ddlEngine])
 
   const handleCreatePool = async () => {
@@ -128,6 +126,8 @@ export const PoolCreateInfo = () => {
   const gasPrice = bn(feeData?.gasPrice ?? 1)
 
   const leverageCondition = useMemo(() => {
+    setIsBarLoading(false)
+    console.log('#leverageCondition', poolGroups, leverageData)
     const isHavePool =
       Object.keys(poolGroups).length > 0 || Object.keys(pools).length > 0
     const isHaveLeverage =
