@@ -29,7 +29,6 @@ export const OracleConfigBox = () => {
   const [windowTimeSuggest, setWindowTimeSuggest] = useState<string[]>([])
   const { getTokenIconUrl } = useHelper()
   const { width } = useWindowSize()
-
   useEffect(() => {
     fetchPairInfo().catch(console.error)
   }, [poolSettings.pairAddress])
@@ -47,9 +46,9 @@ export const OracleConfigBox = () => {
     return {
       address,
       decimals: token.decimals,
-      symbol: token.symbol,
-      name: token.name,
-      logoURI: await getTokenIconUrl(address)
+      symbol: configs?.tokens?.[address]?.symbol || token.symbol || token.name,
+      name: configs?.tokens?.[address]?.name || token.name,
+      logoURI: configs?.tokens?.[address]?.logo || await getTokenIconUrl(address)
     }
   }
   const [fetchPairLoading, setFetchPairLoading] = useState(false)
