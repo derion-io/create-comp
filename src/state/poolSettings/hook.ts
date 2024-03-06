@@ -351,6 +351,7 @@ export const usePoolSettings = () => {
         )
         console.log('Gas Used:', rec.gasUsed.toNumber())
         console.log('Logs:', rec.logs)
+        setDeployParams([])
       } catch (e) {
         toast.error(e?.reason ?? e?.message ?? 'Transaction Failed')
         // console.error(parseCallStaticError(err), err.reason ?? err.error ?? err)
