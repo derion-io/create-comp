@@ -96,7 +96,9 @@ export const PoolCreateInfo = () => {
       setBarData([])
     }
   }, [pools, leverageData])
-
+  useEffect(() => {
+    console.log('#barData', barData,leverageData)
+  },[barData,leverageData])
   const { initListPool } = useListPool()
   const { ddlEngine } = useConfigs()
   const [isBarLoading, setIsBarLoading] = useState(false)
@@ -130,7 +132,7 @@ export const PoolCreateInfo = () => {
       Object.keys(poolGroups).length > 0 || Object.keys(pools).length > 0
     const isHaveLeverage =
       leverageData?.length > 1 ||
-      (leverageData as { bars: any[] }[])[0].bars.length > 1
+      (leverageData as { bars: any[] }[])[0]?.bars?.length > 1
     return isHaveLeverage && isHavePool
   }, [poolGroups, pools, leverageData])
 
