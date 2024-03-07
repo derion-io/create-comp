@@ -96,9 +96,7 @@ export const PoolCreateInfo = () => {
       setBarData([])
     }
   }, [pools, leverageData])
-  useEffect(() => {
-    console.log('#barData', barData,leverageData)
-  },[barData,leverageData])
+
   const { initListPool } = useListPool()
   const { ddlEngine } = useConfigs()
   const [isBarLoading, setIsBarLoading] = useState(false)
@@ -106,11 +104,7 @@ export const PoolCreateInfo = () => {
   const [isLoadingStaticParam, setIsLoadingStaticParam] = useState(false)
   useEffect(() => {
     setIsBarLoading(true)
-
     initListPool(account, poolSettings.baseToken)
-      // .then((res) => {})
-      // .catch((e) => {
-      // })
   }, [poolSettings.baseToken, configs, ddlEngine])
 
   const handleCreatePool = async () => {
@@ -127,7 +121,6 @@ export const PoolCreateInfo = () => {
 
   const leverageCondition = useMemo(() => {
     setIsBarLoading(false)
-    console.log('#leverageCondition', poolGroups, leverageData)
     const isHavePool =
       Object.keys(poolGroups).length > 0 || Object.keys(pools).length > 0
     const isHaveLeverage =
