@@ -126,6 +126,6 @@ export const useGenerateLeverageData = (
       }
     })
 
-    return data
+    return data?.sort((a:any, b:any) => a?.x - b?.x)
   }, [amountIn, power, oldLeverageData, poolGroups, pools])
 }
