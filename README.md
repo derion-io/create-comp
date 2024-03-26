@@ -5,7 +5,7 @@
 ```
 kick balcony people guess oppose verb faint explain spoil learn that pool
 ```
-2. Go to branch `deploy-on-ganache-network` of `https://github.com/derivable-io/contracts` and run this script to deploy contract
+2. Go to branch `deploy-on-ganache-network` of `https://github.com/derion-io/contracts` and run this script to deploy contract
 ```
 yarn deploy:ganache
 ```
