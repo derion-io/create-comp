@@ -24,12 +24,6 @@ export const useGenerateLeverageData = (
     if (Object.values(pools || {})?.length > 0) {
       Object.values(pools).forEach((pool) => {
         const size = bn(pool.states.R)
-        // console.log(
-        //   '#pools',
-        //   pool,
-        //   pool.TOKEN_R,
-        //   weiToNumber(pool.states.R, tokens[pool.TOKEN_R]?.decimals)
-        // )
         const power = Math.abs(pool.k.toNumber() / 2)
 
         if (!result[power]) {
@@ -69,7 +63,7 @@ export const useGenerateLeverageData = (
     const result = _.cloneDeep(oldLeverageData)
 
     if (amountIn && Number(power) > 0) {
-      const size = bn(numberToWei(getTokenValue(NATIVE_ADDRESS, amountIn)))
+      const size = bn(numberToWei(amountIn))
 
       if (oldLeverageData[power]) {
         result[power].bars.push({
