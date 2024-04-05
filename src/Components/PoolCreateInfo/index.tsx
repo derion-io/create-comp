@@ -130,6 +130,9 @@ export const PoolCreateInfo = () => {
   }, [poolGroups, pools, leverageData])
 
   const getValidationError = (): string => {
+    if (!poolSettings.pairAddress) {
+      return 'Missing Oracle Index'
+    }
     if (isLoadingStaticParam) {
       return 'Calculating...'
     }
