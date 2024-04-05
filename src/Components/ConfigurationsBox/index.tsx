@@ -155,7 +155,7 @@ export const ConfigurationsBox = () => {
 
       <div className='config-item'>
         <Text fontSize={14} fontWeight={600}>
-            Position Vesting Time
+          Anti-Bot Vesting Time
         </Text>
         <NumberInput
           inputWrapProps={{
@@ -178,7 +178,7 @@ export const ConfigurationsBox = () => {
 
       <div className='config-item'>
         <Text fontSize={14} fontWeight={600}>
-            Closing Fee
+          Anti-Bot Closing Fee
         </Text>
         <NumberInput
           inputWrapProps={{
@@ -195,7 +195,7 @@ export const ConfigurationsBox = () => {
 
       <div className='config-item'>
         <Text fontSize={14} fontWeight={600}>
-            No Closing Fee After
+          Anti-Bot Closing Time
         </Text>
         <NumberInput
           inputWrapProps={{
