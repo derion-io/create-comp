@@ -8,9 +8,9 @@ export type PoolSettingsType = {
   windowBlocks?: string
   interestRate: string
   premiumRate: string
-  vesting: string
-  maturityHours: string
-  closingFee: string
+  vesting?: string
+  maturityHours?: string
+  closingFee?: string
   openingFee?: string
   amountIn?: string
   reserveToken: string
@@ -38,10 +38,8 @@ export const initialState: PoolSettingsType = {
   windowBlocks: '40',
   power: '2',
   interestRate: '0.03',
+  openingFee: '0.3',
   premiumRate: '3',
-  vesting: '120',
-  closingFee: '1',
-  maturityHours: '1',
   reserveToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
   // reserveToken: ''0xBa95100a0c3abaD1e10414Be77347D3D0900D8c2'', // PlayDerivable
   gasUsed: '0',
