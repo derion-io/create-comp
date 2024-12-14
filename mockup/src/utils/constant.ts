@@ -5,16 +5,18 @@ export const THEME_SUPPORTED = ['light', 'dark']
 export const SELECTED_NETWORK_LOCAL_STORAGE_KEY = 'selected_network'
 
 export const ARBITRUM_NETWORK = 42161
+export const POLYGON_NETWORK = 137
 export const LOCAL_NETWORK = 31337
 export const BSC_NETWORK = 56
 export const BSC_TESTNET_NETWORK = 97
 export const BASE_NETWORK = 8453
 
-export const DEFAULT_CHAIN = ARBITRUM_NETWORK
-export const CHAIN_IDS = [ARBITRUM_NETWORK, BASE_NETWORK, BSC_NETWORK]
+export const DEFAULT_CHAIN = POLYGON_NETWORK
+export const CHAIN_IDS = [ARBITRUM_NETWORK, POLYGON_NETWORK, BASE_NETWORK, BSC_NETWORK]
 
 export const CHAINS = {
   [ARBITRUM_NETWORK]: 'Arbitrum',
+  [POLYGON_NETWORK]: 'Polygon',
   [BASE_NETWORK]: 'Base',
   [BSC_NETWORK]: 'Bsc',
 }
@@ -22,6 +24,7 @@ export const CHAINS = {
 export const RPC_URLS: { [chainId: number]: string } = {
   [BSC_NETWORK]: 'https://bsc-dataseed.binance.org/' as string,
   [ARBITRUM_NETWORK]: 'https://arb1.arbitrum.io/rpc' as string,
+  [POLYGON_NETWORK]: 'https://polygon-bor-rpc.publicnode.com' as string,
   [LOCAL_NETWORK]: 'http://localhost:8545/' as string,
   [BSC_TESTNET_NETWORK]: 'https://data-seed-prebsc-1-s1.binance.org:8545/' as string
 }
@@ -38,6 +41,17 @@ export const NETWORK_METADATA = {
     rpcUrls: 'https://arb1.arbitrum.io/rpc',
     blockExplorerUrls: ["https://testnet.bscscan.com"],
   },
+  [POLYGON_NETWORK]: {
+    chainId: "0x" + POLYGON_NETWORK.toString(16),
+    chainName: 'Polygon',
+    nativeCurrency: {
+      name: "POL",
+      symbol: "POL",
+      decimals: 18,
+    },
+    rpcUrls: 'https://rpc-amoy.polygon.technology',
+    blockExplorerUrls: "https://polygonscan.com/",
+  },
   [BASE_NETWORK]: {
     chainId: "0x" + BASE_NETWORK.toString(16),
     chainName: "Base",
@@ -51,7 +65,7 @@ export const NETWORK_METADATA = {
   }
 };
 
-export const NETWORK_SUPPORTED = {
+export const NETWORK_SUPPORTED: { [chainId: number]: any } = {
   [ARBITRUM_NETWORK]: {
     chainId: ARBITRUM_NETWORK,
     name: 'Arbitrum',
@@ -59,15 +73,78 @@ export const NETWORK_SUPPORTED = {
     key: 'arbitrum',
     logo: '42161.svg',
     explorer: "https://arbiscan.io/",
-    nativeTokenSymbol: 'ETH'
+    nativeTokenSymbol: 'ETH',
+    metadata: {
+      chainId: "0x" + ARBITRUM_NETWORK.toString(16),
+      chainName: "Arbitrum",
+      nativeCurrency: {
+        name: "ETH",
+        symbol: "ETH",
+        decimals: 18,
+      },
+      rpcUrls: 'https://arb1.arbitrum.io/rpc',
+      blockExplorerUrls: ["https://arbiscan.io/"],
+    },
   },
-  [BASE_NETWORK]: {
-    chainId: BASE_NETWORK,
-    name: 'Base',
-    fullname: 'Base',
-    key: 'base',
-    logo: '8453.png',
-    explorer: "https://basescan.org",
-    nativeTokenSymbol: 'ETH'
-  }
+  [POLYGON_NETWORK]: {
+    chainId: POLYGON_NETWORK,
+    name: 'Polygon',
+    fullname: 'Polygon PoS',
+    key: 'polygon',
+    logo: '137.svg',
+    explorer: "https://polygonscan.com/",
+    nativeTokenSymbol: 'POL',
+    metadata: {
+      chainId: "0x" + POLYGON_NETWORK.toString(16),
+      chainName: "Polygon",
+      nativeCurrency: {
+        name: "POL",
+        symbol: "POL",
+        decimals: 18,
+      },
+      rpcUrls: 'https://rpc-amoy.polygon.technology',
+      blockExplorerUrls: ["https://polygonscan.com/"],
+    },
+  },
+  // [BASE_NETWORK]: {
+  //   chainId: BASE_NETWORK,
+  //   name: 'Base',
+  //   fullname: 'Base',
+  //   key: 'base',
+  //   logo: '8453.png',
+  //   explorer: "https://basescan.org",
+  //   nativeTokenSymbol: 'ETH',
+  //   metadata: {
+  //     chainId: "0x" + BASE_NETWORK.toString(16),
+  //     chainName: "Base",
+  //     nativeCurrency: {
+  //       name: "ETH",
+  //       symbol: "ETH",
+  //       decimals: 18,
+  //     },
+  //     rpcUrls: 'https://mainnet.base.org',
+  //     blockExplorerUrls: ["https://basescan.org"],
+  //   },
+  // },
+  [BSC_NETWORK]: {
+    chainId: BSC_NETWORK,
+    name: 'BSC',
+    fullname: 'BNB Smart Chain',
+    key: 'bnb',
+    alias: 'bsc',
+    logo: '56.svg',
+    explorer: "https://bscscan.com",
+    nativeTokenSymbol: 'ETH',
+    metadata: {
+      chainId: "0x" + BSC_NETWORK.toString(16),
+      chainName: "BNB Smart Chain",
+      nativeCurrency: {
+        name: "BNB",
+        symbol: "BNB",
+        decimals: 18,
+      },
+      rpcUrls: 'https://bsc-dataseed3.binance.org',
+      blockExplorerUrls: ["https://bscscan.com"],
+    },
+  },
 }

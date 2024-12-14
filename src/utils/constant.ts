@@ -13,6 +13,7 @@ export const TIME_TO_REFRESH_STATE = 30000
 export const DEFAULT_CHAIN = 42161
 export const CHAINS = {
   ARBITRUM: 42161,
+  POLYGON: 137,
   BASE: 8453,
   BSC: 56,
   OPBNB: 204,
