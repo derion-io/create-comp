@@ -40,7 +40,7 @@
     "@uniswap/v3-sdk": "^3.9.0",
     "assisted-json-rpc-provider": "git+ssh://git@github.com:derion-io/AssistedJsonRpcProvider.git#dev",
     "caniuse-lite": "^1.0.30001576",
-    "derivable-engine": "git+ssh://git@github.com:derion-io/engine.git#dev-build",
+    "derivable-engine": "git+ssh://git@github.com:derion-io/engine.git#hedge-build",
     "ethereum-multicall": "^2.15.0",
     "ethers": "^5.4.6",
     "graphql": "^15.5.0",
