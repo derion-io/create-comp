@@ -1,6 +1,5 @@
 import jsonERC20 from '@uniswap/v2-core/build/ERC20.json'
 import { ADDRESS_ZERO } from '@uniswap/v3-sdk'
-import { rateToHL } from 'derivable-engine/dist/utils/helper'
 import { ethers, utils } from 'ethers'
 import { useDispatch, useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
@@ -17,7 +16,7 @@ import {
   findFetcher,
   mulDivNum
 } from '../../utils/deployHelper'
-import { NUM, STR, bn, numberToWei, parseCallStaticError } from '../../utils/helpers'
+import { NUM, STR, baseRateToHL, bn, numberToWei, parseCallStaticError } from '../../utils/helpers'
 import { State } from '../types'
 import { setPoolSettings } from './reducer'
 import { PoolSettingsType } from './type'
@@ -179,8 +178,8 @@ export const usePoolSettings = () => {
         TOKEN_R,
         MARK,
         K: bn(K),
-        INTEREST_HL: rateToHL(NUM(settings.interestRate || 0) / 100, NUM(settings.power)),
-        PREMIUM_HL: rateToHL(NUM(settings.premiumRate || 0) / 100, NUM(settings.power)),
+        INTEREST_HL: baseRateToHL(NUM(settings.interestRate || 0) / 100),
+        PREMIUM_HL: baseRateToHL(NUM(settings.premiumRate || 0) / 100),
         MATURITY: NUM(settings.maturityHours || 0) * 3600,
         MATURITY_VEST: NUM(settings.vesting || 0),
         MATURITY_RATE: feeToOpenRate(NUM(settings.closingFee || 0) / 100),

@@ -513,3 +513,13 @@ export function isEthereumAddress(input: string): boolean {
 
   return isHex && isAddress
 }
+
+export const SECONDS_PER_DAY = 24*60*60
+
+export const baseRateToHL = (r: number, DURATION = SECONDS_PER_DAY): number => {
+  return Math.ceil((DURATION * Math.LN2) / r)
+}
+
+export const baseRateFromHL = (HL: number, DURATION = SECONDS_PER_DAY): number => {
+  return (DURATION * Math.LN2) / HL
+}
