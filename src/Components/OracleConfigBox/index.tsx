@@ -257,18 +257,18 @@ export const OracleConfigBox = () => {
           )}
         </Text>
       </div>
-      <div className='grid-container'>
+      <div className='grid-container' style={{ gridTemplateColumns: 'auto auto auto' }}>
+        <div className='config-item' key={-1}>
+          <Input
+            value={poolSettings.baseToken?.symbol?.toUpperCase()}
+            placeholder='base symbol'
+            disabled={true}
+          />
+        </div>
         {[0, 1].map((key, idx) => {
           return (
             <div className='config-item' key={idx}>
               <Input
-                inputWrapProps={{
-                  className: `config-input ${
-                      windowTimeSuggest.includes(poolSettings.window.toString())
-                        ? ''
-                        : 'warning-input'
-                    }`
-                }}
                 value={poolSettings.searchBySymbols[key]}
                 onChange={(e) => {
                   const _searchBySymbols = poolSettings.searchBySymbols.map(
