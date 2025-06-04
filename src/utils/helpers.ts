@@ -517,9 +517,15 @@ export function isEthereumAddress(input: string): boolean {
 export const SECONDS_PER_DAY = 24*60*60
 
 export const baseRateToHL = (r: number, DURATION = SECONDS_PER_DAY): number => {
+  if (r == 0) {
+    return 0
+  }
   return Math.ceil((DURATION * Math.LN2) / r)
 }
 
 export const baseRateFromHL = (HL: number, DURATION = SECONDS_PER_DAY): number => {
+  if (HL == 0) {
+    return 0
+  }
   return (DURATION * Math.LN2) / HL
 }

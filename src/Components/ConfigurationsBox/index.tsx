@@ -80,7 +80,7 @@ export const ConfigurationsBox = () => {
 
       <div className='config-item'>
         <Text fontSize={14} fontWeight={600}>
-            Interest Rate
+          Funding Rate
         </Text>
         <NumberInput
           inputWrapProps={{
@@ -106,7 +106,7 @@ export const ConfigurationsBox = () => {
           // }
         />
       </div>
-
+{/* 
       <div className='config-item'>
         <Text fontSize={14} fontWeight={600}>
             Max Premium Rate
@@ -135,7 +135,7 @@ export const ConfigurationsBox = () => {
           // }
         />
       </div>
-
+ */}
       <div className='config-item'>
         <Text fontSize={14} fontWeight={600}>
             Opening Fee
@@ -152,7 +152,7 @@ export const ConfigurationsBox = () => {
           suffix='%'
         />
       </div>
-
+{/* 
       <div className='config-item'>
         <Text fontSize={14} fontWeight={600}>
           Anti-Bot Vesting Time
@@ -209,6 +209,7 @@ export const ConfigurationsBox = () => {
           suffix='hours'
         />
       </div>
+*/}
     </Box>
   )
 }

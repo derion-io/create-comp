@@ -284,7 +284,7 @@ export const usePoolSettings = () => {
           ? await utr.estimateGas.exec(...params)
           : await poolDeployer.estimateGas.deploy(...params)
 
-      console.log('gasUsed', gasPrice, gasUsed)
+      console.log('gas', gasPrice.toNumber().toLocaleString(), gasUsed.toNumber().toLocaleString())
       updatePoolSettings({
         gasUsed: gasUsed.toString(),
       })
