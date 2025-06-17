@@ -17,6 +17,7 @@ import { Text, TextBlue, TextGrey, TextSell } from '../ui/Text'
 import '../OracleConfigBox/style.scss'
 import { findFetcher } from '../../utils/deployHelper'
 import { useWindowSize } from '../../hooks/useWindowSize'
+import {ChainLinkPriceFeedData} from '../../state/poolSettings/type'
 export const feeOptions = [100, 300, 500, 1000]
 export const OracleConfigBox = () => {
   const {
@@ -29,7 +30,6 @@ export const OracleConfigBox = () => {
   const [windowTimeSuggest, setWindowTimeSuggest] = useState<string[]>([])
   const { getTokenIconUrl } = useHelper()
   const { width } = useWindowSize()
-
   useEffect(() => {
     fetchPairInfo().catch(console.error)
   }, [poolSettings.pairAddress])
@@ -40,7 +40,7 @@ export const OracleConfigBox = () => {
     }
   }, [poolSettings])
 
-  const { getUniV3PairContract } = useContract()
+  const { getUniV3PairContract, getChainLinkPriceFeedContract} = useContract()
 
   const formatTokenType = async (token: any) => {
     const address = utils.getAddress(token.address)
@@ -75,6 +75,7 @@ export const OracleConfigBox = () => {
           pairV3 ? uniswapPair.callStatic.slot0() : undefined,
           pairV3 ? uniswapPair.callStatic.fee() : undefined
         ])
+        console.log("#",token0,token1)
         const tokens = await Promise.all([
           formatTokenType(token0),
           formatTokenType(token1)
@@ -121,8 +122,20 @@ export const OracleConfigBox = () => {
         })
         setFetchPairLoading(false)
       } catch (error) {
+        // console.log("revert with reason")
+        // check if it if chainlink price feed
+        const {pairAddress}= poolSettings
+        const priceFeedContract = getChainLinkPriceFeedContract(pairAddress)
+        const [ latestRoundData, decimals, description]:[ChainLinkPriceFeedData,number,string] = await Promise.all([
+          priceFeedContract.callStatic.latestRoundData(),
+          priceFeedContract.callStatic.decimals(),
+          priceFeedContract.callStatic.description()
+        ])
         setFetchPairLoading(false)
         updatePoolSettings({
+          pairAddress,
+          chainLinkDecimals:decimals,
+          chainLinkDesc:description,
           quoteToken: undefined,
           baseToken: undefined,
         })
@@ -258,6 +271,7 @@ export const OracleConfigBox = () => {
         </Text>
       </div>
       <div className='grid-container' style={{ gridTemplateColumns: 'auto auto auto' }}>
+
         <div className='config-item' key={-1}>
           <Input
             value={poolSettings.baseToken?.symbol?.toUpperCase()}
