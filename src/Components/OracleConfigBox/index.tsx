@@ -279,7 +279,7 @@ export const OracleConfigBox = () => {
                     ? 'Uniswap V2'
                     : ''}
                 {poolSettings.isChainLink && quoteToken?.symbol && baseToken.symbol
-                    ? 'Chain Link'
+                    ? 'Chainlink'
                     : ''}
                 </TextGrey> }
               </div>
@@ -297,7 +297,7 @@ export const OracleConfigBox = () => {
                     ? 'Uniswap V2'
                     : ''}
                 {poolSettings.isChainLink && quoteToken?.symbol && baseToken.symbol
-                    ? 'Chain Link'
+                    ? 'Chainlink'
                     : ''}
 
               </TextGrey> : ''}
@@ -308,7 +308,7 @@ export const OracleConfigBox = () => {
 
       <div className='mt-2 mb-1'>
         <Text fontSize={14} fontWeight={600}>
-            Additional Search Keywords{' '}
+            Search Keywords{' '}
           {searchKeyError.length > 0 ? (
             <TextSell>{searchKeyError}</TextSell>
           ) : (
