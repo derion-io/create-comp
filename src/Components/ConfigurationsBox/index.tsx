@@ -23,7 +23,7 @@ export const ConfigurationsBox = () => {
       className='oracle-config-box mt-1 mb-1 grid-container'
     >
       <TextBlue className='oracle-config__title'>Configurations</TextBlue>
-
+      {!poolSettings.isChainLink ?
       <div className='config-item'>
         <Text fontSize={14} fontWeight={600}>
             TWAP Window
@@ -51,7 +51,7 @@ export const ConfigurationsBox = () => {
           }}
           suffix={poolSettings.slot0 ? 'seconds' : 'blocks'}
         />
-      </div>
+      </div>: ""}
       <div className='config-item'>
         <div className='config-item'>
           <Text fontSize={14} fontWeight={600}>
