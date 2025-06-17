@@ -51,11 +51,22 @@ export const ConfigurationsBox = () => {
           }}
           suffix={poolSettings.slot0 ? 'seconds' : 'blocks'}
         />
-      </div>: ""}
+      </div>
+      :
+      <div className='config-item'>
+        <Text fontSize={14} fontWeight={600}>
+            Decimals
+        </Text>
+        <NumberInput
+          placeholder={String(poolSettings.chainLinkDecimals)}
+          value={''}
+        />
+      </div>
+      }
       <div className='config-item'>
         <div className='config-item'>
           <Text fontSize={14} fontWeight={600}>
-              Leverage (compounding)
+              Leverage
           </Text>
           <NumberInput
             inputWrapProps={{
