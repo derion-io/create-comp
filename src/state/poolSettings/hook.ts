@@ -9,14 +9,27 @@ import { abi as poolBaseAbi } from '../../utils/abi/PoolBase.json'
 import { abi as PoolDeployerAbi } from '../../utils/abi/PoolDeployer.json'
 import jsonUniswapV3Pool from '../../utils/abi/UniswapV3Pool.json'
 import { abi as univeralTokenRouterAbi } from '../../utils/abi/UniversalTokenRouter.json'
-import { NATIVE_ADDRESS, Q128, Q256M, R_PLACEHOLDER } from '../../utils/constant'
+import {
+  NATIVE_ADDRESS,
+  Q128,
+  Q256M,
+  R_PLACEHOLDER
+} from '../../utils/constant'
 import {
   calculateInitParamsFromPrice,
   feeToOpenRate,
   findFetcher,
-  mulDivNum
+  mulDivNum,
+  mulDivRoundingUp
 } from '../../utils/deployHelper'
-import { NUM, STR, baseRateToHL, bn, numberToWei, parseCallStaticError } from '../../utils/helpers'
+import {
+  NUM,
+  STR,
+  baseRateToHL,
+  bn,
+  numberToWei,
+  parseCallStaticError
+} from '../../utils/helpers'
 import { State } from '../types'
 import { setPoolSettings } from './reducer'
 import { PoolSettingsType } from './type'
@@ -27,14 +40,14 @@ import { useWeb3React } from '../customWeb3React/hook'
 import { useState } from 'react'
 
 export const usePoolSettings = () => {
-  const { configs } = useConfigs()
+  const { configs, ddlEngine } = useConfigs()
   const { feeData } = useFeeData()
   const gasPrice = bn(feeData?.gasPrice ?? 1)
   const { provider } = useWeb3React()
   const signer = provider?.getSigner()
 
-  const [ deployError, setDeployError ] = useState<string>('')
-  const [ deployParams, setDeployParams] = useState<{}[]>([])
+  const [deployError, setDeployError] = useState<string>('')
+  const [deployParams, setDeployParams] = useState<{}[]>([])
 
   const { poolSettings } = useSelector((state: State) => {
     return {
@@ -70,24 +83,24 @@ export const usePoolSettings = () => {
 
       // Note: some weird bug that "a ?? await b()" does not work
       const factory = settings.factory
-      if (!factory) {
+      if (!factory && !poolSettings.isChainLink) {
         setDeployError('Missing factory')
         return []
       }
-      const [FETCHER, fetcherType] = findFetcher(configs, factory)
+      const [FETCHER, fetcherType] = findFetcher(configs, factory || '')
       const exp = fetcherType?.endsWith('3') ? 2 : 1
-      if (!settings.tokens) {
+      if (!settings.tokens && !poolSettings.isChainLink) {
         setDeployError('Missing pair tokens')
         return []
       }
       const K = Number(settings.power) * exp
       updatePoolSettings({
-        x: String(K),
+        x: String(K)
       })
 
       const { QTI, baseToken } = settings
 
-      if (QTI == null || baseToken == null) {
+      if ((QTI == null || baseToken == null) && !poolSettings.isChainLink) {
         setDeployError('Missing token info')
         return []
       }
@@ -102,57 +115,74 @@ export const usePoolSettings = () => {
           provider
         )
         // no need to wait for this
-        uniswapPair.callStatic.observe([0, WINDOW])
-          .catch((err: any) => {
-            if (err.reason == 'OLD') {
-              setDeployError('WINDOW too long')
-              return
-              // throw new Error('WINDOW too long')
-            }
-            // throw err
-            setDeployError(STR(parseCallStaticError(err)))
-          })
+        uniswapPair.callStatic.observe([0, WINDOW]).catch((err: any) => {
+          if (err.reason == 'OLD') {
+            setDeployError('WINDOW too long')
+            return
+            // throw new Error('WINDOW too long')
+          }
+          // throw err
+          setDeployError(STR(parseCallStaticError(err)))
+        })
       } else {
         WINDOW = settings.windowBlocks
         console.log('WINDOW', WINDOW, 'block(s)')
       }
+      let ORACLE = ''
+      if (poolSettings.isChainLink && poolSettings.chainLinkDecimals) {
+        ORACLE = ethers.utils.hexZeroPad(
+          bn(poolSettings.chainLinkDecimals)
+            .shl(160)
+            .add(settings.pairAddress)
+            .toHexString(),
+          32
+        )
+      } else {
+        ORACLE = ethers.utils.hexZeroPad(
+          bn(QTI)
+            .shl(255)
+            .add(bn(WINDOW).shl(256 - 64))
+            .add(settings.pairAddress)
+            .toHexString(),
+          32
+        )
+      }
 
-      const ORACLE = ethers.utils.hexZeroPad(
-        bn(QTI)
-          .shl(255)
-          .add(bn(WINDOW).shl(256 - 64))
-          .add(settings.pairAddress)
-          .toHexString(),
-        32
-      )
       let MARK, price
 
       console.log('zerg', settings.slot0)
-
-      if (settings.slot0) {
-        MARK = settings.slot0.sqrtPriceX96.shl(32)
-        if (QTI === 0) {
-          MARK = Q256M.div(MARK)
-        }
-        price = MARK.mul(MARK)
-      } else {
-        const {r0, r1} = settings
-        if (!r0 || !r1) {
-          setDeployError('Missing pair reserves')
-          return []
-        }
-        if (QTI === 0) {
-          MARK = r0.mul(Q128).div(r1)
+      if (!poolSettings.isChainLink) {
+        if (settings.slot0) {
+          MARK = settings.slot0.sqrtPriceX96.shl(32)
+          if (QTI === 0) {
+            MARK = Q256M.div(MARK)
+          }
+          price = MARK.mul(MARK)
         } else {
-          MARK = r1.mul(Q128).div(r0)
+          const { r0, r1 } = settings
+          if (!r0 || !r1) {
+            setDeployError('Missing pair reserves')
+            return []
+          }
+          if (QTI === 0) {
+            MARK = r0.mul(Q128).div(r1)
+          } else {
+            MARK = r1.mul(Q128).div(r0)
+          }
+          price = MARK
         }
+      } else {
+        MARK = mulDivRoundingUp(poolSettings.chainLinkLatestRoundData?.answer, Q128, bn(10).pow(poolSettings.chainLinkDecimals || 8));
         price = MARK
       }
-
-      const decShift = settings.tokens[1-QTI].decimals - settings.tokens[QTI].decimals
-      if (decShift > 0) {
+      let decShift: number | undefined
+      if (settings.tokens && QTI) {
+        decShift =
+          settings.tokens[1 - QTI].decimals - settings.tokens[QTI].decimals
+      }
+      if (decShift && decShift > 0) {
         price = price.mul(numberToWei(1, decShift))
-      } else if (decShift < 0) {
+      } else if (decShift && decShift < 0) {
         price = price.div(numberToWei(1, -decShift))
       }
 
@@ -171,9 +201,12 @@ export const usePoolSettings = () => {
           : settings.reserveToken === NATIVE_ADDRESS
           ? configs.wrappedTokenAddress
           : settings.reserveToken
-
+      const CHAINLINK_FETCHER = configs.derivable.chainlinkFetcher
       const config = {
-        FETCHER,
+        FETCHER:
+          poolSettings?.isChainLink && CHAINLINK_FETCHER
+            ? CHAINLINK_FETCHER
+            : FETCHER,
         ORACLE,
         TOKEN_R,
         MARK,
@@ -185,6 +218,7 @@ export const usePoolSettings = () => {
         MATURITY_RATE: feeToOpenRate(NUM(settings.closingFee || 0) / 100),
         OPEN_RATE: feeToOpenRate(NUM(settings.openingFee || 0) / 100)
       }
+      console.log(config, CHAINLINK_FETCHER)
       const poolDeployer = new ethers.Contract(
         configs.derivable.poolDeployer!,
         PoolDeployerAbi,
@@ -201,7 +235,7 @@ export const usePoolSettings = () => {
       const pool = new ethers.Contract(poolAddress, poolBaseAbi, signer)
 
       updatePoolSettings({
-        poolAddress,
+        poolAddress
       })
 
       if (R.eq(0)) {
@@ -211,13 +245,13 @@ export const usePoolSettings = () => {
       let params = []
       const deployerAddress = await signer.getAddress()
       const topics = [
-        baseToken.address,
-        baseToken.symbol,
-        settings.searchBySymbols[0] || baseToken.symbol.slice(0, -1),
-        settings.searchBySymbols[1] || baseToken.symbol.slice(1),
+        poolSettings.pairAddress,
+        settings.searchBySymbols[0] || baseToken?.symbol.slice(0, -1),
+        settings.searchBySymbols[1] || baseToken?.symbol.slice(1),
+        settings.searchBySymbols[2] || baseToken?.symbol.slice(2)
       ].map((value, i) => {
         if (i > 0) {
-          return utils.formatBytes32String(value.toUpperCase())
+          return utils.formatBytes32String((value || '').toUpperCase())
         }
         return value
       })
@@ -284,13 +318,17 @@ export const usePoolSettings = () => {
           ? await utr.estimateGas.exec(...params)
           : await poolDeployer.estimateGas.deploy(...params)
 
-      console.log('gas', gasPrice.toNumber().toLocaleString(), gasUsed.toNumber().toLocaleString())
+      console.log(
+        'gas',
+        gasPrice.toNumber().toLocaleString(),
+        gasUsed.toNumber().toLocaleString()
+      )
       updatePoolSettings({
-        gasUsed: gasUsed.toString(),
+        gasUsed: gasUsed.toString()
       })
       setDeployError('')
 
-      setDeployParams(params)
+      setDeployParams(params as any)
       return params
     } catch (err) {
       console.error(err)
@@ -300,7 +338,8 @@ export const usePoolSettings = () => {
   }
   const deployPool = async () => {
     if (provider && signer) {
-      const params = deployParams?.length > 0
+      const params =
+        deployParams?.length > 0
           ? deployParams
           : await calculateParamsForPools()
       console.log('deployParams', deployParams)

@@ -65,7 +65,42 @@ export const OracleConfigBox = () => {
         const settings = poolSettings
         const { pairAddress } = settings
         const uniswapPair = getUniV3PairContract(poolSettings.pairAddress)
-        const factory = await uniswapPair.callStatic.factory()
+        let factory:any = ""
+
+        try {
+          factory = await uniswapPair.callStatic.factory()
+        } catch (error) {
+          const {pairAddress}= poolSettings
+          const priceFeedContract = getChainLinkPriceFeedContract(pairAddress)
+          const [ latestRoundData, decimals, description]:[ChainLinkPriceFeedData,number,string] = await Promise.all([
+            priceFeedContract.callStatic.latestRoundData(),
+            priceFeedContract.callStatic.decimals(),
+            priceFeedContract.callStatic.description()
+          ])
+          const baseSymbol = description.split("/")[0].replace(" ", "")
+          const quoteSymbol = description.split("/")[1].replace(" ", "")
+
+          setFetchPairLoading(false)
+          updatePoolSettings({
+            pairAddress,
+            chainLinkDecimals:decimals,
+            chainLinkDesc:description,
+            chainLinkLatestRoundData: latestRoundData,
+            isChainLink:true,
+            quoteToken: {
+              symbol: quoteSymbol,
+              name: quoteSymbol,
+              decimals:0,
+              address:""
+            },
+            baseToken: {
+              symbol:baseSymbol,
+              name:baseSymbol,
+              decimals:0,
+              address:""
+            },          
+          })
+        }
         const [, fetcherType] = findFetcher(configs, factory)
         const pairV3 = fetcherType?.endsWith('3')
 
@@ -117,54 +152,21 @@ export const OracleConfigBox = () => {
           fee,
           factory,
           tokens,
+          isChainLink: false,
+          chainLinkDecimals: undefined,
+          chainLinkLatestRoundData: undefined,
+          chainLinkDesc: undefined,
           r0: token0.reserve,
           r1: token1.reserve
         })
         setFetchPairLoading(false)
       } catch (error) {
-        // console.log("revert with reason")
-        // check if it if chainlink price feed
-        try {
-          const {pairAddress}= poolSettings
-          const priceFeedContract = getChainLinkPriceFeedContract(pairAddress)
-          const [ latestRoundData, decimals, description]:[ChainLinkPriceFeedData,number,string] = await Promise.all([
-            priceFeedContract.callStatic.latestRoundData(),
-            priceFeedContract.callStatic.decimals(),
-            priceFeedContract.callStatic.description()
-          ])
-          const baseSymbol = description.split("/")[0]
-          const quoteSymbol = description.split("/")[1]
-
-          setFetchPairLoading(false)
-          updatePoolSettings({
-            pairAddress,
-            chainLinkDecimals:decimals,
-            chainLinkDesc:description,
-            chainLinkLatestRoundData: latestRoundData,
-            isChainLink:true,
-            quoteToken: {
-              symbol: quoteSymbol,
-              name: quoteSymbol,
-              decimals:0,
-              address:""
-            },
-            baseToken: {
-              symbol:baseSymbol,
-              name:baseSymbol,
-              decimals:0,
-              address:""
-            },          
-          })
-        } catch {
           setDeployError('Invalid Pool Address')
           setFetchPairLoading(false)
           updatePoolSettings({
             quoteToken: undefined,
             baseToken: undefined,
           })
-        }
-       
-        // setPairInfo(['Can not get Pair Address Info'])
       }
     }
   }
@@ -241,28 +243,29 @@ export const OracleConfigBox = () => {
                   )}
                 </div>
               </div>
-              <div
-                onClick={() => {
-                  if(!poolSettings.isChainLink){
-                  updatePoolSettings({
-                    QTI: poolSettings.QTI ? 0 : 1,
-                    baseToken: poolSettings.quoteToken,
-                    quoteToken: poolSettings.baseToken,
-                    markPrice: div(1, poolSettings.markPrice)
-                  })
-                 }
-                }}
-                style={{ 
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  width: (width && width < 768) ? '100px' : 'auto',
-                  minWidth: '40px'
-                }}
-              >
-                <SwapIcon />
-              </div>
+              {!poolSettings.isChainLink ? 
+                <div
+                  onClick={() => {
+                    updatePoolSettings({
+                      QTI: poolSettings.QTI ? 0 : 1,
+                      baseToken: poolSettings.quoteToken,
+                      quoteToken: poolSettings.baseToken,
+                      markPrice: div(1, poolSettings.markPrice)
+                    })
+                  
+                  }}
+                  style={{ 
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    width: (width && width < 768) ? '100px' : 'auto',
+                    minWidth: '40px'
+                  }}
+                >
+                  <SwapIcon />
+                </div>
+              : ""}
               <div className='oracle-config__price-type'>
                 <SkeletonLoader loading={poolSettings?.isChainLink ? !poolSettings.chainLinkLatestRoundData : poolSettings.markPrice=="0"}>
                    {
