@@ -244,11 +244,12 @@ export const usePoolSettings = () => {
 
       let params = []
       const deployerAddress = await signer.getAddress()
+      const baseSymbol = baseToken?.symbol?.toUpperCase() || 'XYZ'
       const topics = [
         poolSettings.pairAddress,
-        settings.searchBySymbols[0] || baseToken?.symbol.slice(0, -1),
-        settings.searchBySymbols[1] || baseToken?.symbol.slice(1),
-        settings.searchBySymbols[2] || baseToken?.symbol.slice(2)
+        baseSymbol,
+        settings.searchBySymbols[0] || baseSymbol.slice(0, -1),
+        settings.searchBySymbols[1] || baseSymbol.slice(1),
       ].map((value, i) => {
         if (i > 0) {
           return utils.formatBytes32String((value || '').toUpperCase())
