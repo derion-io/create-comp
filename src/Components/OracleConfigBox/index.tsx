@@ -205,7 +205,7 @@ export const OracleConfigBox = () => {
             }}
             width='100%'
             value={poolSettings.pairAddress}
-            placeholder='Uniswap Pool Address (v2 or v3)'
+            placeholder='Uniswap v3 Pool or Chainlink Feed'
             onChange={(e) => {
               // @ts-ignore
               updatePoolSettings({
