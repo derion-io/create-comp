@@ -53,8 +53,7 @@ export const useInitConfig = ({
         console.log('=======await sync account========')
       }
 
-      const scanApiKey = scanApiKeys?.[chainId] ?? ''
-      console.log('scan API Key', scanApiKey)
+      const scanApiKey = scanApiKeys?.[chainId] || process.env.REACT_APP_SCAN_API_KEYS
 
       const engine = new Engine({
         env,
